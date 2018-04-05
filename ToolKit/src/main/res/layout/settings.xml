@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="reboot dialog"
+			android:textColor="@color/colorPrimary"
+			android:textStyle="bold"
+			android:layout_marginLeft="10dp"
+			android:layout_marginTop="15dp"/>
+
+		<Switch
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:text="Show confirmation dialog"
+			android:layout_marginTop="10dp"
+			android:layout_marginLeft="15dp"
+			android:textColor="@color/textColorDark"
+			android:paddingRight="15dp"
+			android:id="@+id/confirm_reboot"
+			android:paddingTop="5dp"
+			android:paddingBottom="5dp"
+			android:textSize="16sp"/>
+
+		<Switch
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:text="Allow soft reboot"
+			android:layout_marginTop="10dp"
+			android:layout_marginLeft="15dp"
+			android:textColor="@color/textColorDark"
+			android:paddingRight="15dp"
+			android:layout_marginBottom="5dp"
+			android:id="@+id/allow_soft_reboot"
+			android:paddingTop="5dp"
+			android:paddingBottom="5dp"
+			android:textSize="16sp"/>
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="kernel"
+			android:textColor="@color/colorPrimary"
+			android:textStyle="bold"
+			android:layout_marginLeft="10dp"
+			android:layout_marginTop="10dp"/>
+
+		<Switch
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:text="Allow kernel installation"
+			android:layout_marginTop="10dp"
+			android:layout_marginLeft="15dp"
+			android:textColor="@color/textColorDark"
+			android:paddingRight="15dp"
+			android:layout_marginBottom="5dp"
+			android:id="@+id/allow_kern_inst"
+			android:paddingTop="5dp"
+			android:paddingBottom="5dp"
+			android:textSize="16sp"/>
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="backups"
+			android:textColor="@color/colorPrimary"
+			android:textStyle="bold"
+			android:layout_marginLeft="10dp"
+			android:layout_marginTop="10dp"
+			android:layout_marginBottom="10dp"/>
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="( kernel, boot, recovery and logo )"
+			android:layout_marginLeft="15dp"/>
+
+		<LinearLayout
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:orientation="horizontal"
+			android:layout_marginLeft="15dp"
+			android:paddingRight="10dp"
+			android:gravity="center_vertical">
+
+			<TextView
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="backups location :"
+				android:textColor="@color/textColorDark"
+				android:textSize="16sp"/>
+
+			<Spinner
+				android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:id="@+id/settings_storage_choice"
+				android:layout_marginLeft="10dp"/>
+
+		</LinearLayout>
+
+		<Switch
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:text="advanced"
+			android:textColor="@color/colorPrimary"
+			android:textStyle="bold"
+			android:layout_marginTop="12dp"
+			android:layout_marginLeft="10dp"
+			android:id="@+id/advanced_allow"
+			android:paddingRight="15dp"/>
+
+		<LinearLayout
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:orientation="vertical"
+			android:id="@+id/advanced_layout"
+			android:visibility="gone">
+
+			<LinearLayout
+				android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:orientation="vertical"
+				android:layout_marginLeft="15dp"
+				android:layout_marginTop="12dp"
+				android:id="@+id/boot_part_edit">
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:text="Boot"
+					android:layout_marginBottom="4dp"
+					android:textColor="@color/textColorDark"/>
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:id="@+id/boot_block_setting"/>
+
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:orientation="vertical"
+				android:layout_marginLeft="15dp"
+				android:layout_marginTop="12dp"
+				android:id="@+id/rec_part_edit">
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:text="Recovery"
+					android:textColor="@color/textColorDark"
+					android:layout_marginBottom="4dp"/>
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:id="@+id/recovery_block_setting"/>
+
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:orientation="vertical"
+				android:layout_marginLeft="15dp"
+				android:layout_marginTop="12dp"
+				android:id="@+id/logo_part_edit">
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:text="Boot logo"
+					android:textColor="@color/textColorDark"
+					android:layout_marginBottom="4dp"/>
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:id="@+id/logo_block_setting"/>
+
+			</LinearLayout>
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+</ScrollView>
+

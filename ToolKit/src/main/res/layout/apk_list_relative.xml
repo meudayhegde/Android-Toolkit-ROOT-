@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_height="wrap_content"
+	android:layout_width="match_parent"
+	android:background="?android:attr/selectableItemBackground"
+	tools:showIn="@layout/apk_list_item">
+
+	<ImageView
+		android:layout_height="50dp"
+		android:layout_width="50dp"
+		android:layout_margin="10dp"
+		android:id="@+id/apk_icon"
+		android:layout_centerVertical="true"
+		android:src="@drawable/ic_kernel"/>
+
+	<CheckBox
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_alignParentRight="true"
+		android:id="@+id/apk_chbx"
+		android:layout_marginBottom="10dp"
+		android:layout_marginLeft="10dp"
+		android:layout_marginRight="18dp"
+		android:layout_marginTop="10dp"
+		android:layout_centerVertical="true"/>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Apk name"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:layout_toRightOf="@id/apk_icon"
+		android:id="@+id/apk_name"
+		android:layout_marginTop="8dp"
+		android:layout_marginBottom="5dp"
+		android:layout_toLeftOf="@id/apk_chbx"
+		android:textColor="#000000"
+		android:textStyle="bold"/>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="apk Path"
+		android:layout_below="@id/apk_name"
+		android:layout_toRightOf="@id/apk_icon"
+		android:layout_toLeftOf="@id/apk_chbx"
+		android:id="@+id/apk_path"
+		android:layout_marginBottom="7dp"
+		android:textSize="14sp"/>
+
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:text="old apk"
+		android:id="@+id/check_ver"
+		android:layout_alignParentEnd="true"
+		android:layout_alignParentBottom="true"
+		android:layout_margin="4dp"
+		android:layout_marginRight="15dp"
+		android:layout_below="@id/apk_path"
+		android:gravity="bottom"
+		android:textColor="#F99B4B"
+		android:textSize="14sp"
+		android:visibility="invisible"
+		android:textStyle="bold"
+		android:typeface="monospace"
+		android:layout_marginBottom="10dp"/>
+
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:text="Not Installed"
+		android:id="@+id/stat_inst"
+		android:layout_alignParentBottom="true"
+		android:layout_margin="4dp"
+		android:layout_marginRight="10dp"
+		android:layout_below="@id/apk_path"
+		android:gravity="bottom"
+		android:textColor="#ED0D00"
+		android:textSize="14sp"
+		android:layout_toLeftOf="@id/check_ver"
+		android:layout_alignParentLeft="true"
+		android:layout_marginLeft="15dp"
+		android:textStyle="bold"
+		android:typeface="monospace"
+		android:layout_marginBottom="10dp"/>
+
+</RelativeLayout>
+

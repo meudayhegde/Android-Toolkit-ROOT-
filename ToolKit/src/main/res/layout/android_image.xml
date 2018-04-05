@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:fab="http://schemas.android.com/apk/res-auto"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:gravity="bottom|right">
+
+	<ScrollView
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent">
+
+		<LinearLayout
+			android:layout_height="match_parent"
+			android:layout_width="match_parent"
+			android:orientation="vertical">
+
+			<android.support.v7.widget.CardView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:cardUseCompatPadding="true"
+				app:cardElevation="3dp"
+				app:cardCornerRadius="2dp"
+				android:descendantFocusability="blocksDescendants">
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:layout_width="match_parent"
+					android:text="click on + button for actions"
+					android:layout_marginBottom="15dp"
+					android:layout_marginTop="15dp"
+					android:layout_marginLeft="8dp"
+					android:textColor="@color/textColorDark"
+					android:layout_marginRight="15dp"
+					android:textSize="16sp"/>
+
+			</android.support.v7.widget.CardView>
+
+			<android.support.v7.widget.CardView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:cardUseCompatPadding="true"
+				app:cardElevation="3dp"
+				app:cardCornerRadius="2dp"
+				android:descendantFocusability="blocksDescendants">
+
+				<LinearLayout
+					android:layout_width="fill_parent"
+					android:layout_height="fill_parent"
+					android:background="?android:attr/selectableItemBackground"
+					android:id="@+id/path_unpack_dir"
+					android:orientation="vertical">
+
+					<TextView
+						android:layout_height="wrap_content"
+						android:layout_width="match_parent"
+						android:text="project unpack directory :"
+						android:layout_marginBottom="8dp"
+						android:layout_marginTop="15dp"
+						android:layout_marginLeft="8dp"
+						android:textStyle="bold"
+						android:textColor="@color/colorPrimary"
+						android:layout_marginRight="15dp"/>
+
+					<TextView
+						android:layout_height="wrap_content"
+						android:layout_width="match_parent"
+						android:layout_marginLeft="12dp"
+						android:layout_marginRight="15dp"
+						android:textColor="@color/textColorDark"
+						android:layout_marginBottom="15dp"
+						android:text="/data/local/ToolKit"
+						android:textSize="16sp"/>
+
+				</LinearLayout>
+
+			</android.support.v7.widget.CardView>
+
+			<android.support.v7.widget.CardView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:cardUseCompatPadding="true"
+				app:cardElevation="3dp"
+				app:cardCornerRadius="2dp"
+				android:descendantFocusability="blocksDescendants">
+
+				<LinearLayout
+					android:layout_width="fill_parent"
+					android:layout_height="fill_parent"
+					android:background="?android:attr/selectableItemBackground"
+					android:orientation="vertical"
+					android:id="@+id/magic_path_backup_dir">
+
+					<TextView
+						android:layout_height="wrap_content"
+						android:layout_width="match_parent"
+						android:text="backups directory :"
+						android:layout_marginBottom="8dp"
+						android:layout_marginTop="15dp"
+						android:layout_marginLeft="8dp"
+						android:textStyle="bold"
+						android:textColor="@color/colorPrimary"
+						android:layout_marginRight="15dp"/>
+
+					<TextView
+						android:layout_height="wrap_content"
+						android:layout_width="match_parent"
+						android:layout_marginLeft="12dp"
+						android:layout_marginRight="15dp"
+						android:textColor="@color/textColorDark"
+						android:layout_marginBottom="15dp"
+						android:textSize="16sp"
+						android:id="@+id/backup_dir_android"/>
+
+				</LinearLayout>
+
+			</android.support.v7.widget.CardView>
+
+		</LinearLayout>
+
+	</ScrollView>
+
+	<com.github.clans.fab.FloatingActionMenu
+		android:id="@+id/menu_img"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_alignParentBottom="true"
+		android:layout_alignParentRight="true"
+		android:paddingRight="30dp"
+		android:paddingBottom="30dp"
+		fab:menu_labels_showAnimation="@anim/fab_slide_in_from_right"
+		fab:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
+		fab:menu_shadowColor="#444"
+		fab:menu_buttonSpacing="5dp"
+		fab:menu_labels_ellipsize="end"
+		fab:menu_labels_singleLine="true"
+		fab:menu_backgroundColor="#44000000"
+		fab:menu_colorNormal="#0096FF"
+		fab:menu_colorPressed="#0066FF"
+		fab:menu_colorRipple="#01D3FF">
+
+		<com.github.clans.fab.FloatingActionButton
+			android:id="@+id/backup"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_backup"
+			fab:fab_label="Backup"
+			fab:fab_size="mini"
+			fab:fab_colorNormal="#00E112"
+			fab:fab_colorPressed="#00B32C"
+			fab:fab_colorRipple="#7FFF01"/>
+
+		<com.github.clans.fab.FloatingActionButton
+			android:id="@+id/restore"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_restore"
+			fab:fab_label="Restore"
+			fab:fab_size="mini"
+			fab:fab_colorNormal="#F1FF01"
+			fab:fab_colorPressed="#FFE202"
+			fab:fab_colorRipple="#C0FF00"/>
+
+		<com.github.clans.fab.FloatingActionButton
+			android:id="@+id/install"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_install"
+			fab:fab_label="Install"
+			fab:fab_size="mini"
+			fab:fab_colorNormal="#FF0F00"
+			fab:fab_colorPressed="#FF5F02"
+			fab:fab_colorRipple="#FFB801"/>
+
+		<com.github.clans.fab.FloatingActionButton
+			android:id="@+id/unpack"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			fab:fab_size="mini"
+			fab:fab_label="Unpack"
+			android:src="@drawable/ic_boot_unpack"
+			fab:fab_colorNormal="#00E112"
+			fab:fab_colorPressed="#00B32C"
+			fab:fab_colorRipple="#7FFF01"/>
+
+		<com.github.clans.fab.FloatingActionButton
+			android:id="@+id/repack"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			fab:fab_size="mini"
+			fab:fab_label="Repack"
+			android:src="@drawable/ic_boot_repack"
+			fab:fab_colorNormal="#F1FF01"
+			fab:fab_colorPressed="#FFE202"
+			fab:fab_colorRipple="#C0FF00"/>
+
+	</com.github.clans.fab.FloatingActionMenu>
+
+</RelativeLayout>
+

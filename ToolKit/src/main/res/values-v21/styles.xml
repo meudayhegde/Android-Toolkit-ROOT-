@@ -1,0 +1,38 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">#4DAFFA</item>
+        <item name="android:colorControlHighlight">#37D2FE</item>
+        <item name="android:colorControlNormal">#00AEFF</item>
+    </style>
+
+    <style name="NoActionBar" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:colorControlHighlight">#008dcd</item>
+        <item name="android:colorControlNormal">#008dcd</item>
+    </style>
+
+    <style name="FullScreen" parent="@android:style/Theme.Material.Light.NoActionBar.Fullscreen">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">#008dcd</item>
+        <item name="android:colorControlHighlight">#008dcd</item>
+        <item name="android:colorControlNormal">#008dcd</item>
+    </style>
+	
+	<style name="DialogTheme">
+        <item name="android:windowEnterAnimation">@anim/modal_in</item>
+        <item name="android:windowExitAnimation">@anim/modal_out</item>
+    </style>
+	
+	<style name="checkBoxStyle" parent="AppTheme">
+		<item name="android:colorAccent">@color/textColorPrimary</item>
+	</style>
+	
+</resources>

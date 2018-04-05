@@ -1,0 +1,19 @@
+<resources>
+    <color name="colorPrimary">#00AEFF</color>
+    <color name="colorPrimaryDark">#0197FF</color>
+    <color name="colorAccent">#40B0FE</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+	<color name="textColorDark">#000000</color>
+    <color name="textColorSecondary">#FFFFFF</color>
+    <color name="colorHeader">@color/colorPrimary</color>
+	<color name="blueFabNormal">#0096FF</color>
+	<color name="blueFabPressed">#0066FF</color>
+	<color name="blueFabRipple">#01D3FF</color>
+	<color name="greenFabNormal">#00E112</color>
+	<color name="greenFabPressed">#00B32C</color>
+	<color name="greenFabRipple">#7FFF01</color>
+	<color name="toastSuccessBackground">#DF00B500</color>
+	<color name="toastFailureBackground">#DFE04627</color>
+	<color name="toastNotifyBackground">#DF0197FF</color>
+	
+</resources>

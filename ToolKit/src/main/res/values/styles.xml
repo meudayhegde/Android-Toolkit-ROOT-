@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!--  Base application theme.  -->
+	<style name="AppTheme" parent="android:style/Theme.Holo.Light">
+		<!--  Customize your theme here.  -->
+	</style>
+	<style name="NoActionBar" parent="android:style/Theme.Holo.Light.NoActionBar">
+		<!--  Customize your theme here.  -->
+	</style>
+	<style name="FullScreen" parent="android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+		<!--  Customize your theme here.  -->
+	</style>
+	<style name="CustomDialog" parent="android:style/Theme.Dialog">
+		<item name="android:windowBackground">@drawable/dialog_bg</item>
+	</style>
+	<style name="MenuButtonsStyle">
+		<item name="fab_size">mini</item>
+		<item name="fab_showAnimation">@anim/jump_from_down</item>
+		<item name="fab_hideAnimation">@anim/jump_to_down</item>
+		<item name="fab_shadowColor">#444</item>
+		<item name="fab_colorNormal">#FFB805</item>
+		<item name="fab_colorPressed">#F2AB00</item>
+		<item name="fab_colorRipple">#D99200</item>
+	</style>
+	
+	<style name="DialogTheme">
+        <item name="android:windowEnterAnimation">@anim/modal_in</item>
+        <item name="android:windowExitAnimation">@anim/modal_out</item>
+    </style>
+</resources>

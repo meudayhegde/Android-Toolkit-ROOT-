@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<ProgressBar
+		style="?android:attr/progressBarStyleHorizontal"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:id="@+id/term_progress"
+		android:layout_marginLeft="15dp"
+		android:layout_marginRight="10dp"
+		android:indeterminate="true"
+		android:layout_marginBottom="6dp"/>
+
+	<ScrollView
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:id="@+id/term_scroller">
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:text=""
+			android:typeface="monospace"
+			android:paddingLeft="15dp"
+			android:textColor="@color/textColorDark"
+			android:textIsSelectable="true"
+			android:id="@+id/term_text"/>
+
+	</ScrollView>
+
+</LinearLayout>
+
