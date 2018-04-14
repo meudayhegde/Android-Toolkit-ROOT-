@@ -23,8 +23,18 @@ public class AboutFragment extends Fragment {
 	private LinearLayout fabLicense,LibSuLicense,filePickerLicense;
 	private Dialog qrDialog;
 	
+	public AboutFragment(){}
+	
 	public AboutFragment(Context context){
 		this.context=context;
+	}
+	
+	public Context getContext()
+	{
+		if(Build.VERSION.SDK_INT>=23){
+			context= super.getContext();
+		}
+		return context;
 	}
 	
 	@Override
@@ -40,15 +50,15 @@ public class AboutFragment extends Fragment {
 			xdaLink=(TextView)rootView.findViewById(R.id.xda_link);
 			findMe.setClickable(true);donateMe.setClickable(true);xdaLink.setClickable(true);
 			findMe.setMovementMethod(LinkMovementMethod.getInstance());
-			findMe.setText(Html.fromHtml(Utils.getStringFromInputStream(context.getResources().openRawResource(R.raw.find_me))));
+			findMe.setText(Html.fromHtml(Utils.getStringFromInputStream(getContext().getResources().openRawResource(R.raw.find_me))));
 			donateMe.setMovementMethod(LinkMovementMethod.getInstance());
-			donateMe.setText(Html.fromHtml(Utils.getStringFromInputStream(context.getResources().openRawResource(R.raw.donate_me))));
+			donateMe.setText(Html.fromHtml(Utils.getStringFromInputStream(getContext().getResources().openRawResource(R.raw.donate_me))));
 			xdaLink.setMovementMethod(LinkMovementMethod.getInstance());
 			xdaLink.setText(Html.fromHtml("<a href="+'"'+"https://forum.xda-developers.com/android/apps-games/app-android-toolkit-t3772040/post76093810#post76093810"+'"'+"><b>Link to Xda official thread</b></a>"));
 			
-			qrDialog=new Dialog(this.context);
+			qrDialog=new Dialog(getContext());
 			qrDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-			ImageView qrImage=new ImageView(context);
+			ImageView qrImage=new ImageView(getContext());
 			qrImage.setImageResource(R.drawable.qr_code_paytm);
 			qrDialog.setContentView(qrImage);
 			qrDialog.getWindow().setLayout((int)(MainActivity.SCREEN_WIDTH*0.7),(int)(MainActivity.SCREEN_WIDTH*0.7));
@@ -90,8 +100,7 @@ public class AboutFragment extends Fragment {
 					}
 				});
 			}
-			
-		rootView.startAnimation(((MainActivity)context).mGrowIn);
+		rootView.startAnimation(((MainActivity)getContext()).mGrowIn);
 		return rootView;
 	}
 

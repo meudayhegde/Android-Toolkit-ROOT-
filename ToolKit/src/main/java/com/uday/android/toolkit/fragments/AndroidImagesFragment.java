@@ -44,7 +44,6 @@ public class AndroidImagesFragment extends Fragment
 	
 	public int mBlock,mOption;
 	public File backupDir,fileChoosen;
-	public Context context;
 	public String tmpstr,pName,choosen,BOOT,RECOVERY,LOGO,BLOCK,BLOCK_NAME;
 	public TermListener commandLineListener;
 	public Button term_finished;
@@ -68,25 +67,36 @@ public class AndroidImagesFragment extends Fragment
 	private EditText edtTxt;
 	private String[] list;
 	private ListView listProjectView;
-	
+	private Context context;
 	private SharedPreferences prefs;
 	public String[] blockNames=new String[]{"Boot image","Recovery image","Boot Logo"};
 
 	
 	private static Shell.Interactive rootSession;
 
+	public AndroidImagesFragment(){
+		
+	}
+	
+	public Context getContext()
+	{
+		if(Build.VERSION.SDK_INT>=23 && context==null){
+			context= super.getContext();
+		}
+		return context;
+	}
 	
 	@Override
 	public void onResume()
 	{
 		if(rootView!=null)
 			refreshList();
-		if(context.getSharedPreferences("general",0).getInt("storage",0)==1){
+		if(getContext().getSharedPreferences("general",0).getInt("storage",0)==1){
 			if(Utils.getExternalSdCard()!=null){
 				DIR=new File(Utils.getExternalSdCard().getAbsolutePath()+"/ToolKit");
 			}
 			else{
-				CustomToast.showFailureToast(context,"External sdcard not found,\nuses internal storage for backups",Toast.LENGTH_SHORT);
+				CustomToast.showFailureToast(getContext(),"External sdcard not found,\nuses internal storage for backups",Toast.LENGTH_SHORT);
 				DIR=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/ToolKit");
 			}
 		}else{
@@ -141,38 +151,38 @@ public class AndroidImagesFragment extends Fragment
 				pName=fileChoosen.getName().replace(' ','_').replace('.','_');
 				switch(mOption){
 				case SELECTED_UNPACK:
-						edtTxt=DialogUtils.showEditTextDialog(AndroidImagesFragment.this.context,"Enter project name...","(Any name without space)\nNote: This will overwrite the existing project with same name if exists..!"
+						edtTxt=DialogUtils.showEditTextDialog(getContext(),"Enter project name...","(Any name without space)\nNote: This will overwrite the existing project with same name if exists..!"
 									,pName,"project name","confirm",new DialogUtils.OnClickListener(){
 										@Override
 										public void onClick(AlertDialog p1){
 											if(edtTxt.getText().toString().equals("") || edtTxt.getText() ==null || edtTxt.getText().equals(null)){
-												CustomToast.showNotifyToast(AndroidImagesFragment.this.context,"Please enter project name...",Toast.LENGTH_SHORT);
+												CustomToast.showNotifyToast(getContext(),"Please enter project name...",Toast.LENGTH_SHORT);
 											}
 											else if(edtTxt.getText().toString().contains(" ") || edtTxt.getText().toString().contains("\n")){
-												CustomToast.showNotifyToast(AndroidImagesFragment.this.context,"project name should not contain any spaces,\nplease enter a new name",Toast.LENGTH_SHORT);
+												CustomToast.showNotifyToast(getContext(),"project name should not contain any spaces,\nplease enter a new name",Toast.LENGTH_SHORT);
 											}
 											else{
 												try{
 							
 													pName=edtTxt.getText().toString();
-													((InputMethodManager)AndroidImagesFragment.this.context.getSystemService(Context.INPUT_METHOD_SERVICE))
+													((InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
 														.hideSoftInputFromWindow(edtTxt.getWindowToken(), 0);
 													p1.cancel();
-													Object[] obj=DialogUtils.showTermDialog(AndroidImagesFragment.this.context,"Unpack img","unpacking please wait...","open folder","finish");
+													Object[] obj=DialogUtils.showTermDialog(getContext(),"Unpack img","unpacking please wait...","open folder","finish");
 													termDialog=(AlertDialog)obj[0];
 													termTextView=(TextView)obj[1];
 													termProgress=(ProgressBar)obj[2];
 													new Thread(executer).start();
 												}catch(Exception ex){
 													Log.e(MainActivity.TAG,ex.toString()+ex.getMessage());
-													CustomToast.showFailureToast(AndroidImagesFragment.this.context,ex.toString(),Toast.LENGTH_SHORT);
+													CustomToast.showFailureToast(getContext(),ex.toString(),Toast.LENGTH_SHORT);
 												}
 											}
 										}
 									});
 					break;
 				case SELECTED_INSTALL:
-						DialogUtils.showConfirmDialog(AndroidImagesFragment.this.context,"Install "+choosen,null,Html.fromHtml("Are you sure you want to install <br><b>"+fileChoosen.getAbsolutePath()+"</b><br> as <b>"+choosen+"</b>..??"),"confirm",mListener);
+						DialogUtils.showConfirmDialog(getContext(),"Install "+choosen,null,Html.fromHtml("Are you sure you want to install <br><b>"+fileChoosen.getAbsolutePath()+"</b><br> as <b>"+choosen+"</b>..??"),"confirm",mListener);
 				}
 			}
 		};
@@ -188,12 +198,12 @@ public class AndroidImagesFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState){
 								 
-		if(context.getSharedPreferences("general",0).getInt("storage",0)==1){
+		if(getContext().getSharedPreferences("general",0).getInt("storage",0)==1){
 			if(Utils.getExternalSdCard()!=null){
 				DIR=new File(Utils.getExternalSdCard().getAbsolutePath()+"/ToolKit");
 			}
 			else{
-				Toast.makeText(context,"External sdcard not found,\nuses internal storage for backups",Toast.LENGTH_SHORT).show();
+				Toast.makeText(getContext(),"External sdcard not found,\nuses internal storage for backups",Toast.LENGTH_SHORT).show();
 				DIR=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/ToolKit");
 			}
 		}else{
@@ -205,7 +215,7 @@ public class AndroidImagesFragment extends Fragment
 			.inflate(R.layout.android_image, container, false);
 			firstOpen();
 		}
-	rootView.startAnimation(((MainActivity)context).mGrowIn);
+		rootView.startAnimation(((MainActivity)getContext()).mGrowIn);
 		((TextView)rootView.findViewById(R.id.backup_dir_android)).setText(DIR+"/backups");
 	return rootView;
 	}
@@ -218,7 +228,7 @@ public class AndroidImagesFragment extends Fragment
 		.setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(View p1){
-				Utils.openFolder(context,Environment.getDataDirectory().getAbsolutePath()+"/local/ToolKit/");
+				Utils.openFolder(getContext(),Environment.getDataDirectory().getAbsolutePath()+"/local/ToolKit/");
 			}
 		});
 		
@@ -226,7 +236,7 @@ public class AndroidImagesFragment extends Fragment
 			.setOnClickListener(new View.OnClickListener(){
 				@Override
 				public void onClick(View p1){
-					Utils.openFolder(context,DIR.getAbsolutePath()+"/backups/");
+					Utils.openFolder(getContext(),DIR.getAbsolutePath()+"/backups/");
 				}
 			});
 		
@@ -245,7 +255,7 @@ public class AndroidImagesFragment extends Fragment
 				public void onClick(View v1){
 					mOption=SELECTED_UNPACK;
 					properties.extensions=new String[]{".img"};
-					dialog = new FilePickerDialog(context,properties,R.style.AppTheme);
+					dialog = new FilePickerDialog(getContext(),properties,R.style.AppTheme);
 					dialog.setTitle("Select an img file to unpack");
 					dialog.setDialogSelectionListener(fileListener);
 					dialog.show();
@@ -301,10 +311,11 @@ public class AndroidImagesFragment extends Fragment
 										} else {
 											runOnUiThread(new Runnable(){
 												public void run(){
-													 try{
+													 
 														list=Utils.getString(output).split("\n");
+														try{
 														projectDialog.setTitle("select project to unpack");
-														listProjectView.setAdapter(new ArrayAdapter(context,
+														 listProjectView.setAdapter(new ArrayAdapter(getContext(),
 																		  android.R.layout.simple_list_item_1, list) {
 															 @Override public View getView(int pos, View view, ViewGroup parent) {
 																 view = super.getView(pos, view, parent);
@@ -329,17 +340,17 @@ public class AndroidImagesFragment extends Fragment
 	}
 	
 	private void initialise(){
-		RadioGroup group=(RadioGroup)((Activity)context).getLayoutInflater().inflate(R.layout.partition_selection_dialog,null);
+		RadioGroup group=(RadioGroup)((Activity)getContext()).getLayoutInflater().inflate(R.layout.partition_selection_dialog,null);
 		group.check(R.id.recovery_selection);
-		imagesDialog=new AlertDialog.Builder(context)
+		imagesDialog=new AlertDialog.Builder(getContext())
 					.setView(group)
 					.setTitle("select partition")
 					.setNegativeButton("cancel",null)
 					.setPositiveButton("confirm",new AndImgListListener(this,group))
 					.create();
-		listProjectView=new ListView(context);
+		listProjectView=new ListView(getContext());
 		listProjectView.setPadding(30,20,20,0);
-		projectDialog=new AlertDialog.Builder(context)
+		projectDialog=new AlertDialog.Builder(getContext())
 						.setView(listProjectView)
 						.setNegativeButton("cancel",null)
 						.create();
@@ -349,13 +360,13 @@ public class AndroidImagesFragment extends Fragment
 				projectDialog.cancel();
 				choosen=((TextView)p2).getText().toString();
 				mOption=SELECTED_REPACK;
-				DialogUtils.showConfirmDialog(context,"Repack project",null,Html.fromHtml("Selected project : <b>"+choosen+"</b>"),"confirm",mListener);
+				DialogUtils.showConfirmDialog(getContext(),"Repack project",null,Html.fromHtml("Selected project : <b>"+choosen+"</b>"),"confirm",mListener);
 			}
 		});
 	}
 	
 	public void runOnUiThread(Runnable action){
-		((Activity)context).runOnUiThread(action);
+		((Activity)getContext()).runOnUiThread(action);
 	}
 
 }

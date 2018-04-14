@@ -16,6 +16,7 @@ import com.uday.android.util.*;
 import eu.chainfire.libsuperuser.*;
 import java.io.*;
 import android.util.*;
+import java.util.*;
 
 public class MainActivity extends Activity
 {
@@ -53,12 +54,18 @@ public class MainActivity extends Activity
 	private ListView mDrawerList;
 	private DrawerAdapter mAdapter;
 	private int selectedItem;
+	private BackgroundThread backgroundThread;
+	
 	public MenuItem menuReboot,menuSettings;
+	public boolean backgroundThreadisRunning=false,isExcepted=false;
+	
 	
 	
 	@Override
     protected void onCreate(final Bundle savedInstanceState)
 	{
+		super.onCreate(savedInstanceState);
+		
 		getActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
 		DisplayMetrics metrics= getResources().getDisplayMetrics();
 		
@@ -66,23 +73,29 @@ public class MainActivity extends Activity
 		SCREEN_WIDTH=metrics.widthPixels;
 		
 		mGrowIn=(AnimationSet)OptAnimationLoader.loadAnimation(this,R.anim.activity_push_up_in);
+	
 		envSetup=new EnvSetup(this){
 			@Override
 			public void onStartup(){
 				super.onStartup();
 				createFragments();
-				drawerSetup();
+				try{
+					drawerSetup();
+				}catch(IllegalStateException ex){
+					isExcepted=true;
+				}
 			}
 		};
-		
-		super.onCreate(savedInstanceState);
+	 
 	}
 
 	@Override
 	protected void onResume()
 	{
-		//if(opened)
-		//	envSetup.checkForBusyBox();
+		if(isExcepted){
+			drawerSetup();
+			isExcepted=false;
+		}
 		super.onResume();
 	}
 	
@@ -340,18 +353,61 @@ public class MainActivity extends Activity
     }
 	
 	public void refreshApkScreen(){
+		BatchInstallerFragment.apkFilesOrig=null;
 		mBatch=new BatchInstallerFragment(MainActivity.this);
 		selectItem(4);
 	}
 	
-	public static void toast(final Context context,final String message){
-		((Activity)context).runOnUiThread(new Runnable(){
-			@Override
-			public void run(){
-				Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
-			}
-		});
+	public void  runInBackground(Runnable action){
+		if(backgroundThread==null){
+			backgroundThread=new BackgroundThread();
+		}else if(!backgroundThread.isInBackground())
+			backgroundThread=new BackgroundThread();
+		backgroundThread.runNewAction(action);
 	}
+
+	
+	private class BackgroundThread extends Thread{
+		private boolean keepAlive=true;
+		private ArrayList<Runnable> actionsToRun;
+
+		public BackgroundThread(){
+			actionsToRun=new ArrayList<Runnable>();
+			start();
+		}
+
+		
+		public boolean isInBackground()
+		{
+			// TODO: Implement this method
+			return keepAlive;
+		}
+
+		
+		
+		@Override
+		public void run(){
+			while(keepAlive){
+				while(!actionsToRun.isEmpty()){
+					backgroundThreadisRunning=true;
+					actionsToRun.get(0).run();
+					actionsToRun.remove(0);
+				}
+				backgroundThreadisRunning=false;
+			}
+
+		}
+
+		public void runNewAction(Runnable action){
+			actionsToRun.add(action);
+		}
+
+		@Override
+		public void destroy(){
+			keepAlive=false;
+		}
+	}
+	
 }
 
 

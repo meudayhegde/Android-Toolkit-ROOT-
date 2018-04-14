@@ -37,33 +37,31 @@ public class BatchInstallerFragment extends Fragment {
 	public Context context;
 	public static ArrayList<ApkListData> apkFilesOrig;
 	
-	private RelativeLayout rootView;
-	private FloatingActionMenu menuFab;
-	private FloatingActionButton addInternal,addExternal,addCustom;
-	
-	public ArrayList<ApkListData> apkFiles;
-	
-	private DialogProperties properties;
-	private FilePickerDialog filePicker;
-	private PackageManager pm;
-	private Drawable icAppDefault;
-	private int n=0,i,chkdCount=0;
-	private ListView myApkListView;
-	private ApkListAdapter adapter;
-	private int mPreviousVisibleItem;
-	private FloatingActionButton instFab;
-	
-	private ProgressDialog instProg;
 	private AlertDialog instDialog;
-	private int countToInstall;
-	private int countOfInstalled;
+	private ApkListAdapter adapter;
+	private ArrayList<ApkListData> apkFiles;
+	private DialogProperties properties;
+	private Drawable icAppDefault;
+	private FilePickerDialog filePicker;
+	private FloatingActionButton instFab;
 	private FloatingActionButton addCustomApk;
 	private FloatingActionButton delFab;
+	private FloatingActionMenu menuFab;
+	private FloatingActionButton addInternal,addExternal,addCustom;
+	private int n=0,i,chkdCount=0;
+	private int countToInstall;
+	private int countOfInstalled;
+	private int mPreviousVisibleItem;
+	private LinearLayout sortLayout;
+	private ListView myApkListView;
+	private PackageManager pm;
+	private ProgressDialog instProg;
 	private ProgressBar instBar;
+	private ProgressBar apkLoading;
+	private RelativeLayout rootView;
+	private Spinner sorter;
 	private TextView instMsg,apkCount,apkPercantage;
-
 	private TextView chkdInfoTotal;
-
 	private TextView chkdInfoSelected;
 	
 	public BatchInstallerFragment(Context context){
@@ -83,9 +81,22 @@ public class BatchInstallerFragment extends Fragment {
 		icAppDefault=context.getResources().getDrawable(R.drawable.ic_app_default);
 		
 		apkFiles=new ArrayList<ApkListData>();
-		apkFilesOrig=new ArrayList<ApkListData>();
+		if(apkFilesOrig==null)
+			apkFilesOrig=new ArrayList<ApkListData>();
+		else{
+			setHasOptionsMenu(true);
+			for(ApkListData data:apkFilesOrig){
+				if(!data.apkFile.exists())
+					apkFilesOrig.remove(data);
+				else{
+					if(!data.isSelectable)data.add();
+					if(data.isSelected)chkdCount++;
+				}
+			}
+		}
+		apkFiles.addAll(apkFilesOrig);
 		
-		instProg=new ProgressDialog(context);
+		instProg=new ProgressDialog(getContext());
 		instProg.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
 		instProg.setTitle("Loading");
 		instProg.setMessage("Searching for apk files.\nplease wait...");
@@ -105,6 +116,14 @@ public class BatchInstallerFragment extends Fragment {
 		instDialog.setCancelable(false);
 	}
 
+	@Override
+	public Context getContext()
+	{
+		if(context==null)
+			context= super.getContext();
+		return context;
+	}
+	
 	@Override
 	public void onResume()
 	{
@@ -134,10 +153,113 @@ public class BatchInstallerFragment extends Fragment {
 		return rootView;
 	}
 	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
+		inflater.inflate(R.menu.check_all, menu);
+
+		SearchView search=(SearchView)menu.findItem(R.id.action_search).getActionView();
+		search.setQueryHint("type to search...");
+		search.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+				@Override
+				public boolean onQueryTextChange(String newText){
+					adapter.filter(newText);
+					return true;
+				}
+
+				@Override
+				public boolean onQueryTextSubmit(String txt){
+					return false;
+				}
+			});
+
+		CheckBox allToggle=(CheckBox)menu.findItem(R.id.check_all_chbx).getActionView();
+
+		int states[][] = {{android.R.attr.state_checked}, {}};
+		int colors[] = {Color.WHITE, Color.WHITE};
+		allToggle.setButtonTintList(new ColorStateList(states, colors));
+		allToggle.setPadding(10,0,10,0);
+
+		allToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+				@Override
+				public void onCheckedChanged(CompoundButton p1,boolean p2){
+
+					for(ApkListData apkFile:apkFiles){
+						if(apkFile.isSelectable)
+							apkFile.isSelected=p2;
+					}
+					adapter.notifyDataSetChanged();
+				}
+			});
+
+
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		switch(item.getItemId()){
+			case R.id.toggle_all_chbx:
+				for(ApkListData apkFile:apkFiles){
+					if(apkFile.isSelectable)
+						apkFile.isSelected=!apkFile.isSelected;
+				}
+				adapter.notifyDataSetChanged();
+				break;
+			case R.id.check_not_installed:
+				for(ApkListData apkFile:apkFiles){
+					if(apkFile.isSelectable){
+						if(!apkFile.isInstalled)
+							apkFile.isSelected=true;
+						else apkFile.isSelected=false;
+					}
+				}
+				adapter.notifyDataSetChanged();
+				break;
+
+			case R.id.check_old:
+				for(ApkListData apkFile:apkFiles){
+					if(apkFile.isOld)
+						apkFile.isSelected=true;
+					else
+						apkFile.isSelected=false;
+				}
+				adapter.notifyDataSetChanged();
+				break;
+			case R.id.check_updatable:
+				for(ApkListData apkFile:apkFiles){
+					if(apkFile.isInstalled && !apkFile.isInstalledVer && !apkFile.isOld)
+						apkFile.isSelected=true;
+					else
+						apkFile.isSelected=false;
+				}
+				adapter.notifyDataSetChanged();
+				break;
+			case R.id.clrscr:
+				((MainActivity)context).refreshApkScreen();
+				break;
+		}
+		return true;
+	}
 	
 	private void firstRun(){
 
+		sortLayout=(LinearLayout)rootView.findViewById(R.id.layout_sort);
+		sorter=(Spinner)rootView.findViewById(R.id.sort_spinner);
+		sorter.setAdapter(new ArrayAdapter(getContext(),android.R.layout.simple_list_item_1,new String[]{"app name","file name","size","date modified"}));
+		sorter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+			@Override
+			public void onItemSelected(AdapterView<?> p1,View p2,int p3,long p4){
+				sort(p3);
+			}
+			@Override
+			public void onNothingSelected(AdapterView<?> p1){
+				
+			}
+		});
+		
+		
 		myApkListView=(ListView)rootView.findViewById(R.id.apk_list_view);
 
 		menuFab=(FloatingActionMenu)rootView.findViewById(R.id.menu_batch_app);
@@ -162,6 +284,9 @@ public class BatchInstallerFragment extends Fragment {
 				}
 			});
 		
+		apkLoading=(ProgressBar)rootView.findViewById(R.id.apk_loading_progress);
+		
+		apkLoading.setPadding((int)(MainActivity.SCREEN_WIDTH*0.2),0,0,0);
 		addInternal=(FloatingActionButton)menuFab.findViewById(R.id.internal);
 		addExternal=(FloatingActionButton)menuFab.findViewById(R.id.external);
 		addCustom=(FloatingActionButton)menuFab.findViewById(R.id.custom);
@@ -173,7 +298,11 @@ public class BatchInstallerFragment extends Fragment {
 		addCustomApk.setOnClickListener(new customApk());
 		
 		chkdInfoSelected.setOnClickListener(new SelectedDialog());
-		
+		if(!apkFiles.isEmpty()){
+			chkdInfoTotal.setText(Html.fromHtml("Total :  <b><font color="+'"'+"blue"+'"'+">"+apkFiles.size()+"</font></b>"));
+			sortLayout.setVisibility(View.VISIBLE);
+			chkdInfoSelected.setVisibility(View.VISIBLE);
+		}
 	}
 	
 	private class SelectedDialog implements View.OnClickListener
@@ -217,7 +346,7 @@ public class BatchInstallerFragment extends Fragment {
 		
 		for(File tmp: samp)
 			if(!tmp.isDirectory() && tmp.getName().endsWith(".apk"))
-				addIntoList(new ApkListData(tmp,pm,icAppDefault));
+					addIntoList(new ApkListData(context,tmp,pm,icAppDefault));
 		for(File tmp: samp)
 			if(tmp.isDirectory())
 				searchForApks(tmp);
@@ -228,131 +357,113 @@ public class BatchInstallerFragment extends Fragment {
 	
 	
 	private void addIntoList(final ApkListData apkListData){
-		boolean added=false,isDuplicate=false;
+		boolean isDuplicate=false;
 		for(ApkListData tmp :apkFilesOrig){
-			if(tmp.PATH.equalsIgnoreCase(apkListData.PATH))
+			if(tmp.apkFile.equals(apkListData.apkFile)){
 				isDuplicate=true;
+				break;
+			}
 		}
 		if(!isDuplicate){
-				for(i=0;i<n;i++){
-					if(apkFilesOrig.get(i).PACKAGE_NAME.compareToIgnoreCase(apkListData.PACKAGE_NAME)==0){
-						if(!apkListData.isInstalled){
-							if(apkFilesOrig.get(i).VERSION_CODE>apkListData.VERSION_CODE){
-								apkListData.isOld=true;
-							}
-						}
-					}
-					if(apkFilesOrig.get(i).NAME.compareToIgnoreCase(apkListData.NAME)>=0){
-						apkFilesOrig.add(i,apkListData);
-						added=true;
-						break;
-					}
-				}
-				if(!added)
-					apkFilesOrig.add(apkListData);
+			apkListData.add();
+			apkFilesOrig.add(apkListData);
 			n++;
 		}
 		
 	}
 
-	
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		
-		inflater.inflate(R.menu.check_all, menu);
-		MenuItem item=menu.findItem(R.id.check_all_chbx);
-		if(item.isChecked())
-		item.setTitle("uncheck all "+apkFiles.size()+" apks");
-		
-		SearchView search=(SearchView)menu.findItem(R.id.action_search).getActionView();
-		search.setQueryHint("type to search...");
-		search.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
-				@Override
-				public boolean onQueryTextChange(String newText){
-						adapter.filter(newText);
-					return true;
-				}
-
-				@Override
-				public boolean onQueryTextSubmit(String txt){
-					return false;
-				}
-			});
-		
-		CheckBox allToggle=(CheckBox)menu.findItem(R.id.check_all_chbx).getActionView();
-		
-		int states[][] = {{android.R.attr.state_checked}, {}};
-		int colors[] = {Color.WHITE, Color.WHITE};
-		allToggle.setButtonTintList(new ColorStateList(states, colors));
-		allToggle.setPadding(10,0,10,0);
-		
-		allToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-			@Override
-			public void onCheckedChanged(CompoundButton p1,boolean p2){
-				
-				for(ApkListData apkFile:apkFiles){
-					if(apkFile.isSelectable)
-						apkFile.isSelected=p2;
-				}
-				adapter.notifyDataSetChanged();
-			}
-		});
-		
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public void onPrepareOptionsMenu(Menu menu)
-	{
-		super.onPrepareOptionsMenu(menu);
-	}
-	
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item)
-	{
-		switch(item.getItemId()){
-			case R.id.toggle_all_chbx:
-				for(ApkListData apkFile:apkFiles){
-					if(apkFile.isSelectable)
-						apkFile.isSelected=!apkFile.isSelected;
-				}
-				adapter.notifyDataSetChanged();
-				break;
-			case R.id.check_not_installed:
-				for(ApkListData apkFile:apkFiles){
-					if(apkFile.isSelectable){
-						if(!apkFile.isInstalled)
-							apkFile.isSelected=true;
-						else apkFile.isSelected=false;
+	private void sort(int method){
+		switch(method){
+			case 0:for(i=0;i<apkFilesOrig.size()-1;i++){
+						for(int j=i+1;j<apkFilesOrig.size();j++){
+							if((apkFilesOrig.get(i).NAME+apkFilesOrig.get(i).VERSION_NAME).compareToIgnoreCase(apkFilesOrig.get(j).NAME+apkFilesOrig.get(j).VERSION_NAME) >0){
+								ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
+								apkFilesOrig.add(i,apkFilesOrig.get(j-1));
+								apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+							}
+						}
+					}
+				for(i=0;i<apkFiles.size()-1;i++){
+					for(int j=i+1;j<apkFiles.size();j++){
+						if((apkFiles.get(i).NAME+apkFiles.get(i).VERSION_NAME).compareToIgnoreCase(apkFiles.get(j).NAME+apkFiles.get(j).VERSION_NAME) >0){
+							ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
+							apkFiles.add(i,apkFiles.get(j-1));
+							apkFiles.remove(j);apkFiles.add(j,tmp);
+						}
 					}
 				}
-				adapter.notifyDataSetChanged();
 				break;
-				
-			case R.id.check_old:
-				for(ApkListData apkFile:apkFiles){
-					if(apkFile.isOld)
-						apkFile.isSelected=true;
-					else
-						apkFile.isSelected=false;
+			case 1:for(i=0;i<apkFilesOrig.size()-1;i++){
+					for(int j=i+1;j<apkFilesOrig.size();j++){
+						if(apkFilesOrig.get(i).apkFile.getName().compareToIgnoreCase(apkFilesOrig.get(j).apkFile.getName()) >0){
+							ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
+							apkFilesOrig.add(i,apkFilesOrig.get(j-1));
+							apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+						}
+					}
 				}
-				adapter.notifyDataSetChanged();
-				break;
-			case R.id.check_updatable:
-				for(ApkListData apkFile:apkFiles){
-					if(apkFile.isInstalled && !apkFile.isInstalledVer && !apkFile.isOld)
-						apkFile.isSelected=true;
-					else
-						apkFile.isSelected=false;
+				for(i=0;i<apkFiles.size()-1;i++){
+					for(int j=i+1;j<apkFiles.size();j++){
+						if(apkFiles.get(i).apkFile.getName().compareToIgnoreCase(apkFiles.get(j).apkFile.getName()) >0){
+							ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
+							apkFiles.add(i,apkFiles.get(j-1));
+							apkFiles.remove(j);apkFiles.add(j,tmp);
+						}
+					}
 				}
-				adapter.notifyDataSetChanged();
 				break;
-			case R.id.clrscr:
-				((MainActivity)context).refreshApkScreen();
+			case 2:for(i=0;i<apkFilesOrig.size()-1;i++){
+					for(int j=i+1;j<apkFilesOrig.size();j++){
+						if(apkFilesOrig.get(i).apkFile.length()>apkFilesOrig.get(j).apkFile.length()){
+							ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
+							apkFilesOrig.add(i,apkFilesOrig.get(j-1));
+							apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+						}
+					}
+				}
+				for(i=0;i<apkFiles.size()-1;i++){
+					for(int j=i+1;j<apkFiles.size();j++){
+						if(apkFiles.get(i).apkFile.length()>apkFiles.get(j).apkFile.length()){
+							ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
+							apkFiles.add(i,apkFiles.get(j-1));
+							apkFiles.remove(j);apkFiles.add(j,tmp);
+						}
+					}
+				}
+				break;
+			case 3:for(i=0;i<apkFilesOrig.size()-1;i++){
+					for(int j=i+1;j<apkFilesOrig.size();j++){
+						if(apkFilesOrig.get(j).apkFile.lastModified()>apkFilesOrig.get(i).apkFile.lastModified()){
+							ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
+							apkFilesOrig.add(i,apkFilesOrig.get(j-1));
+							apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+						}
+					}
+				}
+				for(i=0;i<apkFiles.size()-1;i++){
+					for(int j=i+1;j<apkFiles.size();j++){
+						if(apkFiles.get(j).apkFile.lastModified()>apkFiles.get(i).apkFile.lastModified()){
+							ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
+							apkFiles.add(i,apkFiles.get(j-1));
+							apkFiles.remove(j);apkFiles.add(j,tmp);
+						}
+					}
+				}
+				break;
 		}
-		return true;
+		runOnUiThread(new Runnable(){
+			@Override public void run(){adapter.notifyDataSetChanged();}
+		});
 	}
+	
+	private void setApkStatus(){
+		for(ApkListData apkListData :apkFilesOrig)
+			for(i=0;i<n;i++)
+				if(apkFilesOrig.get(i).PACKAGE_NAME.compareToIgnoreCase(apkListData.PACKAGE_NAME)==0 && !apkListData.isInstalled && apkFilesOrig.get(i).VERSION_CODE>apkListData.VERSION_CODE)
+					apkListData.isOld=true;
+	}
+	
+	
 	
 	
 	private void install(int position){
@@ -422,6 +533,7 @@ public class BatchInstallerFragment extends Fragment {
 		menuFab.close(true);
 		menuFab.hideMenuButton(true);
 		instProg.show();
+		
 	}
 	
 	
@@ -478,6 +590,44 @@ public class BatchInstallerFragment extends Fragment {
 	}
 	
 	private void OnApkSearchCompleted(){
+		apkLoading.setVisibility(View.VISIBLE);
+		sortLayout.setVisibility(View.GONE);
+		chkdInfoTotal.setText(Html.fromHtml("Total :  <b><font color="+'"'+"blue"+'"'+">"+apkFilesOrig.size()+"</font></b>"));
+		new Thread(){
+			@Override
+			public void run(){
+				while(((MainActivity)context).backgroundThreadisRunning){
+					try
+					{
+						Thread.sleep(1000);
+					}
+					catch (InterruptedException e)
+					{}
+					finally{
+						runOnUiThread(new Runnable(){
+								@Override
+								public void run(){
+									adapter.notifyDataSetChanged();
+								}
+							});
+					}
+				}
+				runOnUiThread(new Runnable(){
+					@Override
+					public void run(){
+						apkFiles.clear();
+						setApkStatus();
+						sort(0);
+						apkLoading.setVisibility(View.GONE);
+						sortLayout.setVisibility(View.VISIBLE);
+						apkFiles.addAll(apkFilesOrig);
+					}
+				});
+			}
+		}.start();
+		
+		
+		
 		setHasOptionsMenu(true);
 		menuFab.showMenuButton(false);
 		apkFiles.addAll(apkFilesOrig);
@@ -529,14 +679,6 @@ public class BatchInstallerFragment extends Fragment {
 			
 		}
 	}
-
-	
-	@Override
-	public void onDestroyView()
-	{
-		// TODO: Implement this method
-		super.onDestroyView();
-	}
 	
 	public void onChecked(){
 		chkdCount++;
@@ -550,13 +692,14 @@ public class BatchInstallerFragment extends Fragment {
 	}
 	
 	public void onAdapterNotified(){
-		
-		chkdInfoTotal.setText(Html.fromHtml("Total :  <b><font color="+'"'+"blue"+'"'+">"+apkFiles.size()+"</font></b>"));
-		chkdCount=0;
-		for(ApkListData data:apkFilesOrig){
-			if(data.isSelected)chkdCount++;
+		if(!((MainActivity)context).backgroundThreadisRunning){
+			chkdInfoTotal.setText(Html.fromHtml("Total :  <b><font color="+'"'+"blue"+'"'+">"+apkFiles.size()+"</font></b>"));
+			chkdCount=0;
+			for(ApkListData data:apkFilesOrig){
+				if(data.isSelected)chkdCount++;
+			}
+			chkdInfoSelected.setText(Html.fromHtml("selected :  <b><font color="+'"'+"blue"+'"'+">"+chkdCount+"</font></b>"));
 		}
-		chkdInfoSelected.setText(Html.fromHtml("selected :  <b><font color="+'"'+"blue"+'"'+">"+chkdCount+"</font></b>"));
 	}
 	
 //###############################################################################################
@@ -638,7 +781,6 @@ public class BatchInstallerFragment extends Fragment {
 									});
 							}
 						}.start();
-
 					}
 				});
 			filePicker.show();
@@ -659,7 +801,12 @@ public class BatchInstallerFragment extends Fragment {
 					public void onSelectedFilePaths(String[] Files){
 						beforeApkSearch();
 						for(String apk:Files){
-							addIntoList(new ApkListData(new File(apk),pm,icAppDefault));
+							addIntoList(new ApkListData(context,new File(apk),pm,icAppDefault).add().setOnAddedListener(new ApkListData.OnAddedListener(){
+													@Override
+													public void onAdded(){
+														adapter.notifyDataSetChanged();
+													}
+												}));
 						}
 						OnApkSearchCompleted();
 					}

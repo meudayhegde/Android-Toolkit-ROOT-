@@ -17,7 +17,7 @@ public class ActionExecuter implements Runnable
 	private Context context;
 	private AndroidImagesFragment fragment;
 	public ActionExecuter(AndroidImagesFragment fragment){
-		this.context=fragment.context;
+		this.context=fragment.getContext();
 		this.fragment=fragment;
 		
 	}

@@ -21,7 +21,7 @@ public class TermListener implements Shell.OnCommandLineListener
 	
 	@Override
 	public void onCommandResult(int commandcode,final int exitcode){
-		((Activity)fragment.context).runOnUiThread(new Runnable(){
+		((Activity)fragment.getContext()).runOnUiThread(new Runnable(){
 				@Override
 				public void run(){
 					fragment.termProgress.setVisibility(View.GONE);
@@ -33,9 +33,9 @@ public class TermListener implements Shell.OnCommandLineListener
 							@Override public void onClick(View p1){
 								fragment.termDialog.cancel();
 								switch(fragment.mOption){
-									case fragment.SELECTED_UNPACK:Utils.openFolder(fragment.context,Environment.getDataDirectory().getAbsolutePath()+"/local/ToolKit/"+fragment.pName);
+									case fragment.SELECTED_UNPACK:Utils.openFolder(fragment.getContext(),Environment.getDataDirectory().getAbsolutePath()+"/local/ToolKit/"+fragment.pName);
 										break;
-									case fragment.SELECTED_REPACK:Utils.openFolder(fragment.context,Environment.getDataDirectory().getAbsolutePath()+"/local/ToolKit/"+fragment.choosen);
+									case fragment.SELECTED_REPACK:Utils.openFolder(fragment.getContext(),Environment.getDataDirectory().getAbsolutePath()+"/local/ToolKit/"+fragment.choosen);
 										break;
 								}
 							}
@@ -51,7 +51,7 @@ public class TermListener implements Shell.OnCommandLineListener
 	}
 	@Override
 	public void onLine(final String line){
-		((Activity)fragment.context).runOnUiThread(new Runnable(){
+		((Activity)fragment.getContext()).runOnUiThread(new Runnable(){
 				@Override
 				public void run(){
 					

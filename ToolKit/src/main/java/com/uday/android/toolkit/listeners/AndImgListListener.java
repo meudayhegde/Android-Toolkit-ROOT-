@@ -35,14 +35,14 @@ public class AndImgListListener implements DialogInterface.OnClickListener
 		
 		switch (fragment.mOption){
 			case fragment.SELECTED_BACKUP:
-				DialogUtils.showConfirmDialog(fragment.context,"Backup "+fragment.choosen,null,Html.fromHtml("Do you want to <b>backup</b> current <b>"+fragment.choosen+"</b>..?"),"confirm",fragment.mListener);
+				DialogUtils.showConfirmDialog(fragment.getContext(),"Backup "+fragment.choosen,null,Html.fromHtml("Do you want to <b>backup</b> current <b>"+fragment.choosen+"</b>..?"),"confirm",fragment.mListener);
 				break;
 			case fragment.SELECTED_RESTORE:
 				if(!fragment.backupDir.exists())fragment.backupDir.mkdirs();
 					final String[] list=fragment.backupDir.list();
-					new AlertDialog.Builder(fragment.context)
+				new AlertDialog.Builder(fragment.getContext())
 							.setTitle("Restore "+fragment.BLOCK_NAME)
-							.setAdapter(new ArrayAdapter(fragment.context,
+					.setAdapter(new ArrayAdapter(fragment.getContext(),
 														android.R.layout.simple_list_item_1,list) {
 												@Override
 												public View getView(int pos, View view, ViewGroup parent) {
@@ -55,7 +55,7 @@ public class AndImgListListener implements DialogInterface.OnClickListener
 											public void onClick(DialogInterface p1,int p2){
 												p1.cancel();
 												fragment.choosen=list[p2];
-												DialogUtils.showConfirmDialog(fragment.context,"Restore","are you sure you want to restore "+fragment.choosen,null,"confirm",fragment.mListener);
+												DialogUtils.showConfirmDialog(fragment.getContext(),"Restore","are you sure you want to restore "+fragment.choosen,null,"confirm",fragment.mListener);
 											}
 										})
 							.show();
@@ -64,13 +64,13 @@ public class AndImgListListener implements DialogInterface.OnClickListener
 				
 			case fragment.SELECTED_INSTALL:
 				fragment.properties.extensions=new String[]{".bin",".img"};
-				fragment.dialog = new FilePickerDialog(fragment.context,fragment.properties,R.style.AppTheme);
+				fragment.dialog = new FilePickerDialog(fragment.getContext(),fragment.properties,R.style.AppTheme);
 				fragment.dialog.setTitle("Select an img file to unpack");
 				fragment.dialog.setDialogSelectionListener(fragment.fileListener);
 				fragment.dialog.show();
 				break;
 			case fragment.SELECTED_RESTORE_ITEM:
-				DialogUtils.showConfirmDialog(fragment.context,"Restore "+fragment.BLOCK_NAME,null,Html.fromHtml("Are you sure you want to <b>restore</b> <br><b>"+fragment.choosen+"</b>..?"),"confirm",fragment.mListener);
+				DialogUtils.showConfirmDialog(fragment.getContext(),"Restore "+fragment.BLOCK_NAME,null,Html.fromHtml("Are you sure you want to <b>restore</b> <br><b>"+fragment.choosen+"</b>..?"),"confirm",fragment.mListener);
 		}
 		
 	}

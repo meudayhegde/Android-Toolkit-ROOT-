@@ -52,7 +52,7 @@ public class ApkListAdapter extends ArrayAdapter<ApkListData> implements Filtera
 		
 			LayoutInflater inflater=(LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			final View row=inflater.inflate(layoutRes,parent,false);
-
+			
 			final ApkListData apkListData=apkList.get(position);
 
 			ImageView iV=(ImageView)row.findViewById(R.id.apk_icon);

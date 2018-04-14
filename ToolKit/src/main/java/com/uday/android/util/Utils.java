@@ -41,7 +41,6 @@ public class Utils
 				break;
 			case 5:unit="EB";
 		}
-		
 		return Math.round(size*100.0)/100.0+" "+unit;
 	}
 	
