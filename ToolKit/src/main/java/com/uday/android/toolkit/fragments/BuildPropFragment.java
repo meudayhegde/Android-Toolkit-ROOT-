@@ -62,7 +62,6 @@ public class BuildPropFragment extends Fragment {
 		
 		rootsession=MainActivity.rootSession;
 		
-	
 		dialogContent=(LinearLayout)((Activity)context).getLayoutInflater().inflate(R.layout.build_prop_edit_dialog,null);
 		PropContent=(LinearLayout)dialogContent.findViewById(R.id.prop_content);
 		ConfirmTextView=(TextView)dialogContent.findViewById(R.id.confirm_txt);

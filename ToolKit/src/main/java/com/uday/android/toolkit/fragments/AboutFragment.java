@@ -29,9 +29,10 @@ public class AboutFragment extends Fragment {
 		this.context=context;
 	}
 	
+	@Override
 	public Context getContext()
 	{
-		if(Build.VERSION.SDK_INT>=23){
+		if(context==null &&Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
 			context= super.getContext();
 		}
 		return context;

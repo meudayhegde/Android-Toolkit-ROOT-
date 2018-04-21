@@ -105,6 +105,8 @@ public class EnvSetup
 	
 	private void ShowAgreement(){
 		TextView AgreeTxt=new TextView(context);
+		ScrollView agreementLayout=new ScrollView(context);
+		agreementLayout.addView(AgreeTxt);
 		AgreeTxt.setText(Html.fromHtml(Utils.getStringFromInputStream(context.getResources().openRawResource(R.raw.agreement))));
 		AgreeTxt.setPadding(30,0,15,0);
 		agreement=new AlertDialog.Builder(context)
@@ -122,8 +124,9 @@ public class EnvSetup
 				}
 			})
 			.setTitle("Terms & Conditions")
-			.setView(AgreeTxt)
+			.setView(agreementLayout)
 			.show();
+		agreement.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,(int)(MainActivity.SCREEN_HEIGHT*0.75));
 		agreement.setCancelable(false);
 	}
 	

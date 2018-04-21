@@ -57,11 +57,11 @@
 					android:id="@+id/layout_sort"
 					android:visibility="gone"
 					android:layout_marginLeft="15dp"
-					android:layout_centerVertical="true"
-					android:gravity="top|right"
+					android:gravity="right"
 					android:layout_alignParentRight="true"
 					android:layout_marginTop="15dp"
-					android:layout_marginRight="15dp">
+					android:layout_marginRight="15dp"
+					android:layout_alignParentTop="true">
 
 					<TextView
 						android:layout_height="wrap_content"
@@ -77,32 +77,30 @@
 
 				</LinearLayout>
 
-				<ProgressBar
-					android:layout_height="wrap_content"
-					android:layout_width="wrap_content"
-					android:layout_toRightOf="@id/batch_info_total"
-					android:layout_toLeftOf="@id/layout_sort"
-					android:visibility="gone"
-					android:id="@+id/apk_loading_progress"
-					android:layout_centerVertical="true"/>
-
 			</RelativeLayout>
 
 		</android.support.v7.widget.CardView>
 
 	</LinearLayout>
 
-	<ListView
-		android:layout_height="wrap_content"
+	<android.support.v4.widget.SwipeRefreshLayout
+		android:id="@+id/apk_swipe_refresh"
 		android:layout_width="match_parent"
-		android:divider="#e0e0e0"
-		android:dividerHeight="0dp"
-		android:id="@+id/apk_list_view"
+		android:layout_height="match_parent"
 		android:layout_below="@id/batch_info_card"
 		android:layout_marginLeft="6dp"
 		android:layout_marginRight="6dp"
-		android:layout_marginTop="2dp"/>
+		android:layout_marginTop="2dp">
 
+		<ListView
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:divider="#e0e0e0"
+			android:dividerHeight="0dp"
+			android:id="@+id/apk_list_view"/>
+
+	</android.support.v4.widget.SwipeRefreshLayout>
+	
 	<com.github.clans.fab.FloatingActionMenu
 		android:id="@+id/menu_batch_app"
 		android:layout_width="match_parent"

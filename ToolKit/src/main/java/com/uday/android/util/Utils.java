@@ -21,8 +21,11 @@ import org.tukaani.xz.*;
 public class Utils
 {
 	public static String getSize(File file){
+		return getConventionalSize(file.length());
+	}
+	
+	public static String getConventionalSize(double size){
 		int count=0;
-		double size=file.length();
 		String unit="B";
 		while(size >= 1000){
 			size=size/1024;
@@ -44,6 +47,18 @@ public class Utils
 		return Math.round(size*100.0)/100.0+" "+unit;
 	}
 	
+	public static String getSizeInKb(double size){
+		return Math.round((size/1024)*100.0)/100.0+" KB";
+	}
+
+	public static String getSizeInMb(double size){
+		return Math.round((size/(1024*1024))*100.0)/100.0+" MB";
+	}
+
+	public static String getSizeInGb(double size){
+		return Math.round((size/(1024*1024*1024))*100.0)/100.0+" GB";
+	}
+	
 
 	public static void openFolder(Context context,String directory){
 		Uri selectedUri = Uri.parse(directory);
@@ -57,7 +72,6 @@ public class Utils
 			Toast.makeText(context,"install a root explorer that supports recieving intents for opening folders\neg:Es File Explorer",Toast.LENGTH_LONG).show();
 		}
 	}
-	
 	
 	public static File getExternalSdCard() {
 		File externalStorage = null;

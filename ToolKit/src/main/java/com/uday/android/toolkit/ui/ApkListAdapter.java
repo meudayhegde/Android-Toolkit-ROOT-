@@ -19,7 +19,7 @@ import android.net.*;
 import android.text.*;
 
 
-public class ApkListAdapter extends ArrayAdapter<ApkListData> implements Filterable
+public class ApkListAdapter extends ArrayAdapter<ApkListData>
 {
 	private ArrayList<ApkListData> apkList;
 	private Context context;
@@ -42,7 +42,6 @@ public class ApkListAdapter extends ArrayAdapter<ApkListData> implements Filtera
 	@Override
 	public ApkListData getItem(int position)
 	{
-		// TODO: Implement this method
 		return apkList.get(position);
 	}
 	

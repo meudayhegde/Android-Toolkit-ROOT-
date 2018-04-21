@@ -55,7 +55,7 @@ public class MainActivity extends Activity
 	private DrawerAdapter mAdapter;
 	private int selectedItem;
 	private BackgroundThread backgroundThread;
-	
+	private boolean isViewCreated=false;
 	public MenuItem menuReboot,menuSettings;
 	public boolean backgroundThreadisRunning=false,isExcepted=false;
 	
@@ -77,12 +77,14 @@ public class MainActivity extends Activity
 		envSetup=new EnvSetup(this){
 			@Override
 			public void onStartup(){
-				super.onStartup();
-				createFragments();
-				try{
-					drawerSetup();
-				}catch(IllegalStateException ex){
-					isExcepted=true;
+					super.onStartup();
+					createFragments();
+					isViewCreated=true;
+				
+					try{
+						drawerSetup();
+					}catch(IllegalStateException ex){
+						isExcepted=true;
 				}
 			}
 		};
@@ -199,7 +201,7 @@ public class MainActivity extends Activity
 		mPart=new PartitionSchemeFragment(this);
 		mBatch=new BatchInstallerFragment(this);
 		mAbout=new AboutFragment(this);
-		mAppManager=new AppManagerFragment();
+		mAppManager=new AppManagerFragment(this);
 		mBuildProp=new BuildPropFragment(this);
 	}
 	
@@ -383,15 +385,17 @@ public class MainActivity extends Activity
 			return keepAlive;
 		}
 
-		
-		
 		@Override
 		public void run(){
 			while(keepAlive){
 				while(!actionsToRun.isEmpty()){
-					backgroundThreadisRunning=true;
-					actionsToRun.get(0).run();
-					actionsToRun.remove(0);
+					try{
+						backgroundThreadisRunning=true;
+						actionsToRun.get(0).run();
+						actionsToRun.remove(0);
+					}catch(NullPointerException ex){
+						Log.e(TAG,ex.toString());
+					}
 				}
 				backgroundThreadisRunning=false;
 			}

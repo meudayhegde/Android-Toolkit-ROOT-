@@ -27,6 +27,7 @@ import android.view.View.OnClickListener;
 import com.uday.android.toolkit.R;
 import android.text.*;
 import android.content.res.*;
+import android.support.v4.widget.*;
 
 @SuppressLint("NewApi")
 public class BatchInstallerFragment extends Fragment {
@@ -57,12 +58,21 @@ public class BatchInstallerFragment extends Fragment {
 	private PackageManager pm;
 	private ProgressDialog instProg;
 	private ProgressBar instBar;
-	private ProgressBar apkLoading;
 	private RelativeLayout rootView;
+	private SearchView search;
 	private Spinner sorter;
+	private String query;
+	private SwipeRefreshLayout swipeRefreshLayout;
 	private TextView instMsg,apkCount,apkPercantage;
 	private TextView chkdInfoTotal;
 	private TextView chkdInfoSelected;
+	
+	private static final int SORT_BY_NAME=0;
+	private static final int SORT_BY_FILE_NAME=1;
+	private static final int SORT_BY_SIZE=2;
+	private static final int SORT_BY_DATE=3;
+	
+	private static int SORTING_SELECTED;
 	
 	public BatchInstallerFragment(Context context){
 		this.context=context;
@@ -81,20 +91,7 @@ public class BatchInstallerFragment extends Fragment {
 		icAppDefault=context.getResources().getDrawable(R.drawable.ic_app_default);
 		
 		apkFiles=new ArrayList<ApkListData>();
-		if(apkFilesOrig==null)
-			apkFilesOrig=new ArrayList<ApkListData>();
-		else{
-			setHasOptionsMenu(true);
-			for(ApkListData data:apkFilesOrig){
-				if(!data.apkFile.exists())
-					apkFilesOrig.remove(data);
-				else{
-					if(!data.isSelectable)data.add();
-					if(data.isSelected)chkdCount++;
-				}
-			}
-		}
-		apkFiles.addAll(apkFilesOrig);
+		refresh();
 		
 		instProg=new ProgressDialog(getContext());
 		instProg.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
@@ -147,7 +144,7 @@ public class BatchInstallerFragment extends Fragment {
 		if(rootView==null){
 			rootView = (RelativeLayout)inflater
 				.inflate(R.layout.batch_installer, container, false);
-			firstRun();
+			onViewFirstCreated();
 		}
 		rootView.startAnimation(((MainActivity)context).mGrowIn);
 		return rootView;
@@ -158,12 +155,14 @@ public class BatchInstallerFragment extends Fragment {
 
 		inflater.inflate(R.menu.check_all, menu);
 
-		SearchView search=(SearchView)menu.findItem(R.id.action_search).getActionView();
+		search=(SearchView)menu.findItem(R.id.action_search).getActionView();
 		search.setQueryHint("type to search...");
 		search.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
 				@Override
 				public boolean onQueryTextChange(String newText){
-					adapter.filter(newText);
+						query=newText;
+						adapter.filter(query
+					);
 					return true;
 				}
 
@@ -243,11 +242,66 @@ public class BatchInstallerFragment extends Fragment {
 		return true;
 	}
 	
-	private void firstRun(){
-
+	private boolean refreshFinished;
+	private void refresh(){
+		
+		final Runnable swipeRefresh=new Runnable(){@Override public void run(){
+				if(swipeRefreshLayout!=null && !swipeRefreshLayout.isRefreshing()){
+					swipeRefreshLayout.setRefreshing(true);
+					sortLayout.setVisibility(View.GONE);
+				}
+			}};
+		
+		if(apkFilesOrig==null || apkFilesOrig.isEmpty()){
+			apkFilesOrig=new ArrayList<ApkListData>();
+			if(swipeRefreshLayout!=null)
+				swipeRefreshLayout.setRefreshing(false);
+		}
+		else{
+			refreshFinished=false;
+			setHasOptionsMenu(false);
+			new Thread(){@Override public void run(){
+					while(((MainActivity)getContext()).backgroundThreadisRunning || !refreshFinished){
+						runOnUiThread(swipeRefresh);
+					}
+					runOnUiThread(new Runnable(){@Override public void run(){
+								if(swipeRefreshLayout!=null && swipeRefreshLayout.isRefreshing()){
+									swipeRefreshLayout.setRefreshing(false);
+									sortLayout.setVisibility(View.VISIBLE);
+									setHasOptionsMenu(true);
+								}
+							}});
+				}}.start();
+			for(ApkListData data:apkFilesOrig){
+				if(!data.apkFile.exists()){
+					apkFilesOrig.remove(data);
+					if(data.isSelected)
+						chkdCount--;
+				}
+				else{
+					if(!data.isSelectable)data.add();
+					if(data.isSelected)chkdCount++;
+				}
+			}
+			refreshFinished=true;
+		}
+		apkFiles.clear();
+		apkFiles.addAll(apkFilesOrig);
+		if(search!=null && query!=null && !TextUtils.isEmpty(query))
+			adapter.filter(query);
+	}
+	
+	private void onViewFirstCreated(){
+		swipeRefreshLayout=(SwipeRefreshLayout)rootView.findViewById(R.id.apk_swipe_refresh);
+		swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+				@Override
+				public void onRefresh(){
+					refresh();
+				}
+			});
 		sortLayout=(LinearLayout)rootView.findViewById(R.id.layout_sort);
 		sorter=(Spinner)rootView.findViewById(R.id.sort_spinner);
-		sorter.setAdapter(new ArrayAdapter(getContext(),android.R.layout.simple_list_item_1,new String[]{"app name","file name","size","date modified"}));
+		sorter.setAdapter(new ArrayAdapter(getContext(),android.R.layout.simple_list_item_1,new String[]{"App Name","File Name","Size","Date Modified"}));
 		sorter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 			@Override
 			public void onItemSelected(AdapterView<?> p1,View p2,int p3,long p4){
@@ -263,6 +317,8 @@ public class BatchInstallerFragment extends Fragment {
 		myApkListView=(ListView)rootView.findViewById(R.id.apk_list_view);
 
 		menuFab=(FloatingActionMenu)rootView.findViewById(R.id.menu_batch_app);
+		menuFab.setVerticalScrollBarEnabled(true);
+		
 		chkdInfoTotal=(TextView)rootView.findViewById(R.id.batch_info_total);
 		chkdInfoSelected=(TextView)rootView.findViewById(R.id.batch_info_selected);
 		menuFab.setClosedOnTouchOutside(true);
@@ -284,9 +340,6 @@ public class BatchInstallerFragment extends Fragment {
 				}
 			});
 		
-		apkLoading=(ProgressBar)rootView.findViewById(R.id.apk_loading_progress);
-		
-		apkLoading.setPadding((int)(MainActivity.SCREEN_WIDTH*0.2),0,0,0);
 		addInternal=(FloatingActionButton)menuFab.findViewById(R.id.internal);
 		addExternal=(FloatingActionButton)menuFab.findViewById(R.id.external);
 		addCustom=(FloatingActionButton)menuFab.findViewById(R.id.custom);
@@ -297,45 +350,11 @@ public class BatchInstallerFragment extends Fragment {
 		addCustom.setOnClickListener(new CustomClickListener());
 		addCustomApk.setOnClickListener(new customApk());
 		
-		chkdInfoSelected.setOnClickListener(new SelectedDialog());
+		chkdInfoSelected.setOnClickListener(new SelectedDialog(this,adapter));
 		if(!apkFiles.isEmpty()){
 			chkdInfoTotal.setText(Html.fromHtml("Total :  <b><font color="+'"'+"blue"+'"'+">"+apkFiles.size()+"</font></b>"));
 			sortLayout.setVisibility(View.VISIBLE);
 			chkdInfoSelected.setVisibility(View.VISIBLE);
-		}
-	}
-	
-	private class SelectedDialog implements View.OnClickListener
-	{
-		private ArrayList<ApkListData> selectedData;
-		private ApkListAdapter selectedAdapter;
-		private AlertDialog dialog;
-		
-		public SelectedDialog(){
-			selectedData=new ArrayList<ApkListData>();
-			selectedAdapter=new ApkListAdapter(BatchInstallerFragment.this,R.layout.apk_list_item,selectedData){
-				@Override
-				public void onCheckedChanged(){
-					adapter.notifyDataSetChanged();
-				}
-			};
-			dialog=new AlertDialog.Builder(context)
-				.setTitle("Selected Apk files")
-				.setAdapter(selectedAdapter,null)
-				.create();
-			dialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
-		}
-		
-		@Override
-		public void onClick(View p1)
-		{
-			selectedData.clear();
-			for(ApkListData data : apkFilesOrig){
-				if(data.isSelected)selectedData.add(data);
-			}
-			selectedAdapter.notifyDataSetChanged();
-			dialog.show();
-			dialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,(int)(MainActivity.SCREEN_HEIGHT*0.7));
 		}
 	}
 	
@@ -350,9 +369,7 @@ public class BatchInstallerFragment extends Fragment {
 		for(File tmp: samp)
 			if(tmp.isDirectory())
 				searchForApks(tmp);
-		}catch(NullPointerException ex){
-			
-		}
+		}catch(NullPointerException ex){Log.e(MainActivity.TAG,ex.toString());}
 	}
 	
 	
@@ -373,86 +390,97 @@ public class BatchInstallerFragment extends Fragment {
 	}
 
 	private void sort(int method){
-		switch(method){
-			case 0:for(i=0;i<apkFilesOrig.size()-1;i++){
-						for(int j=i+1;j<apkFilesOrig.size();j++){
-							if((apkFilesOrig.get(i).NAME+apkFilesOrig.get(i).VERSION_NAME).compareToIgnoreCase(apkFilesOrig.get(j).NAME+apkFilesOrig.get(j).VERSION_NAME) >0){
-								ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
-								apkFilesOrig.add(i,apkFilesOrig.get(j-1));
-								apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+		SORTING_SELECTED=method;
+		swipeRefreshLayout.setRefreshing(true);
+		((MainActivity)context).runInBackground(new Runnable(){
+			@Override
+			public void run(){
+				switch(SORTING_SELECTED){
+					case SORT_BY_NAME:for(i=0;i<apkFilesOrig.size()-1;i++){
+							for(int j=i+1;j<apkFilesOrig.size();j++){
+								if((apkFilesOrig.get(i).NAME+apkFilesOrig.get(i).VERSION_NAME).compareToIgnoreCase(apkFilesOrig.get(j).NAME+apkFilesOrig.get(j).VERSION_NAME) >0){
+									ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
+									apkFilesOrig.add(i,apkFilesOrig.get(j-1));
+									apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+								}
 							}
 						}
-					}
-				for(i=0;i<apkFiles.size()-1;i++){
-					for(int j=i+1;j<apkFiles.size();j++){
-						if((apkFiles.get(i).NAME+apkFiles.get(i).VERSION_NAME).compareToIgnoreCase(apkFiles.get(j).NAME+apkFiles.get(j).VERSION_NAME) >0){
-							ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
-							apkFiles.add(i,apkFiles.get(j-1));
-							apkFiles.remove(j);apkFiles.add(j,tmp);
+						for(i=0;i<apkFiles.size()-1;i++){
+							for(int j=i+1;j<apkFiles.size();j++){
+								if((apkFiles.get(i).NAME+apkFiles.get(i).VERSION_NAME).compareToIgnoreCase(apkFiles.get(j).NAME+apkFiles.get(j).VERSION_NAME) >0){
+									ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
+									apkFiles.add(i,apkFiles.get(j-1));
+									apkFiles.remove(j);apkFiles.add(j,tmp);
+								}
+							}
 						}
-					}
-				}
-				break;
-			case 1:for(i=0;i<apkFilesOrig.size()-1;i++){
-					for(int j=i+1;j<apkFilesOrig.size();j++){
-						if(apkFilesOrig.get(i).apkFile.getName().compareToIgnoreCase(apkFilesOrig.get(j).apkFile.getName()) >0){
-							ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
-							apkFilesOrig.add(i,apkFilesOrig.get(j-1));
-							apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+						break;
+					case SORT_BY_FILE_NAME:for(i=0;i<apkFilesOrig.size()-1;i++){
+							for(int j=i+1;j<apkFilesOrig.size();j++){
+								if(apkFilesOrig.get(i).apkFile.getName().compareToIgnoreCase(apkFilesOrig.get(j).apkFile.getName()) >0){
+									ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
+									apkFilesOrig.add(i,apkFilesOrig.get(j-1));
+									apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+								}
+							}
 						}
-					}
-				}
-				for(i=0;i<apkFiles.size()-1;i++){
-					for(int j=i+1;j<apkFiles.size();j++){
-						if(apkFiles.get(i).apkFile.getName().compareToIgnoreCase(apkFiles.get(j).apkFile.getName()) >0){
-							ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
-							apkFiles.add(i,apkFiles.get(j-1));
-							apkFiles.remove(j);apkFiles.add(j,tmp);
+						for(i=0;i<apkFiles.size()-1;i++){
+							for(int j=i+1;j<apkFiles.size();j++){
+								if(apkFiles.get(i).apkFile.getName().compareToIgnoreCase(apkFiles.get(j).apkFile.getName()) >0){
+									ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
+									apkFiles.add(i,apkFiles.get(j-1));
+									apkFiles.remove(j);apkFiles.add(j,tmp);
+								}
+							}
 						}
-					}
-				}
-				break;
-			case 2:for(i=0;i<apkFilesOrig.size()-1;i++){
-					for(int j=i+1;j<apkFilesOrig.size();j++){
-						if(apkFilesOrig.get(i).apkFile.length()>apkFilesOrig.get(j).apkFile.length()){
-							ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
-							apkFilesOrig.add(i,apkFilesOrig.get(j-1));
-							apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+						break;
+					case SORT_BY_SIZE:for(i=0;i<apkFilesOrig.size()-1;i++){
+							for(int j=i+1;j<apkFilesOrig.size();j++){
+								if(apkFilesOrig.get(i).apkFile.length()>apkFilesOrig.get(j).apkFile.length()){
+									ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
+									apkFilesOrig.add(i,apkFilesOrig.get(j-1));
+									apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+								}
+							}
 						}
-					}
-				}
-				for(i=0;i<apkFiles.size()-1;i++){
-					for(int j=i+1;j<apkFiles.size();j++){
-						if(apkFiles.get(i).apkFile.length()>apkFiles.get(j).apkFile.length()){
-							ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
-							apkFiles.add(i,apkFiles.get(j-1));
-							apkFiles.remove(j);apkFiles.add(j,tmp);
+						for(i=0;i<apkFiles.size()-1;i++){
+							for(int j=i+1;j<apkFiles.size();j++){
+								if(apkFiles.get(i).apkFile.length()>apkFiles.get(j).apkFile.length()){
+									ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
+									apkFiles.add(i,apkFiles.get(j-1));
+									apkFiles.remove(j);apkFiles.add(j,tmp);
+								}
+							}
 						}
-					}
-				}
-				break;
-			case 3:for(i=0;i<apkFilesOrig.size()-1;i++){
-					for(int j=i+1;j<apkFilesOrig.size();j++){
-						if(apkFilesOrig.get(j).apkFile.lastModified()>apkFilesOrig.get(i).apkFile.lastModified()){
-							ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
-							apkFilesOrig.add(i,apkFilesOrig.get(j-1));
-							apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+						break;
+					case SORT_BY_DATE:for(i=0;i<apkFilesOrig.size()-1;i++){
+							for(int j=i+1;j<apkFilesOrig.size();j++){
+								if(apkFilesOrig.get(j).apkFile.lastModified()>apkFilesOrig.get(i).apkFile.lastModified()){
+									ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
+									apkFilesOrig.add(i,apkFilesOrig.get(j-1));
+									apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
+								}
+							}
 						}
-					}
-				}
-				for(i=0;i<apkFiles.size()-1;i++){
-					for(int j=i+1;j<apkFiles.size();j++){
-						if(apkFiles.get(j).apkFile.lastModified()>apkFiles.get(i).apkFile.lastModified()){
-							ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
-							apkFiles.add(i,apkFiles.get(j-1));
-							apkFiles.remove(j);apkFiles.add(j,tmp);
+						for(i=0;i<apkFiles.size()-1;i++){
+							for(int j=i+1;j<apkFiles.size();j++){
+								if(apkFiles.get(j).apkFile.lastModified()>apkFiles.get(i).apkFile.lastModified()){
+									ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
+									apkFiles.add(i,apkFiles.get(j-1));
+									apkFiles.remove(j);apkFiles.add(j,tmp);
+								}
+							}
 						}
-					}
+						break;
+					default:sort(SORT_BY_NAME);
 				}
-				break;
-		}
-		runOnUiThread(new Runnable(){
-			@Override public void run(){adapter.notifyDataSetChanged();}
+				runOnUiThread(new Runnable(){
+						@Override public void run(){
+							adapter.notifyDataSetChanged();
+							swipeRefreshLayout.setRefreshing(false);
+						}
+					});
+			}
 		});
 	}
 	
@@ -590,7 +618,7 @@ public class BatchInstallerFragment extends Fragment {
 	}
 	
 	private void OnApkSearchCompleted(){
-		apkLoading.setVisibility(View.VISIBLE);
+		swipeRefreshLayout.setRefreshing(true);
 		sortLayout.setVisibility(View.GONE);
 		chkdInfoTotal.setText(Html.fromHtml("Total :  <b><font color="+'"'+"blue"+'"'+">"+apkFilesOrig.size()+"</font></b>"));
 		new Thread(){
@@ -617,8 +645,8 @@ public class BatchInstallerFragment extends Fragment {
 					public void run(){
 						apkFiles.clear();
 						setApkStatus();
-						sort(0);
-						apkLoading.setVisibility(View.GONE);
+						sort(SORTING_SELECTED);
+						swipeRefreshLayout.setRefreshing(false);
 						sortLayout.setVisibility(View.VISIBLE);
 						apkFiles.addAll(apkFilesOrig);
 					}

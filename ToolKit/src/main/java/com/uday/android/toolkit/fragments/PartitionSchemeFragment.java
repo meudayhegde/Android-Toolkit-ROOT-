@@ -18,308 +18,251 @@ import java.io.*;
 import java.util.*;
 
 import android.view.View.OnClickListener;
+import android.support.v4.widget.*;
+import com.uday.android.toolkit.ui.*;
 
 @SuppressLint("NewApi")
 public class PartitionSchemeFragment extends Fragment
 {
-	private TextView indexText,tw[][],dgtxt;
-	private TableLayout Table;
-	private TableRow Row[];
-	private ScrollView Scrl;
-	private String scheme="",common,storageModel,Disk,SectorSize,PartitionTable,str,name[],type[];
-	private HorizontalScrollView Hscrl;
-	public Dialog dialog,dg;
-	private int n=0,i=0,j;
-	private long blockNo[],blockSize[],startAddr[],endAddr[],DiskSize;
-	private Typeface TF;
-	private LinearLayout rootView;
 	private Context context;
+	private File DISK;
+	private ListView partitionListView;
+	private long DISK_SIZE;
+	private PartitionListAdapter adapter;
+	private RelativeLayout rootView;
+	private String SECTOR_SIZE;
+	private String STORAGE_MODEL;
+	private String PARTITION_TABLE;
+	private SwipeRefreshLayout partitionSwipeRefresh;
+	private PartedParserRunnable partedParser;
+	private View headerView;
+	private List<String> mainBlockDevices;
+	private ArrayAdapter spinnerAdapter;
+	private final String blockDev0="/dev/block/mmcblk0";
+	private final String blockDev1="/dev/block/mmcblk1";
+	
+	private static ArrayList<BlockDeviceListData> blockDevicesList;
 	
 	public PartitionSchemeFragment(Context context){
 		this.context=context;
+		partedParser=new PartedParserRunnable();
+	}
+
+	@Override
+	public Context getContext()
+	{
+		if(Build.VERSION.SDK_INT<=Build.VERSION_CODES.M)
+			return context;
+		return super.getContext();
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
 		if(rootView==null){
-		rootView = (LinearLayout)inflater
-			.inflate(R.layout.partition_scheme, container, false);
-			setHasOptionsMenu(true);
-			
-		dialog=new Dialog(context){
-			@Override
-			public void onBackPressed(){}
-		};
-		dialog.setCanceledOnTouchOutside(false);
-		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-		
-		dialog.setContentView(new ProgressBar(context));
-		dialog.show();					 
-		
-		Table=new TableLayout(context);
-		Table.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT,TableLayout.LayoutParams.WRAP_CONTENT));
-		TableRow tr=new TableRow(context);
-		TextView tv[]=new TextView[6];
-		for(i=0;i<=5;i++){
-			tv[i]=new TextView(context);
-			tv[i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,TableRow.LayoutParams.WRAP_CONTENT,i));
-			tv[i].setTextColor(Color.DKGRAY);
-			tr.addView(tv[i]);
-		}
-		tv[0].setText("  Name       ");tv[1].setText("  No.");tv[2].setText("Start Addr.");tv[3].setText("End Addr.");tv[4].setText("Size");tv[5].setText("Type");
-		
-		HorizontalScrollView Hscr=new HorizontalScrollView(context);
-		Hscr.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
-		//Hscr.addView(tr);
-		
-		Scrl=new ScrollView(context);
-		Scrl.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
-		
-		Hscrl=new HorizontalScrollView(context);
-		Hscrl.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
-		
-		indexText=new TextView(context);
-		indexText.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
-		//TF=Typeface.createFromAsset(getActivity().getAssets(), "fonts/Bree Serif-Regular.ttf");
-		//indexText.setTypeface(TF);
-		indexText.setTextColor(Color.BLACK);
-		
-		Scrl.addView(Table);
-		rootView.addView(indexText);
-		rootView.addView(tr);
-		Hscrl.addView(Scrl);
-		rootView.addView(Hscrl);
-
-		ThreadExec();
-		
+			rootView = (RelativeLayout)inflater
+				.inflate(R.layout.partition_scheme, container, false);
+			onViewFirstCreated();
 		}
 		
 		rootView.startAnimation(((MainActivity)context).mGrowIn);
 		return rootView;
 	}
 	
-	private void ThreadExec(){
-		
-		new Thread(){
-			@Override
-			public void run(){
-				File dataFile=new File(context.getFilesDir()+"/partition_scheme.info");
-				if(dataFile.exists()){
-					try{
-						String tmp="";
-						BufferedReader reader=new BufferedReader(new InputStreamReader(new FileInputStream(dataFile)));
-						while((tmp=reader.readLine())!=null){
-							scheme+=tmp+"\n";
-						}
-					}catch(IOException ex){
-						Log.e("Exception","Failed to read "+dataFile.getAbsolutePath(),ex);
-					}
-					setTableView(scheme);
-				}
-				else{
-					MainActivity.rootSession.addCommand(context.getFilesDir()+"/common/partition_scheme.sh "+MainActivity.TOOL+" 'b'",2323,new Shell.OnCommandResultListener(){
-						@Override
-						public void onCommandResult(int commandcode,int exitcode,List<String> output){
-							scheme=Utils.getString(output);
-							writeToFile(scheme,"partition_scheme.info",context);
-							setTableView(scheme);
-						}
-					});		
-				}
-				
+	private void onViewFirstCreated(){
+		partitionSwipeRefresh=(SwipeRefreshLayout)rootView.findViewById(R.id.partition_swipe_refresh);
+		partitionSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+			@Override public void onRefresh(){
+				partitionSwipeRefresh.setRefreshing(true);
+				refresh(1);
 			}
-		}.start();
+		});
+		partitionListView=(ListView)rootView.findViewById(R.id.partition_list_view);
+		if(blockDevicesList==null){
+			partitionSwipeRefresh.setRefreshing(true);
+			blockDevicesList=new ArrayList<BlockDeviceListData>();
+			newAdapter();
+			refresh(0);
+		}else newAdapter();
+		
+		mainBlockDevices=new ArrayList<String>();
+		if(new File(blockDev0).exists())mainBlockDevices.add(blockDev0);
+		if(new File(blockDev1).exists())mainBlockDevices.add(blockDev1);
+		partitionListView.setAdapter(adapter);
+		headerView=((Activity)getContext()).getLayoutInflater().inflate(R.layout.partition_view_header,null);
+		spinnerAdapter=new ArrayAdapter(getContext(),android.R.layout.simple_list_item_1,mainBlockDevices);
+		((Spinner)headerView.findViewById(R.id.part_disk_spinner)).setAdapter(spinnerAdapter);
+	
+		headerView.setVisibility(View.GONE);
+		partitionListView.addHeaderView(headerView);
 	}
 	
+	private void newAdapter(){
+		adapter=new PartitionListAdapter(getContext(),R.layout.partition_list_item,blockDevicesList);
+	}
 	
-	private void setTableView(String checkStr){
-		
-		str=checkStr;
-		Table.post(new Runnable(){
+	private void refresh(final int type){
+		blockDevicesList.clear();
+		adapter.notifyDataSetChanged();
+		if(!((MainActivity)getContext()).backgroundThreadisRunning){
+			runInBackground(partedParser.setType(type));
+		}else{
+			new Thread(partedParser).start();
+		}
+	}
+
+	private void onLoadingCompleted(String partedData){
+		blockDevicesList.clear();
+		blockDevicesList.addAll(parseParted(partedData));
+		runOnUiThread(new Runnable(){
 				@Override
 				public void run(){
-					parseParted(str);
-					indexText.setText(common);
-					setValues();
-					dialog.cancel();
+					headerView.setVisibility(View.VISIBLE);
+					adapter.notifyDataSetChanged();
+					partitionSwipeRefresh.setRefreshing(false);
+					setHasOptionsMenu(true);
+					mainBlockDevices.remove(0);
+					mainBlockDevices.add(0,blockDev0+" : "+Utils.getConventionalSize(DISK_SIZE));
+					spinnerAdapter.notifyDataSetChanged();
+					((TextView)headerView.findViewById(R.id.part_table)).setText(PARTITION_TABLE);
+					((TextView)headerView.findViewById(R.id.disk_model)).setText(STORAGE_MODEL);
+					((TextView)headerView.findViewById(R.id.sector_size)).setText(SECTOR_SIZE);
 				}
 			});
 	}
 	
-	private void writeToFile(String data,String fileName,Context context) {
-		
+	private void runInBackground(Runnable action){
+		((MainActivity)getContext()).runInBackground(action);
+	}
+	
+	private void runOnUiThread(Runnable action){
+		((MainActivity)getContext()).runOnUiThread(action);
+	}
+	
+	private void writeToFile(String data,String fileName,Context context){
 		FileOutputStream outputStream;
-		try {
+		try{
 			outputStream =context.openFileOutput(fileName, Context.MODE_PRIVATE);
 			outputStream.write(data.getBytes());
 			outputStream.close();
-		} catch (Exception e) {
-			Log.e("Exception", "File write failed: " + e.toString());
+		}catch(Exception ex){
+			Log.e(MainActivity.TAG,"File write failed: "+ex.toString());
 		} 
 	}
 	
-	
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.popup_menu, menu);
+		inflater.inflate(R.menu.menu_part_unit,menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 	
 	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action buttons
-        switch(item.getItemId()) {
-			case R.id.jbyte:indexText.setText("\n  "+storageModel+"\n\n"+Disk+"   "+DiskSize+"B"+"\n\n  "+SectorSize+"\n\n  "+PartitionTable);
-				for(i=0;i<n-1;i++){
-					setTw(i,1,"B");
-				}
-				return true;
-			case R.id.kbyte:indexText.setText("\n  "+storageModel+"\n\n"+Disk+"   "+DiskSize/1024+"KB"+"\n\n  "+SectorSize+"\n\n  "+PartitionTable);
-				for(i=0;i<n-1;i++){
-					setTw(i,1024,"KB");
-					
-				}
-					return true;
-			case R.id.mbyte:indexText.setText("\n  "+storageModel+"\n\n"+Disk+"   "+DiskSize/(1024*1024)+"MB"+"\n\n  "+SectorSize+"\n\n  "+PartitionTable);
-				for(i=0;i<n-1;i++){
-					
-					setTw(i,1024*1024,"MB");
-				}
-				return true;
-			case R.id.gbyte:indexText.setText("\n  "+storageModel+"\n\n"+Disk+"   "+DiskSize/(1024*1024*1024)+"GB"+"\n\n  "+SectorSize+"\n\n  "+PartitionTable);
-				for(i=0;i<n-1;i++){
-					setTw(i,1024*1024*1024,"GB");
-				}
-				return true;
-   		 }
+    public boolean onOptionsItemSelected(MenuItem item){
+		for(BlockDeviceListData data:blockDevicesList)
+			data.setSizeUnit(item.getItemId());
+		adapter.notifyDataSetChanged();
 		return super.onOptionsItemSelected(item);
-		
 	}
 	
-	private void parseParted(String checkStr){
-		
-		String[] parts=str.split("\n");
-		for(String tmp: parts)
+	private ArrayList<BlockDeviceListData> parseParted(String str){
+		ArrayList<BlockDeviceListData> devicesList=new ArrayList<BlockDeviceListData>();
+		for(String tmp: str.split("\n"))
 		{
-			if(tmp.contains("Model"))
+			if(STORAGE_MODEL==null && tmp.contains("Model"))
 			{
-				storageModel=tmp;
+				STORAGE_MODEL=tmp.replace("Model: ","").replace("Model","");
 			}
 			else if(tmp.contains("Disk "))
 			{
-				String me="";
-				Disk="";
-				for(String test:tmp.split(" ")){
-					Disk=(Disk+" "+me).toString();
-					me=test;
-					}
-				DiskSize=Long.parseLong(me.split("B")[0].toString());
+				try{
+					DISK=new File(tmp.split(":")[0].split(" ")[1]);
+					DISK_SIZE=Long.parseLong(tmp.split(":")[1].replace("B","").replace(" ",""));
+				}catch(NullPointerException ex){
+					Log.e(MainActivity.TAG,ex.toString());
+				}
 			}
 			else if(tmp.contains("Sector size"))
 			{
-				SectorSize=tmp;
+				try{
+					SECTOR_SIZE=tmp.split(":")[1].replace(" ","");
+				}catch(NullPointerException ex){
+					Log.e(MainActivity.TAG,ex.toString());
+				}
 			}
 			else if(tmp.contains("Partition Table"))
 			{
-				PartitionTable=tmp+"\n";
+				try{
+					PARTITION_TABLE=tmp.split(":")[1].replace(" ","");
+				}catch(NullPointerException ex){
+					Log.e(MainActivity.TAG,ex.toString());
+				}
 			}
 			else if(tmp.contains("Number "))
-			{
-				Row=new TableRow[str.split(tmp)[1].split("\n").length];
-				tw=new TextView[str.split(tmp)[1].split("\n").length][6];
-				
-				name=new String[str.split(tmp)[1].split("\n").length];
-				blockNo=new long[str.split(tmp)[1].split("\n").length];
-				startAddr=new long[str.split(tmp)[1].split("\n").length];
-				endAddr=new long[str.split(tmp)[1].split("\n").length];
-				blockSize=new long[str.split(tmp)[1].split("\n").length];
-				type=new String[str.split(tmp)[1].split("\n").length];
-				
 				for(String test : str.split(tmp)[1].split("\n"))
-				{
-					if(test.length()>10)
-					{
-						i=0;
+					if(test.length()>10){
+						int i=0;
+						BlockDeviceListData data=new BlockDeviceListData();
 						for(String another :test.split(" "))
-							if(!another.equals("") && !another.contains(" ") && !another.equals(null))
-							{
+							if(!another.equals("")){
 								switch(i)
 								{
-									case 0:blockNo[n]=Integer.parseInt(another);break;
-									case 1:startAddr[n]=Long.parseLong(another.split("B")[0].toString());
-										break;
-									case 2:endAddr[n]=Long.parseLong(another.split("B")[0].toString());break;
-									case 3:blockSize[n]=Long.parseLong(another.split("B")[0].toString());break;
+									case 0:data.setBlock(new File(DISK+"p"+Integer.parseInt(another)));break;
+									case 1:data.setStart(Long.parseLong(another.split("B")[0].toString()));break;
+									case 2:data.setEnd(Long.parseLong(another.split("B")[0].toString()));break;
+									case 3:data.setSize(Long.parseLong(another.split("B")[0].toString()));break;
 									default:try{
-										if(!name[n].equals(null))
-										type[n]=name[n];
-										else type[n]="";
-									}catch(Exception ex){
-										type[n]="";
-									}
-										name[n]=another;break;
+												if(!(data.getName()==null))
+													data.setType(data.getName());
+												else data.setType("");
+											}catch(Exception ex){
+												data.setType("");
+											}
+											data.setName(another);break;
 								}
 								i++;
 							}
-						n++;
+						if(data.getBlock()!=null)
+							devicesList.add(data);
+					}
+		}
+		return devicesList;
+	}
+	
+	private class PartedParserRunnable implements Runnable{
+		private int type=0;
 
+		public Runnable setType(int type){
+			this.type=type;
+			return this;
+		}
+
+		@Override
+		public void run(){
+			File dataFile=new File(getContext().getFilesDir()+"/partition_scheme.info");
+			String scheme="";
+			if(dataFile.exists() && type==0){
+				try{
+					String tmp="";
+					BufferedReader reader=new BufferedReader(new InputStreamReader(new FileInputStream(dataFile)));
+					while((tmp=reader.readLine())!=null){
+						scheme+=tmp+"\n";
 					}
+					onLoadingCompleted(scheme);
+				}catch(IOException ex){
+					Log.e("Exception","Failed to read "+dataFile.getAbsolutePath(),ex);
 				}
 			}
-			
-		}
-	}
-	
-	private void setValues(){
-		
-		dg=new Dialog(context);
-		dgtxt=new TextView(context);
-		dgtxt.setTextColor(Color.BLACK);
-		dgtxt.setTextSize((float)17);
-		dgtxt.setTypeface(TF);
-		dg.setContentView(dgtxt);
-		
-		for(i=0;i<n-1;i++){
-			Row[i]=new TableRow(context);
-			Row[i].setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,TableLayout.LayoutParams.WRAP_CONTENT));
-		
-			for(j=0;j<=5;j++){
-				tw[i][j]=new TextView(context);
-				tw[i][j].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,50,j));
-				tw[i][j].setTextColor(Color.BLACK);
-				//tw[i][j].setTypeface(TF);
-				Row[i].addView(tw[i][j]);
+			else{
+				if(dataFile.exists())dataFile.delete();
+				MainActivity.rootSession.addCommand(getContext().getFilesDir()+"/common/partition_scheme.sh "+MainActivity.TOOL+" 'b'",2323,new Shell.OnCommandResultListener(){
+						@Override
+						public void onCommandResult(int commandcode,int exitcode,List<String> output){
+							writeToFile(Utils.getString(output),"partition_scheme.info",context);
+							onLoadingCompleted(Utils.getString(output));
+						}
+					});		
 			}
-			Row[i].setOnClickListener(new OnClickListener(){
-				@Override
-				public void onClick(View p1){
-					TableRow ThisRow=(TableRow)p1;
-					
-					TextView text[]=new TextView[6];
-					for(i=0;i<=5;i++){
-					text[i]=(TextView)ThisRow.getChildAt(i);
-					}
-					dgtxt.setText("\n   Block dev:  /dev/block/mmcblk0p"+text[1].getText()+"\n\n   Type:  "+text[5].getText()+"\n\n   Start Address:  "+text[2].getText()+"\n\n   End Address:  "+text[3].getText()+"\n\n   Block Size:  "+text[4].getText()+"\n");
-		
-					dg.setTitle(" "+text[0].getText());
-					dg.show();
-				}
-			});
-			setTw(i,1,"B");
-			Table.addView(Row[i]);
 		}
-		indexText.setText("\n  "+storageModel+"\n\n"+Disk+"   "+DiskSize+"B"+"\n\n  "+SectorSize+"\n\n  "+PartitionTable);
-	}
-	
-	
-	public void setTw(int i,long unit,String unitS){
-		tw[i][0].setText("  "+name[i]+"  ");
-		tw[i][1].setText(blockNo[i]+" ");
-		tw[i][2].setText("  "+startAddr[i]/unit+unitS);
-		tw[i][3].setText("  "+endAddr[i]/unit+unitS);
-		tw[i][4].setText("  "+blockSize[i]/unit+unitS);
-		tw[i][5].setText("  "+type[i]+"    ");
 	}
 }
 

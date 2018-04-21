@@ -65,17 +65,24 @@
 				android:textColor="@color/textColorPrimary"
 				android:layout_toLeftOf="@id/but_new_dir"/>
 
-			<TextView
-				android:id="@+id/dir_path"
-				android:layout_width="match_parent"
+			<HorizontalScrollView
 				android:layout_height="wrap_content"
-				android:layout_marginLeft="16dp"
-				android:layout_marginStart="16dp"
-				style="?android:attr/textViewStyle"
-				android:background="@null"
-				android:textColor="@color/textColorSecondary"
+				android:layout_width="match_parent"
 				android:layout_below="@id/title"
-				android:layout_toLeftOf="@id/but_new_dir"/>
+				android:layout_toLeftOf="@id/but_new_dir">
+
+				<TextView
+					android:id="@+id/dir_path"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="16dp"
+					android:layout_marginStart="16dp"
+					style="?android:attr/textViewStyle"
+					android:background="@null"
+					android:textColor="@color/textColorSecondary"
+					android:gravity="right|end"/>
+
+			</HorizontalScrollView>
 
 		</RelativeLayout>
 
