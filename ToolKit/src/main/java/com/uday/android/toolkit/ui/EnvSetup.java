@@ -141,12 +141,12 @@ public class EnvSetup
 				case "x86_64":abi="x64";break;
 				case "x86":abi="x86";break;
 			}
-			if(!abi.equalsIgnoreCase("")){
+			if(abi!=null && !abi.equalsIgnoreCase("")){
 				break;
 			}
 		}
 		if(abi.equalsIgnoreCase("")){
-			Toast.makeText(context,"Unsupported Architecture...",Toast.LENGTH_LONG).show();
+			CustomToast.showFailureToast(context,"Unsupported Architecture...",Toast.LENGTH_LONG);
 			finishActivity();
 		}
 
@@ -156,11 +156,10 @@ public class EnvSetup
 			clearData();
 			Utils.copyAsset(context.getAssets(),  "utils.tar.xz",  context.getFilesDir().getAbsolutePath());
 			Utils.unpackXZ(new File(context.getFilesDir().getAbsolutePath()+"/utils.tar.xz"),false);
-		//	Utils.copyAsset(context.getAssets(), abi+".zip",  context.getFilesDir().getAbsolutePath());
 			edit.putInt("versionCode",currentVersionCode);
 			edit.apply();
 			if(!isFirstRun)
-				Toast.makeText(context,"Application updated",Toast.LENGTH_SHORT).show();
+				CustomToast.showSuccessToast(context,"Application updated",Toast.LENGTH_SHORT);
 		obtainRootShell();
 	}
 
@@ -184,8 +183,8 @@ public class EnvSetup
 			errorBuilder.setPositiveButton(btn,exit);
 		else
 			errorBuilder.setPositiveButton(btn,listener)
-			.setNegativeButton("exit",exit);
-		
+						.setNegativeButton("exit",exit);
+		errorBuilder.setIcon(R.drawable.ic_error);
 		AlertDialog error=errorBuilder.create();
 		error.setCancelable(false);
 		error.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
@@ -261,15 +260,15 @@ public class EnvSetup
 									public void run(){
 										try{
 											if(!Utils.findInPath("su")){
-												error("Oops...","Root not found...!!\n"+Utils.getString(output),null,null);
+												error("Oops...","Root not found...!!\n",null,null);
 												CustomToast.showFailureToast(context,"Root not found...!!",Toast.LENGTH_SHORT);
 											}else{
-												error("Oops...","Root access failed...!!\n"+Utils.getString(output),null,null);
-												CustomToast.showFailureToast(context,"Root access failed...!!",Toast.LENGTH_SHORT);
+												error("Oops...","Root access Denied...!!\nRoot access is essential for this app to work",null,null);
+												CustomToast.showFailureToast(context,Utils.getString(output),Toast.LENGTH_SHORT);
 											}
 										}catch(Exception ex){
 											Log.e(MainActivity.TAG,ex.toString());
-											error("Oops...","Root not found...!!\n"+Utils.getString(output),null,null);
+											error("Oops...","Root not found...!!\n",null,null);
 											CustomToast.showFailureToast(context,"Root not found...!!",Toast.LENGTH_SHORT);
 										}
 											

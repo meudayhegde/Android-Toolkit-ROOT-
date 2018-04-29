@@ -45,6 +45,7 @@ public class BuildPropFragment extends Fragment {
 	private int n;
 	private OnClickListener onSaveClicked;
 	private int mPreviousVisibleItem;
+	private int scrollState;
 	
 	public static final int EDIT_TYPE=0;
 	public static final int PRIMARY_TYPE=1;
@@ -54,6 +55,7 @@ public class BuildPropFragment extends Fragment {
 	public static final int SAVE=4;
 	public static final int NEW=5;
 	public int mOption;
+
 	
 	public BuildPropFragment(Context context){
 		this.context=context;
@@ -92,7 +94,7 @@ public class BuildPropFragment extends Fragment {
 							+editPropView.getText().toString()+"'='"+editValView.getText().toString()+"'";
 							break;
 					default:
-						command="Invalid Option";
+						command="echo Invalid Option\nreturn 1";
 				}
 				rootsession.addCommand(command,mOption,new Shell.OnCommandResultListener(){
 						@Override
@@ -101,16 +103,14 @@ public class BuildPropFragment extends Fragment {
 									@Override
 									public void run(){
 										if(resultcode==0){
-											toast("Operation successful\n"+Utils.getString(output));
+											CustomToast.showSuccessToast(getContext(),"Operation successful\n"+Utils.getString(output),Toast.LENGTH_SHORT);
 										}
 										else
-											toast("Operation failed ..!!\n"+Utils.getString(output));
-											
+											CustomToast.showFailureToast(getContext(),"Operation failed ..!!\n"+Utils.getString(output),Toast.LENGTH_SHORT);
 										refreshProp();
 									}
 								});
 						}
-
 					});
 			}
 		};
@@ -160,8 +160,6 @@ public class BuildPropFragment extends Fragment {
 				
 				
 			fab=(FloatingActionButton)rootView.findViewById(R.id.add_prop);
-		//	fab.setShowAnimation(R.anim.show_from_bottom);
-		//	fab.setHideAnimation(R.anim.hide_to_bottom);
 			fab.setOnClickListener(new OnClickListener(){
 				@Override
 				public void onClick(View p1){
@@ -185,6 +183,18 @@ public class BuildPropFragment extends Fragment {
 			buildListView.setOnScrollListener(new OnScrollListener(){
 					@Override
 					public void onScrollStateChanged(AbsListView view, int scrollState) {
+						BuildPropFragment.this.scrollState=scrollState;
+						if(scrollState==OnScrollListener.SCROLL_STATE_IDLE){
+							new Handler().postDelayed(new Runnable(){
+									@Override
+									public void run(){
+										if(fab.isHidden() && BuildPropFragment.this.scrollState==OnScrollListener.SCROLL_STATE_IDLE){
+											fab.show(true);
+										}
+									}
+								},400);
+
+						}
 					}
 
 					@Override
@@ -271,24 +281,9 @@ public class BuildPropFragment extends Fragment {
 	
 	public void initDialog(){
 		dialog=new AlertDialog.Builder(context)
-			.setPositiveButton("Save",new DialogInterface.OnClickListener(){
-				@Override
-				public void onClick(DialogInterface p1,int p2){
-
-				}
-			})
-			.setNegativeButton("Cancel",new DialogInterface.OnClickListener(){
-				@Override
-				public void onClick(DialogInterface p1,int p2){
-
-				}
-			})
-			.setNeutralButton("Delete",new DialogInterface.OnClickListener(){
-				@Override
-				public void onClick(DialogInterface p1,int p2){
-
-				}
-			})
+			.setPositiveButton("Save",null)
+			.setNegativeButton("Cancel",null)
+			.setNeutralButton("Delete",null)
 			.setView(dialogContent)
 			.show();
 		positive=dialog.getButton(AlertDialog.BUTTON_POSITIVE);

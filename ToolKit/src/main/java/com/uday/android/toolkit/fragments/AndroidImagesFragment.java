@@ -74,13 +74,11 @@ public class AndroidImagesFragment extends Fragment
 	
 	private static Shell.Interactive rootSession;
 
-	public AndroidImagesFragment(){
-		
-	}
+	public AndroidImagesFragment(){}
 	
 	public Context getContext()
 	{
-		if(Build.VERSION.SDK_INT>=23 && context==null){
+		if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N && context==null){
 			context= super.getContext();
 		}
 		return context;
@@ -130,7 +128,7 @@ public class AndroidImagesFragment extends Fragment
 		properties.root = Environment.getExternalStorageDirectory();
 		properties.error_dir = new File(DialogConfigs.DEFAULT_DIR);
 		properties.offset = new File(DialogConfigs.DEFAULT_DIR);
-		properties.extensions=".img .bin .win".split(" ");
+		properties.extensions=new String[]{".img",".bin",".win"};
 		properties.hasStorageButton=true;
 
 		//============================================================
@@ -223,7 +221,6 @@ public class AndroidImagesFragment extends Fragment
 
 	
 	private void firstOpen(){
-		
 		rootView.findViewById(R.id.path_unpack_dir)
 		.setOnClickListener(new View.OnClickListener(){
 			@Override
@@ -239,9 +236,7 @@ public class AndroidImagesFragment extends Fragment
 					Utils.openFolder(getContext(),DIR.getAbsolutePath()+"/backups/");
 				}
 			});
-		
-		list="".split("\n");
-		
+		list=new String[]{""};
 		menu=(FloatingActionMenu)rootView.findViewById(R.id.menu_img);
 		menu.setClosedOnTouchOutside(true);
 
@@ -311,17 +306,16 @@ public class AndroidImagesFragment extends Fragment
 										} else {
 											runOnUiThread(new Runnable(){
 												public void run(){
-													 
+													try{
 														list=Utils.getString(output).split("\n");
-														try{
 														projectDialog.setTitle("select project to unpack");
-														 listProjectView.setAdapter(new ArrayAdapter(getContext(),
+														listProjectView.setAdapter(new ArrayAdapter(getContext(),
 																		  android.R.layout.simple_list_item_1, list) {
-															 @Override public View getView(int pos, View view, ViewGroup parent) {
-																 view = super.getView(pos, view, parent);
-																 ((TextView) view).setSingleLine(false);
+																			 @Override public View getView(int pos, View view, ViewGroup parent) {
+																				 view = super.getView(pos, view, parent);
+																				 ((TextView) view).setSingleLine(false);
 																 return view;
-															 }
+															}
 														 });
 													
 													}catch(Exception ex){

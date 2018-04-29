@@ -53,6 +53,7 @@ public class BatchInstallerFragment extends Fragment {
 	private int countToInstall;
 	private int countOfInstalled;
 	private int mPreviousVisibleItem;
+	private int scrollState;
 	private LinearLayout sortLayout;
 	private ListView myApkListView;
 	private PackageManager pm;
@@ -327,6 +328,18 @@ public class BatchInstallerFragment extends Fragment {
 		myApkListView.setOnScrollListener(new OnScrollListener(){
 				@Override
 				public void onScrollStateChanged(AbsListView view, int scrollState) {
+					BatchInstallerFragment.this.scrollState=scrollState;
+					if(scrollState==OnScrollListener.SCROLL_STATE_IDLE){
+						new Handler().postDelayed(new Runnable(){
+								@Override
+								public void run(){
+									if(menuFab.isMenuButtonHidden() && BatchInstallerFragment.this.scrollState==OnScrollListener.SCROLL_STATE_IDLE){
+										menuFab.showMenuButton(true);
+									}
+								}
+							},400);
+						
+					}
 				}
 
 				@Override
@@ -339,7 +352,7 @@ public class BatchInstallerFragment extends Fragment {
 					mPreviousVisibleItem = firstVisibleItem;
 				}
 			});
-		
+			
 		addInternal=(FloatingActionButton)menuFab.findViewById(R.id.internal);
 		addExternal=(FloatingActionButton)menuFab.findViewById(R.id.external);
 		addCustom=(FloatingActionButton)menuFab.findViewById(R.id.custom);

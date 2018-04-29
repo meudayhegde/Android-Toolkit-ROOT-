@@ -20,6 +20,7 @@ import java.util.*;
 
 public class MainActivity extends Activity
 {
+	private static boolean isActivityAlive;
 	public static String TAG="TOOLKIT";
 	public static Shell.Interactive rootSession;
 	public static int SCREEN_HEIGHT;
@@ -42,6 +43,7 @@ public class MainActivity extends Activity
 	private AndroidImagesFragment mAndroid;
 	private AppManagerFragment mAppManager;
 	
+	private boolean isDuplicateActivity=false;
 	private BuildPropFragment mBuildProp;
 	private EnvSetup envSetup;
 	private float offset;
@@ -65,7 +67,11 @@ public class MainActivity extends Activity
     protected void onCreate(final Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		
+		if(isActivityAlive==true){
+			isDuplicateActivity=true;
+			finish();
+		}
+		isActivityAlive=true;
 		getActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
 		DisplayMetrics metrics= getResources().getDisplayMetrics();
 		
@@ -80,7 +86,6 @@ public class MainActivity extends Activity
 					super.onStartup();
 					createFragments();
 					isViewCreated=true;
-				
 					try{
 						drawerSetup();
 					}catch(IllegalStateException ex){
@@ -91,6 +96,16 @@ public class MainActivity extends Activity
 	 
 	}
 
+	@Override
+	protected void onDestroy()
+	{
+		if(!isDuplicateActivity)
+			isActivityAlive=false;
+			
+		super.onDestroy();
+	}
+	
+	
 	@Override
 	protected void onResume()
 	{
