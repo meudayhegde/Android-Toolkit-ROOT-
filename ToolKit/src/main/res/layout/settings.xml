@@ -107,6 +107,31 @@
 
 		</LinearLayout>
 
+		<LinearLayout
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:orientation="vertical"
+			android:layout_marginLeft="15dp"
+			android:layout_marginTop="6dp"
+			android:background="?android:attr/selectableItemBackground"
+			android:id="@+id/set_app_bkp_layout">
+
+			<TextView
+				android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:text="App backup directory"
+				android:textSize="16sp"
+				android:textColor="#000000"
+				android:textStyle="bold"/>
+
+			<TextView
+				android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:text="Text"
+				android:id="@+id/app_backup_dir"/>
+
+		</LinearLayout>
+
 		<Switch
 			android:layout_height="wrap_content"
 			android:layout_width="match_parent"

@@ -9,6 +9,9 @@ import com.uday.android.util.*;
 import java.io.*;
 import com.uday.android.toolkit.ui.*;
 import android.view.animation.*;
+import com.github.angads25.filepicker.model.*;
+import com.github.angads25.filepicker.view.*;
+import com.github.angads25.filepicker.controller.*;
 
 public class SettingsActivity extends Activity
 {
@@ -28,20 +31,40 @@ public class SettingsActivity extends Activity
 	private EditText edtTxt;
 	private AlertDialog dialog;
 	private Switch AdvancedSwitch;
-	
+	private DialogProperties properties;
+	private FilePickerDialog filePickerDialog;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		
 		setContentView(R.layout.settings);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		
+
 		prefs1=getSharedPreferences("block_devs",0);
 		editor1=prefs1.edit();
-		
+
 		prefs2=getSharedPreferences("general",0);
 		editor2=prefs2.edit();
+		
+		properties = new DialogProperties();
+		properties.selection_mode = DialogConfigs.SINGLE_MODE;
+		properties.selection_type = DialogConfigs.DIR_SELECT;
+		properties.root = Environment.getExternalStorageDirectory();
+		properties.error_dir = new File(DialogConfigs.DEFAULT_DIR);
+		properties.offset = new File(DialogConfigs.DEFAULT_DIR);
+		properties.hasStorageButton=true;
+		filePickerDialog=new FilePickerDialog(this,properties,R.style.AppTheme);
+		filePickerDialog.setTitle("Choose apps backup directory");
+		filePickerDialog.setDialogSelectionListener(new DialogSelectionListener(){
+			@Override
+			public void onSelectedFilePaths(String[] files){
+				editor2.putString("app_backup_dir",files[0]);
+				editor2.apply();
+				setBackupDir();
+			}
+		});
+		
 		
 		//reboot dialog
 		
@@ -110,6 +133,14 @@ public class SettingsActivity extends Activity
 					});
 					AdvancedLayout.startAnimation(anim);
 				}
+			}
+		});
+		
+		setBackupDir();
+		findViewById(R.id.set_app_bkp_layout).setOnClickListener(new View.OnClickListener(){
+			@Override
+			public void onClick(View p1){
+				filePickerDialog.show();
 			}
 		});
 		
@@ -255,6 +286,9 @@ public class SettingsActivity extends Activity
 		super.onResume();
 	}
 	
+	private void setBackupDir(){
+		((TextView)findViewById(R.id.app_backup_dir)).setText(prefs2.getString("app_backup_dir",Environment.getExternalStorageDirectory().getAbsolutePath()+"/ToolKit/backups/apps"));
+	}
 	
 	
 }

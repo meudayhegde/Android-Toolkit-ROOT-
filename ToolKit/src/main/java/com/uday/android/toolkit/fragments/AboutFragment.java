@@ -101,7 +101,7 @@ public class AboutFragment extends Fragment {
 					}
 				});
 			}
-		rootView.startAnimation(((MainActivity)getContext()).mGrowIn);
+		rootView.startAnimation(MainActivity.mFadeIn);
 		return rootView;
 	}
 

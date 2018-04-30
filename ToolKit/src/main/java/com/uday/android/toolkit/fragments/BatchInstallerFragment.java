@@ -147,7 +147,7 @@ public class BatchInstallerFragment extends Fragment {
 				.inflate(R.layout.batch_installer, container, false);
 			onViewFirstCreated();
 		}
-		rootView.startAnimation(((MainActivity)context).mGrowIn);
+		rootView.startAnimation(MainActivity.mFadeIn);
 		return rootView;
 	}
 	

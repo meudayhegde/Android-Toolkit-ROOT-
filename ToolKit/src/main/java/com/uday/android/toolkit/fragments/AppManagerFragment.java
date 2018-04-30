@@ -27,6 +27,7 @@ public class AppManagerFragment extends Fragment
 			rootView=(RelativeLayout)inflater.inflate(R.layout.app_fragment,container,false);
 			onViewFirstCreated();
 		}
+		rootView.startAnimation(MainActivity.mFadeIn);
 		return rootView;
 	}
 

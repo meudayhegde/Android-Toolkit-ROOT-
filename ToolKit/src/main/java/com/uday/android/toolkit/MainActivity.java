@@ -28,6 +28,7 @@ public class MainActivity extends Activity
 	
 	public static String TOOL;
 	public AnimationSet mGrowIn;
+	public static Animation mFadeIn;
 	public boolean opened=false;
 	
 	private KernelFragment mKernel;
@@ -79,7 +80,7 @@ public class MainActivity extends Activity
 		SCREEN_WIDTH=metrics.widthPixels;
 		
 		mGrowIn=(AnimationSet)OptAnimationLoader.loadAnimation(this,R.anim.activity_push_up_in);
-	
+		mFadeIn=OptAnimationLoader.loadAnimation(this,android.R.anim.fade_in);
 		envSetup=new EnvSetup(this){
 			@Override
 			public void onStartup(){

@@ -215,9 +215,8 @@ public class BuildPropFragment extends Fragment {
 			refreshProp();
 		}
 		else{
-			rootView.startAnimation(((MainActivity)context).mGrowIn);
+			rootView.startAnimation(MainActivity.mFadeIn);
 		}
-		
 		
 		return rootView;
 	}

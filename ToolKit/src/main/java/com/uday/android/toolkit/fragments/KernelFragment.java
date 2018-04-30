@@ -232,7 +232,7 @@ public class KernelFragment extends Fragment
 			rootView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
 			firstRun();
 		}
-		rootView.startAnimation(((MainActivity)context).mGrowIn);
+		rootView.startAnimation(MainActivity.mFadeIn);
 		Inst.setEnabled(context.getSharedPreferences("general",0).getBoolean("allow_kern_installation",false));
 		((TextView)rootView.findViewById(R.id.kern_backup_dir)).setText(DIR+"/backups/Kernel");
 		return rootView;

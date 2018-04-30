@@ -213,7 +213,7 @@ public class AndroidImagesFragment extends Fragment
 			.inflate(R.layout.android_image, container, false);
 			firstOpen();
 		}
-		rootView.startAnimation(((MainActivity)getContext()).mGrowIn);
+		rootView.startAnimation(MainActivity.mFadeIn);
 		((TextView)rootView.findViewById(R.id.backup_dir_android)).setText(DIR+"/backups");
 	return rootView;
 	}

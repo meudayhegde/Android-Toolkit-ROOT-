@@ -65,7 +65,7 @@ public class PartitionSchemeFragment extends Fragment
 			onViewFirstCreated();
 		}
 		
-		rootView.startAnimation(((MainActivity)context).mGrowIn);
+		rootView.startAnimation(MainActivity.mFadeIn);
 		return rootView;
 	}
 	
