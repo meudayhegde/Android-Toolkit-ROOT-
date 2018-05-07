@@ -25,7 +25,7 @@ public class MainActivity extends Activity
 	public static Shell.Interactive rootSession;
 	public static int SCREEN_HEIGHT;
 	public static int SCREEN_WIDTH;
-	
+	public static Comparator stringComparator;
 	public static String TOOL;
 	public AnimationSet mGrowIn;
 	public static Animation mFadeIn;
@@ -78,6 +78,13 @@ public class MainActivity extends Activity
 		
 		SCREEN_HEIGHT=metrics.heightPixels;
 		SCREEN_WIDTH=metrics.widthPixels;
+		
+		stringComparator=new Comparator(){
+			@Override
+			public int compare(Object p1,Object p2){
+				return p1.toString().compareToIgnoreCase(p2.toString());
+			}
+		};
 		
 		mGrowIn=(AnimationSet)OptAnimationLoader.loadAnimation(this,R.anim.activity_push_up_in);
 		mFadeIn=OptAnimationLoader.loadAnimation(this,android.R.anim.fade_in);

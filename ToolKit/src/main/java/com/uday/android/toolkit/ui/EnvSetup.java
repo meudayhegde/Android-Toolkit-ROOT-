@@ -23,8 +23,8 @@ import android.view.View.*;
 public class EnvSetup
 {
 	private Context context;
-	private Dialog fullScreen;
-	private AlertDialog agreement;
+	private Dialog fullScreenDialog;
+	private AlertDialog agreementDialog;
 	private ProgressDialog pDialog;
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor edit;
@@ -46,10 +46,10 @@ public class EnvSetup
 	
 	public EnvSetup(Context context){
 		this.context=context;
-		fullScreen=new Dialog(context,R.style.FullScreen);
-		fullScreen.setCancelable(false);
-		fullScreen.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		fullScreen.show();
+		fullScreenDialog=new Dialog(context,R.style.FullScreen);
+		fullScreenDialog.setCancelable(false);
+		fullScreenDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		fullScreenDialog.show();
 		
 		
 		pDialog=new ProgressDialog(context);
@@ -92,11 +92,9 @@ public class EnvSetup
 
 	private void clearData(){
 		try{
-		for(File file:new File(context.getFilesDir().getAbsolutePath()+"/common/").listFiles()){
-			if(file.exists() && !file.isDirectory()){
-				file.delete();
-			}
-		}
+			for(File file:new File(context.getFilesDir().getAbsolutePath()+"/common/").listFiles())
+				if(file.exists() && !file.isDirectory())
+					file.delete();
 		}
 		catch(Exception ex){
 			Log.d(MainActivity.TAG,"Fresh installation");
@@ -109,12 +107,17 @@ public class EnvSetup
 		agreementLayout.addView(AgreeTxt);
 		AgreeTxt.setText(Html.fromHtml(Utils.getStringFromInputStream(context.getResources().openRawResource(R.raw.agreement))));
 		AgreeTxt.setPadding(30,0,15,0);
-		agreement=new AlertDialog.Builder(context)
+		agreementDialog=new AlertDialog.Builder(context)
 			.setPositiveButton("agree",new DialogInterface.OnClickListener(){
 					@Override
 					public void onClick(DialogInterface p1,int p2){
-						FirstRunSettup();
-						p1.cancel();
+						if(!pDialog.isShowing())pDialog.show();
+						new Thread(){
+							@Override
+							public void run(){
+								FirstRunSettup();
+							}
+						}.start();
 					}
 				})
 			.setNegativeButton("exit",new DialogInterface.OnClickListener(){
@@ -126,13 +129,21 @@ public class EnvSetup
 			.setTitle("Terms & Conditions")
 			.setView(agreementLayout)
 			.show();
-		agreement.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,(int)(MainActivity.SCREEN_HEIGHT*0.75));
-		agreement.setCancelable(false);
+		agreementDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,(int)(MainActivity.SCREEN_HEIGHT*0.75));
+		agreementDialog.setCancelable(false);
 	}
 	
 	private void FirstRunSettup(){
-		
-		for(String test:Build.SUPPORTED_ABIS){
+		runOnMainThread(new Runnable(){
+			@Override public void run(){
+				pDialog.setMessage("Getting device properties...");
+			}
+		});
+		String[] SUPPORTED_ABIS;
+		if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
+			SUPPORTED_ABIS=Build.SUPPORTED_ABIS;
+		else SUPPORTED_ABIS=new String[]{Build.CPU_ABI,Build.CPU_ABI2};
+		for(String test:SUPPORTED_ABIS){
 			switch(test){
 				case "armeabi":abi="arm";break;
 				case "armeabi-v7a":abi="arm";break;
@@ -152,7 +163,6 @@ public class EnvSetup
 
 		edit.putString("abi",abi);
 		
-		pDialog.show();
 			clearData();
 			Utils.copyAsset(context.getAssets(),  "utils.tar.xz",  context.getFilesDir().getAbsolutePath());
 			Utils.unpackXZ(new File(context.getFilesDir().getAbsolutePath()+"/utils.tar.xz"),false);
@@ -163,14 +173,13 @@ public class EnvSetup
 		obtainRootShell();
 	}
 
-//###############################################################################################
-
 	private void error(String title,String message,String btn,DialogInterface.OnClickListener listener){
 		pDialog.cancel();
 		
 		DialogInterface.OnClickListener exit=new DialogInterface.OnClickListener(){
 			@Override
 			public void onClick(DialogInterface p1,int p2){
+				MainActivity.rootSession=null;
 				finishActivity();
 			}
 		};
@@ -237,21 +246,21 @@ public class EnvSetup
 		}
 	}
 	
-//###############################################################################################
-	
 	private void obtainRootShell(){
 		if(MainActivity.rootSession==null){
+			runOnMainThread(new Runnable(){
+				@Override public void run(){
+					pDialog.setMessage("Obtaining root access...");
+				}
+			});
 			MainActivity.rootSession=new Shell.Builder().
 				useSU().
 				setWantSTDERR(true).
 				setWatchdogTimeout(0).
 				setMinimalLogging(false).
-				open(new Shell.OnCommandResultListener() {
-
-					// Callback to report whether the shell was successfully started up 
+				open(new Shell.OnCommandResultListener(){ 
 					@Override
 					public void onCommandResult(int commandCode, int exitCode,final List<String> output) {
-						// note: this will FC if you rotate the phone while the dialog is up
 						if (exitCode != 0) {
 							Log.e(MainActivity.TAG,"error obtaining root shell "+exitCode);
 							MainActivity.rootSession=null;
@@ -270,15 +279,12 @@ public class EnvSetup
 											Log.e(MainActivity.TAG,ex.toString());
 											error("Oops...","Root not found...!!\n",null,null);
 											CustomToast.showFailureToast(context,"Root not found...!!",Toast.LENGTH_SHORT);
-										}
-											
+										}	
 									}
 								});
 
 						} else {
-							// Shell is up: send our first request 
 							Log.i(MainActivity.TAG,"Root shell successfully obtained "+exitCode);
-							
 							CustomToast.showSuccessToast(context,"Root shell successfully obtained ",Toast.LENGTH_SHORT);
 							checkForBusyBox();
 						}
@@ -341,14 +347,13 @@ public class EnvSetup
 						onStartup();
 					}
 				}
-
 			});
 	}
 //###############################################################################################
 	
 	public void onStartup(){
 		pDialog.dismiss();
-		fullScreen.dismiss();
+		fullScreenDialog.dismiss();
 	}
 	
 //###############################################################################################
@@ -363,15 +368,12 @@ public class EnvSetup
 					context.getSharedPreferences("general",0).edit().putBoolean("isFirstRun",false).apply();
 					onStartup();
 				} else {
-					Toast.makeText(context,
+					CustomToast.showFailureToast(context,
 								   "This app will not work unless you grant permissions..!!",
-								   Toast.LENGTH_LONG).show();
+								   Toast.LENGTH_LONG);
 					error("Oops...","Storage permissions Denied..!!",null,null);
 					return;
 				}
-
-				// other 'case' lines to check for other
-				// permissions this app might request
 		}
 	}
 	

@@ -21,6 +21,7 @@ public class ApkListData
 	public int titleColor=Color.BLACK;
 	public boolean isInstalled=false,isOld=false,isInstalledVer=false;
 	public String txtSearch;
+	public long SIZE_LONG;
 	
 	private PackageManager pm;
 	private Context context;
@@ -34,9 +35,8 @@ public class ApkListData
 		PATH=apkFile.getAbsolutePath();
 		NAME=apkFile.getName();
 		ICON=icDefault;
-		SIZE=Utils.getSize(apkFile);
-		
-		
+		SIZE_LONG=apkFile.length();
+		SIZE=Utils.getConventionalSize(SIZE_LONG);
 	}
 	
 	public ApkListData add(){

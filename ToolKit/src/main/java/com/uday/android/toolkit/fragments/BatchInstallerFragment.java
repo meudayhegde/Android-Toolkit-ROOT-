@@ -31,16 +31,19 @@ import android.support.v4.widget.*;
 
 @SuppressLint("NewApi")
 public class BatchInstallerFragment extends Fragment {
-
-//###############################################################################################
 	
-	public static Shell.Interactive rootSession;
 	public Context context;
+	public static Shell.Interactive rootSession;
 	public static ArrayList<ApkListData> apkFilesOrig;
 	
 	private AlertDialog instDialog;
 	private ApkListAdapter adapter;
 	private ArrayList<ApkListData> apkFiles;
+	private Comparator<ApkListData> nameComparator;
+	private Comparator<ApkListData> sizeComparator;
+	private Comparator<ApkListData> dateComparator;
+	private Comparator<ApkListData>	fileNameComparator;
+	private Comparator<ApkListData> pathComparator;
 	private DialogProperties properties;
 	private Drawable icAppDefault;
 	private FilePickerDialog filePicker;
@@ -112,6 +115,9 @@ public class BatchInstallerFragment extends Fragment {
 					.create();
 		instDialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
 		instDialog.setCancelable(false);
+		
+		setComparators();
+		
 	}
 
 	@Override
@@ -177,7 +183,8 @@ public class BatchInstallerFragment extends Fragment {
 
 		int states[][] = {{android.R.attr.state_checked}, {}};
 		int colors[] = {Color.WHITE, Color.WHITE};
-		allToggle.setButtonTintList(new ColorStateList(states, colors));
+		if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
+			allToggle.setButtonTintList(new ColorStateList(states, colors));
 		allToggle.setPadding(10,0,10,0);
 
 		allToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
@@ -292,6 +299,43 @@ public class BatchInstallerFragment extends Fragment {
 			adapter.filter(query);
 	}
 	
+	private void setComparators(){
+		nameComparator=new Comparator<ApkListData>(){
+			@Override
+			public int compare(ApkListData p1,ApkListData p2){
+				return p1.NAME.compareToIgnoreCase(p2.NAME);
+			}
+		};
+
+		sizeComparator=new Comparator<ApkListData>(){
+			@Override
+			public int compare(ApkListData p1,ApkListData p2){
+				return (int)(p1.SIZE_LONG-p2.SIZE_LONG);
+			}
+		};
+
+		dateComparator=new Comparator<ApkListData>(){
+			@Override
+			public int compare(ApkListData p1,ApkListData p2){
+				return (int)(p1.apkFile.lastModified()-p2.apkFile.lastModified());
+			}
+		};
+
+		fileNameComparator=new Comparator<ApkListData>(){
+			@Override
+			public int compare(ApkListData p1,ApkListData p2){
+				return p1.apkFile.getName().compareToIgnoreCase(p2.apkFile.getName());
+			}
+		};
+
+		pathComparator=new Comparator<ApkListData>(){
+			@Override
+			public int compare(ApkListData p1,ApkListData p2){
+				return p1.PATH.compareToIgnoreCase(p2.PATH);
+			}
+		};
+	}
+	
 	private void onViewFirstCreated(){
 		swipeRefreshLayout=(SwipeRefreshLayout)rootView.findViewById(R.id.apk_swipe_refresh);
 		swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
@@ -387,114 +431,35 @@ public class BatchInstallerFragment extends Fragment {
 	
 	
 	private void addIntoList(final ApkListData apkListData){
-		boolean isDuplicate=false;
-		for(ApkListData tmp :apkFilesOrig){
-			if(tmp.apkFile.equals(apkListData.apkFile)){
-				isDuplicate=true;
-				break;
-			}
-		}
-		if(!isDuplicate){
+		if(Collections.binarySearch(apkFilesOrig,apkListData,pathComparator)<0){
 			apkListData.add();
 			apkFilesOrig.add(apkListData);
 			n++;
 		}
-		
 	}
 
 	private void sort(int method){
 		SORTING_SELECTED=method;
-		swipeRefreshLayout.setRefreshing(true);
-		((MainActivity)context).runInBackground(new Runnable(){
-			@Override
-			public void run(){
-				switch(SORTING_SELECTED){
-					case SORT_BY_NAME:for(i=0;i<apkFilesOrig.size()-1;i++){
-							for(int j=i+1;j<apkFilesOrig.size();j++){
-								if((apkFilesOrig.get(i).NAME+apkFilesOrig.get(i).VERSION_NAME).compareToIgnoreCase(apkFilesOrig.get(j).NAME+apkFilesOrig.get(j).VERSION_NAME) >0){
-									ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
-									apkFilesOrig.add(i,apkFilesOrig.get(j-1));
-									apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
-								}
-							}
-						}
-						for(i=0;i<apkFiles.size()-1;i++){
-							for(int j=i+1;j<apkFiles.size();j++){
-								if((apkFiles.get(i).NAME+apkFiles.get(i).VERSION_NAME).compareToIgnoreCase(apkFiles.get(j).NAME+apkFiles.get(j).VERSION_NAME) >0){
-									ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
-									apkFiles.add(i,apkFiles.get(j-1));
-									apkFiles.remove(j);apkFiles.add(j,tmp);
-								}
-							}
-						}
-						break;
-					case SORT_BY_FILE_NAME:for(i=0;i<apkFilesOrig.size()-1;i++){
-							for(int j=i+1;j<apkFilesOrig.size();j++){
-								if(apkFilesOrig.get(i).apkFile.getName().compareToIgnoreCase(apkFilesOrig.get(j).apkFile.getName()) >0){
-									ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
-									apkFilesOrig.add(i,apkFilesOrig.get(j-1));
-									apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
-								}
-							}
-						}
-						for(i=0;i<apkFiles.size()-1;i++){
-							for(int j=i+1;j<apkFiles.size();j++){
-								if(apkFiles.get(i).apkFile.getName().compareToIgnoreCase(apkFiles.get(j).apkFile.getName()) >0){
-									ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
-									apkFiles.add(i,apkFiles.get(j-1));
-									apkFiles.remove(j);apkFiles.add(j,tmp);
-								}
-							}
-						}
-						break;
-					case SORT_BY_SIZE:for(i=0;i<apkFilesOrig.size()-1;i++){
-							for(int j=i+1;j<apkFilesOrig.size();j++){
-								if(apkFilesOrig.get(i).apkFile.length()>apkFilesOrig.get(j).apkFile.length()){
-									ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
-									apkFilesOrig.add(i,apkFilesOrig.get(j-1));
-									apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
-								}
-							}
-						}
-						for(i=0;i<apkFiles.size()-1;i++){
-							for(int j=i+1;j<apkFiles.size();j++){
-								if(apkFiles.get(i).apkFile.length()>apkFiles.get(j).apkFile.length()){
-									ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
-									apkFiles.add(i,apkFiles.get(j-1));
-									apkFiles.remove(j);apkFiles.add(j,tmp);
-								}
-							}
-						}
-						break;
-					case SORT_BY_DATE:for(i=0;i<apkFilesOrig.size()-1;i++){
-							for(int j=i+1;j<apkFilesOrig.size();j++){
-								if(apkFilesOrig.get(j).apkFile.lastModified()>apkFilesOrig.get(i).apkFile.lastModified()){
-									ApkListData tmp=apkFilesOrig.get(i);apkFilesOrig.remove(i);
-									apkFilesOrig.add(i,apkFilesOrig.get(j-1));
-									apkFilesOrig.remove(j);apkFilesOrig.add(j,tmp);
-								}
-							}
-						}
-						for(i=0;i<apkFiles.size()-1;i++){
-							for(int j=i+1;j<apkFiles.size();j++){
-								if(apkFiles.get(j).apkFile.lastModified()>apkFiles.get(i).apkFile.lastModified()){
-									ApkListData tmp=apkFiles.get(i);apkFiles.remove(i);
-									apkFiles.add(i,apkFiles.get(j-1));
-									apkFiles.remove(j);apkFiles.add(j,tmp);
-								}
-							}
-						}
-						break;
-					default:sort(SORT_BY_NAME);
-				}
-				runOnUiThread(new Runnable(){
-						@Override public void run(){
-							adapter.notifyDataSetChanged();
-							swipeRefreshLayout.setRefreshing(false);
-						}
-					});
-			}
-		});
+		switch(SORTING_SELECTED){
+			case SORT_BY_NAME:
+				Collections.sort(apkFilesOrig,nameComparator);
+				Collections.sort(apkFiles,nameComparator);
+				break;
+			case SORT_BY_FILE_NAME:
+				Collections.sort(apkFilesOrig,fileNameComparator);
+				Collections.sort(apkFiles,fileNameComparator);
+				break;
+			case SORT_BY_SIZE:
+				Collections.sort(apkFilesOrig,sizeComparator);
+				Collections.sort(apkFiles,sizeComparator);
+				break;
+			case SORT_BY_DATE:
+				Collections.sort(apkFilesOrig,dateComparator);
+				Collections.sort(apkFiles,dateComparator);
+				break;
+			default:sort(SORT_BY_NAME);
+		}
+		adapter.notifyDataSetChanged();
 	}
 	
 	private void setApkStatus(){
@@ -503,9 +468,6 @@ public class BatchInstallerFragment extends Fragment {
 				if(apkFilesOrig.get(i).PACKAGE_NAME.compareToIgnoreCase(apkListData.PACKAGE_NAME)==0 && !apkListData.isInstalled && apkFilesOrig.get(i).VERSION_CODE>apkListData.VERSION_CODE)
 					apkListData.isOld=true;
 	}
-	
-	
-	
 	
 	private void install(int position){
 		try{
@@ -645,7 +607,8 @@ public class BatchInstallerFragment extends Fragment {
 					catch (InterruptedException e)
 					{}
 					finally{
-						runOnUiThread(new Runnable(){
+						if(scrollState==OnScrollListener.SCROLL_STATE_IDLE)
+							runOnUiThread(new Runnable(){
 								@Override
 								public void run(){
 									adapter.notifyDataSetChanged();
@@ -742,8 +705,6 @@ public class BatchInstallerFragment extends Fragment {
 			chkdInfoSelected.setText(Html.fromHtml("selected :  <b><font color="+'"'+"blue"+'"'+">"+chkdCount+"</font></b>"));
 		}
 	}
-	
-//###############################################################################################
 	
 	private class InstClickListener implements View.OnClickListener{
 		@Override

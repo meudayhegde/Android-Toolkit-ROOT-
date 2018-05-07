@@ -46,6 +46,7 @@ public class BuildPropFragment extends Fragment {
 	private OnClickListener onSaveClicked;
 	private int mPreviousVisibleItem;
 	private int scrollState;
+	private Comparator<BuildProperty> nameComparator;
 	
 	public static final int EDIT_TYPE=0;
 	public static final int PRIMARY_TYPE=1;
@@ -112,6 +113,12 @@ public class BuildPropFragment extends Fragment {
 								});
 						}
 					});
+			}
+		};
+		
+		nameComparator=new Comparator<BuildProperty>(){
+			@Override public int compare(BuildProperty p1,BuildProperty p2){
+				return (p1.PROPERTY+p1.VALUE).compareToIgnoreCase(p2.PROPERTY+p2.VALUE);
 			}
 		};
 	}
@@ -229,6 +236,7 @@ public class BuildPropFragment extends Fragment {
 				runOnUiThread(new Runnable(){
 						@Override
 						public void run(){
+							Collections.sort(buildPropertiesOrig,nameComparator);
 							buildProperties.clear();
 							buildProperties.addAll(buildPropertiesOrig);
 							adapter.notifyDataSetChanged();
@@ -259,21 +267,8 @@ public class BuildPropFragment extends Fragment {
 	}
 	
 	private void addIntoList(final BuildProperty buildProperty){
-		boolean added=false,isDuplicate=false;
-		for(BuildProperty tmp :buildPropertiesOrig){
-			if(tmp.PROPERTY.equalsIgnoreCase(buildProperty.PROPERTY))
-				isDuplicate=true;
-			}
-		if(!isDuplicate){
-			for(int i=0;i<n;i++){
-				if(buildPropertiesOrig.get(i).PROPERTY.compareToIgnoreCase(buildProperty.PROPERTY)>=0){
-					buildPropertiesOrig.add(i,buildProperty);
-					added=true;
-					break;
-				}
-			}
-			if(!added)
-				buildPropertiesOrig.add(buildProperty);
+		if(Collections.binarySearch(buildPropertiesOrig,buildProperty,nameComparator)<0){
+			buildPropertiesOrig.add(buildProperty);
 			n++;
 		}
 	}

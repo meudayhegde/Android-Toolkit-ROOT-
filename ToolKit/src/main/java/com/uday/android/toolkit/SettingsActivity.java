@@ -64,7 +64,7 @@ public class SettingsActivity extends Activity
 				setBackupDir();
 			}
 		});
-		
+		filePickerDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimFade;
 		
 		//reboot dialog
 		

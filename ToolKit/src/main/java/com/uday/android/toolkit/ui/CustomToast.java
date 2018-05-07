@@ -34,7 +34,6 @@ public class CustomToast extends Toast
 		((Activity)context).runOnUiThread(new Runnable(){
 				@Override
 				public void run(){
-
 					LinearLayout toastLayout=(LinearLayout)((Activity)context).getLayoutInflater().inflate(R.layout.toast_custom,null);
 					TextView text=(TextView)toastLayout.findViewById(R.id.toast_text);
 					text.setText(message);
