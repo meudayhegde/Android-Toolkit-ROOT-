@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swiperefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@+id/apps_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/app_fragment_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:paddingEnd="30dp"
+        android:paddingBottom="30dp"
+        fab:menu_labels_showAnimation="@anim/fab_slide_in_from_right"
+        fab:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
+        fab:menu_shadowColor="@color/color_shadow"
+        fab:menu_backgroundColor="@color/color_fab_menu_background"
+        fab:menu_buttonSpacing="5dp"
+        fab:menu_fab_label="apps location"
+        fab:menu_colorNormal="@color/blueFabNormal"
+        fab:menu_colorPressed="@color/blueFabPressed"
+        fab:menu_colorRipple="@color/blueFabRipple"
+        tools:ignore="RtlSymmetry">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/app_fragment_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_apk"
+            fab:fab_label="User Apps"
+            fab:fab_size="mini"
+            fab:fab_colorNormal="@color/blueFabNormal"
+            fab:fab_colorPressed="@color/blueFabPressed"
+            fab:fab_colorRipple="@color/blueFabRipple"/>
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/app_fragment_system"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_folder"
+            fab:fab_label="System Apps"
+            fab:fab_size="mini"
+            fab:fab_colorNormal="@color/blueFabNormal"
+            fab:fab_colorPressed="@color/blueFabPressed"
+            fab:fab_colorRipple="@color/blueFabRipple"/>
+
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/app_fragment_external"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_sd"
+            fab:fab_size="mini"
+            fab:fab_label="Installed on Sdcard"
+            fab:fab_colorNormal="@color/blueFabNormal"
+            fab:fab_colorPressed="@color/blueFabPressed"
+            fab:fab_colorRipple="@color/blueFabRipple"/>
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/app_fragment_internal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_internal"
+            fab:fab_label="Installed on Phone"
+            fab:fab_size="mini"
+            fab:fab_colorNormal="@color/blueFabNormal"
+            fab:fab_colorPressed="@color/blueFabPressed"
+            fab:fab_colorRipple="@color/blueFabRipple"/>
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/app_fragment_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_sd"
+            fab:fab_size="mini"
+            fab:fab_label="All Apps"
+            fab:fab_colorNormal="@color/blueFabNormal"
+            fab:fab_colorPressed="@color/blueFabPressed"
+            fab:fab_colorRipple="@color/blueFabRipple"/>
+
+    </com.github.clans.fab.FloatingActionMenu>
+
+</RelativeLayout>
+

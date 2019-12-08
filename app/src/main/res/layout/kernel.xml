@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardUseCompatPadding="true"
+                app:cardElevation="3dp"
+                app:cardCornerRadius="2dp"
+                android:descendantFocusability="blocksDescendants">
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:text="@string/kernel_guideline"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="8dp"
+                    android:textColor="?attr/colorOnBackground"
+                    android:layout_marginEnd="15dp"/>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardUseCompatPadding="true"
+                app:cardElevation="3dp"
+                app:cardCornerRadius="2dp"
+                android:descendantFocusability="blocksDescendants">
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:text="@string/what_is_a_kernel"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginStart="8dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorPrimary"
+                        android:layout_marginEnd="15dp"/>
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="15dp"
+                        android:textColor="?attr/colorOnBackground"
+                        android:layout_marginBottom="15dp"
+                        android:textIsSelectable="true"
+                        android:text="@string/what_is_a_kernel_answer"
+                        android:textSize="16sp"/>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardUseCompatPadding="true"
+                app:cardElevation="3dp"
+                app:cardCornerRadius="2dp"
+                android:descendantFocusability="blocksDescendants">
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:text="@string/about_android_kernel"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginStart="8dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorPrimary"
+                        android:layout_marginEnd="15dp"/>
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="15dp"
+                        android:textColor="?attr/colorOnBackground"
+                        android:layout_marginBottom="15dp"
+                        android:textIsSelectable="true"
+                        android:text="@string/about_android_kernel_explained"
+                        android:textSize="16sp"/>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardUseCompatPadding="true"
+                app:cardElevation="3dp"
+                app:cardCornerRadius="2dp"
+                android:descendantFocusability="blocksDescendants">
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:text="@string/current_running_kernel"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginStart="8dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorPrimary"
+                        android:layout_marginEnd="15dp"/>
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="15dp"
+                        android:textColor="?attr/colorOnBackground"
+                        android:id="@+id/current_kernel"
+                        android:layout_marginBottom="15dp"
+                        android:textIsSelectable="true"
+                        android:textSize="16sp"/>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardUseCompatPadding="true"
+                app:cardElevation="3dp"
+                app:cardCornerRadius="2dp"
+                android:descendantFocusability="blocksDescendants">
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="?attr/selectableItemBackground"
+                    android:orientation="vertical"
+                    android:id="@+id/kernel_backup_location">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:text="@string/kernel_backup_directory"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginStart="8dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorPrimary"
+                        android:layout_marginEnd="15dp"/>
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="15dp"
+                        android:textColor="?attr/colorOnBackground"
+                        android:id="@+id/kern_backup_dir"
+                        android:layout_marginBottom="15dp"
+                        android:textSize="16sp"/>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/menu_kernel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:paddingEnd="30dp"
+        android:paddingBottom="30dp"
+        fab:menu_backgroundColor="#44000000"
+        fab:menu_buttonSpacing="5dp"
+        fab:menu_colorNormal="#0096FF"
+        fab:menu_colorPressed="#0066FF"
+        fab:menu_colorRipple="#01D3FF"
+        fab:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
+        fab:menu_labels_showAnimation="@anim/fab_slide_in_from_right"
+        fab:menu_shadowColor="#444"
+        tools:ignore="RtlSymmetry">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/kern_backup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_backup"
+            fab:fab_colorNormal="#00E112"
+            fab:fab_colorPressed="#00B32C"
+            fab:fab_colorRipple="#7FFF01"
+            fab:fab_label="@string/backup"
+            fab:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/kern_restore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_restore"
+            fab:fab_colorNormal="#F1FF01"
+            fab:fab_colorPressed="#FFE202"
+            fab:fab_colorRipple="#C0FF00"
+            fab:fab_label="@string/restore"
+            fab:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/kern_install"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_install"
+            fab:fab_colorNormal="#FF0F00"
+            fab:fab_colorPressed="#FF5F02"
+            fab:fab_colorRipple="#FFB801"
+            fab:fab_label="@string/install"
+            fab:fab_size="mini" />
+
+    </com.github.clans.fab.FloatingActionMenu>
+
+</RelativeLayout>
+

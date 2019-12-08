@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/prop_content">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/property"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnBackground"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp" />
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="10dp"
+            android:paddingTop="10dp"
+            android:textSize="15sp"
+            android:textColor="?attr/colorOnBackground"
+            android:textStyle="bold"
+            android:id="@+id/prop_text"
+            android:paddingBottom="14dp"
+            android:visibility="gone"/>
+
+        <EditText
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:ems="10"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/build_edit_prop"
+            android:singleLine="true"
+            android:inputType="text" />
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/value"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textColor="?attr/colorOnBackground"
+            android:textSize="16sp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp" />
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="10dp"
+            android:paddingTop="10dp"
+            android:textSize="15sp"
+            android:textColor="?attr/colorOnBackground"
+            android:textStyle="bold"
+            android:id="@+id/val_text"
+            android:paddingBottom="10dp"
+            android:visibility="gone"/>
+
+        <EditText
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:ems="10"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/build_edit_value"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:inputType="text" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/confirm_changes"
+        android:textColor="?attr/colorOnBackground"
+        android:textSize="16sp"
+        android:singleLine="false"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:paddingTop="18dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/confirm_txt"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp" />
+
+</LinearLayout>
+

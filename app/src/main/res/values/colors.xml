@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#0090FF</color>
+    <color name="colorPrimary">#2ca2e6</color>
+    <color name="colorPrimaryDark">#0090e4</color>
+    <color name="colorAccent">#3dc2ea</color>
+    <color name="white">#FFFFFF</color>
+    <color name="color_devider">#e0e0e0</color>
+    <color name="textColorDark">#252525</color>
+    <color name="colorHeader">@color/colorPrimary</color>
+    <color name="blueFabNormal">#0096FF</color>
+    <color name="blueFabPressed">#0066FF</color>
+    <color name="blueFabRipple">#01D3FF</color>
+    <color name="greenFabNormal">#00E112</color>
+    <color name="greenFabPressed">#00B32C</color>
+    <color name="greenFabRipple">#7FFF01</color>
+    <color name="toastSuccessBackground">#DF00B500</color>
+    <color name="toastFailureBackground">#DFE04627</color>
+    <color name="toastNotifyBackground">#DF0197FF</color>
+    <color name="primary_material_dark">#20c3f5</color>
+    <color name="primary_dark_material_dark">#1265ff</color>
+    <color name="accent_material_light">#0099ff</color>
+    <color name="ic_backup_background_green">#00FF00</color>
+    <color name="ic_restore_background_blue">#0090FF</color>
+    <color name="ic_warning_background_red">#FF0000</color>
+    <color name="color_apk_not_installed">#ED0D00</color>
+    <color name="color_shadow">#444</color>
+    <color name="color_fab_menu_background">#44000000</color>
+    <color name="text_color_black">#000000</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+
+    <color name="textColorSecondary">#FFFFFF</color>
+</resources>

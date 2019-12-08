@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center_vertical"
+    android:gravity="center_vertical">
+
+    <RadioButton
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/power_off"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="10dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:id="@+id/power_off"/>
+
+    <RadioButton
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/reboot"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="10dp"
+        android:textSize="16sp"
+        android:paddingStart="8dp"
+        android:textStyle="bold"
+        android:id="@+id/reboot_button"
+        tools:ignore="RtlSymmetry" />
+
+    <RadioButton
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/recovery"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="10dp"
+        android:textSize="16sp"
+        android:paddingStart="8dp"
+        android:textStyle="bold"
+        android:id="@+id/reboot_recovery"
+        tools:ignore="RtlSymmetry" />
+
+    <RadioButton
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/bootloader"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="10dp"
+        android:textSize="16sp"
+        android:paddingStart="8dp"
+        android:textStyle="bold"
+        android:id="@+id/reboot_bootloader"
+        tools:ignore="RtlSymmetry" />
+
+    <RadioButton
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/soft_reboot"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="10dp"
+        android:textSize="16sp"
+        android:paddingStart="8dp"
+        android:textStyle="bold"
+        android:id="@+id/soft_reboot"
+        tools:ignore="RtlSymmetry" />
+
+    <RadioButton
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/reastart_systemui"
+        android:layout_marginBottom="6dp"
+        android:layout_marginStart="10dp"
+        android:textSize="16sp"
+        android:paddingStart="8dp"
+        android:textStyle="bold"
+        android:id="@+id/system_ui_restart"
+        tools:ignore="RtlSymmetry" />
+
+</RadioGroup>
+

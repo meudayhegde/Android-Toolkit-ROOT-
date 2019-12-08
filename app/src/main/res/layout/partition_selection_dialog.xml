@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <RadioButton
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/boot_image"
+        android:layout_margin="10dp"
+        android:layout_marginTop="15dp"
+        android:paddingStart="6dp"
+        android:id="@+id/boot_selection"
+        tools:ignore="RtlSymmetry" />
+
+    <RadioButton
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="10dp"
+        android:text="@string/recovery_image"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:paddingStart="6dp"
+        android:id="@+id/recovery_selection"
+        tools:ignore="RtlSymmetry"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp" />
+
+    <RadioButton
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:text="@string/boot_logo"
+        android:paddingStart="6dp"
+        android:id="@+id/logo_selection"
+        tools:ignore="RtlSymmetry"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp" />
+
+</RadioGroup>
+

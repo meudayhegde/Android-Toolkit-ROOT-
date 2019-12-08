@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_margin="10dp"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/idIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:srcCompat="@drawable/term_ic"
+        android:tint="?attr/colorOnBackground"
+        android:background="?android:attr/activatedBackgroundIndicator"
+        android:contentDescription="@string/term_icon" />
+
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:layout_marginStart="10dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:textSize="16sp"
+            android:id="@+id/term_title"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnBackground"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:layout_marginTop="3dp"
+            android:textSize="12sp"
+            android:id="@+id/term_description"
+            android:typeface="serif"
+            android:textColor="?attr/colorOnBackground"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+

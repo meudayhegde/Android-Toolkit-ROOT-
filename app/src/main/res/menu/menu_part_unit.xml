@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/unit_dynamic"
+        android:title="@string/dynamic"/>
+
+    <item
+        android:id="@+id/unit_byte"
+        android:title="@string/unit_byte"/>
+
+    <item
+        android:id="@+id/unit_kbyte"
+        android:title="@string/unit_kb"/>
+
+    <item
+        android:id="@+id/unit_mbyte"
+        android:title="@string/unit_mb"/>
+
+    <item
+        android:id="@+id/unit_gbyte"
+        android:title="@string/unit_gb"/>
+
+</menu>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <ProgressBar
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="15dp"
+        android:id="@+id/apkinstdialogProgressBar1"
+        android:layout_centerVertical="true"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/text"
+        android:layout_toEndOf="@id/apkinstdialogProgressBar1"
+        android:layout_marginTop="20dp"
+        android:textColor="?attr/colorOnBackground"
+        android:id="@+id/apk_progress_name"
+        android:textSize="16sp"
+        android:layout_marginRight="10dp"
+        android:textStyle="bold"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_below="@id/apk_progress_name"
+        android:layout_toEndOf="@id/apkinstdialogProgressBar1"
+        android:layout_marginTop="10dp"
+        android:id="@+id/apk_progress"
+        android:layout_marginEnd="15dp"
+        android:textAlignment="viewStart"
+        android:layout_marginBottom="6dp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/text"
+        android:layout_below="@id/apk_progress"
+        android:layout_marginStart="10dp"
+        android:layout_toEndOf="@id/apkinstdialogProgressBar1"
+        android:layout_marginBottom="15dp"
+        android:id="@+id/apk_count"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/text"
+        android:layout_below="@id/apk_progress"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="15dp"
+        android:id="@+id/apk_percentage"
+        android:textStyle="bold"/>
+
+</RelativeLayout>
+

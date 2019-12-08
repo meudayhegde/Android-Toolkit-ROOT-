@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:id="@+id/partitionviewheaderLinearLayout1">
+
+        <Spinner
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/part_disk_spinner"
+            android:layout_marginRight="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/model"
+        android:layout_below="@id/partitionviewheaderLinearLayout1"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="4dp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnBackground"
+        android:id="@+id/partitionviewheaderTextView1"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/text"
+        android:layout_toEndOf="@id/partitionviewheaderTextView1"
+        android:layout_below="@id/partitionviewheaderLinearLayout1"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="10dp"
+        android:id="@+id/disk_model"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/partition_table"
+        android:layout_below="@id/partitionviewheaderTextView1"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="4dp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnBackground"
+        android:id="@+id/partitionviewheaderTextView2"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/text"
+        android:layout_toEndOf="@id/partitionviewheaderTextView2"
+        android:layout_below="@id/disk_model"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="4dp"
+        android:id="@+id/part_table"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/sector_size"
+        android:layout_below="@id/partitionviewheaderTextView2"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="10dp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnBackground"
+        android:id="@+id/partitionviewheaderTextView3"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/text"
+        android:layout_toEndOf="@id/partitionviewheaderTextView3"
+        android:layout_below="@id/part_table"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="10dp"
+        android:id="@+id/sector_size"/>
+
+</RelativeLayout>
+

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/drawer_kernel"
+            android:icon="@drawable/ic_kernel"
+            android:title="@string/kernel"/>
+        <item
+            android:id="@+id/drawer_android"
+            android:icon="@drawable/ic_android"
+            android:title="@string/android_magic"/>
+        <item
+            android:id="@+id/drawer_partition"
+            android:icon="@drawable/ic_partition"
+            android:title="@string/partition_scheme"/>
+        <item
+            android:id="@+id/drawer_build_prop"
+            android:icon="@drawable/ic_build"
+            android:title="@string/build_prop"/>
+        <item
+            android:id="@+id/drawer_app_manager"
+            android:icon="@drawable/ic_android"
+            android:title="@string/app_manager"/>
+        <item
+            android:id="@+id/drawer_apk_manager"
+            android:icon="@drawable/ic_apk"
+            android:title="@string/apk_manager"/>
+        <item
+            android:id="@+id/drawer_about"
+            android:icon="@drawable/ic_about"
+            android:title="@string/about"/>
+    </group>
+
+    <item android:title="@string/communicate">
+        <menu>
+            <item
+                android:id="@+id/share_drawer"
+                android:icon="@drawable/ic_share"
+                android:title="@string/share"/>
+        </menu>
+    </item>
+
+</menu>
