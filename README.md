@@ -1,7 +1,10 @@
 
-<center>![alt text](https://raw.githubusercontent.com/meudayhegde/Android-Toolkit-ROOT-/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png)</center>
+<center> ![alt text](https://raw.githubusercontent.com/meudayhegde/Android-Toolkit-ROOT-/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png) </center>
+
 # Android-Toolkit [ROOT]
+
 <center>Multiple ROOT utilities in one place.</center>
+
 
 ##Features
 
