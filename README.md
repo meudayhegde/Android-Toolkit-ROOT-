@@ -1,12 +1,12 @@
 
-<center> ![alt text](https://raw.githubusercontent.com/meudayhegde/Android-Toolkit-ROOT-/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png) </center>
-
+<p align="center"> <img src="https://raw.githubusercontent.com/meudayhegde/Android-Toolkit-ROOT-/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" </p>
+<center>
 # Android-Toolkit [ROOT]
 
-<center>Multiple ROOT utilities in one place.</center>
+Multiple ROOT utilities in one place.</center>
 
 
-##Features
+## Features
 
 * ### Kernel
 	* ```Backup``` Current Kernel to Storage (Internal/External)
