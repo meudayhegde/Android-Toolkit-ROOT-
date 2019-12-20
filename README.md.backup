@@ -1,0 +1,22 @@
+# Android-Toolkit [ROOT]
+Multiple ROOT utilities in one place.
+
+##Features
+
+## * Kernel
+		* Backup Current Kernel to Storage (Internal/External)
+		* Restore Kernel from Storage
+		* Install downloaded custom kernel.
+
+## * Android Magic
+		* Backup/Restore Boot/Recovery Image to/from Internal/External storage
+		* Install Boot/Recovery image from Downloaded ```.img``` file
+		* Unpack/Repack Boot/Recovery images. (you will find unpacked images at /data/local/Toolkit)
+
+## * Partition Scheme
+		* Display Internal partition table details.
+		* Display mount point, partition type, partition size, start and end address(size)
+		* Size can be displayed in Bytes/KB/MB/GB/Auto
+
+## * APK Manager
+		
