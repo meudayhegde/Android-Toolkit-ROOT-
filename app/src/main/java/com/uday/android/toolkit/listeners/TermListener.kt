@@ -1,9 +1,10 @@
 package com.uday.android.toolkit.listeners
 
-import androidx.appcompat.app.AppCompatActivity
 import android.content.DialogInterface
 import android.os.Environment
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import com.uday.android.toolkit.R
 import com.uday.android.toolkit.fragments.AndroidImagesFragment
 import com.uday.android.util.Utils
 import eu.chainfire.libsuperuser.Shell
@@ -32,9 +33,8 @@ class TermListener(private val fragment: AndroidImagesFragment) : Shell.OnComman
                 }
             } else {
                 fragment.termTextView?.append("\nSomething went wrong,\nOperation failed...!!")
-                fragment.termDialog?.getButton(DialogInterface.BUTTON_NEGATIVE)?.visibility =
-                    View.GONE
-                fragment.termDialog?.getButton(DialogInterface.BUTTON_POSITIVE)?.text = "finish"
+                fragment.termDialog?.getButton(DialogInterface.BUTTON_NEGATIVE)?.visibility = View.GONE
+                fragment.termDialog?.getButton(DialogInterface.BUTTON_POSITIVE)?.text = fragment.getString(R.string.finish)
             }
         }
     }

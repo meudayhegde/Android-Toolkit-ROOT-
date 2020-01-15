@@ -44,7 +44,9 @@ class BuildPropAdapter(private val fragment: BuildPropFragment) : ArrayAdapter<B
             property = property.replace(regx, "<font color=\"#00AEFF\">$regx</font>")
         }
 
+        @Suppress("DEPRECATION")
         valTxt.text = Html.fromHtml(value)
+        @Suppress("DEPRECATION")
         propTxt.text = Html.fromHtml(property)
 
         row.setOnClickListener(OnItemClick(fragment.buildProperties[position], position))
@@ -65,8 +67,8 @@ class BuildPropAdapter(private val fragment: BuildPropFragment) : ArrayAdapter<B
             fragment.setDialog(BuildPropFragment.PRIMARY_TYPE)
             fragment.editPropView.setText(prop.PROPERTY)
             fragment.editValView.setText(prop.VALUE)
-            fragment.PropTextView.text = prop.PROPERTY
-            fragment.ValTextView.text = prop.VALUE
+            fragment.propTextView.text = prop.PROPERTY
+            fragment.valTextView.text = prop.VALUE
 
         }
     }

@@ -19,14 +19,14 @@ import java.util.*
 @SuppressLint("NewApi", "ValidFragment")
 class PartitionSchemeFragment @SuppressLint("ValidFragment")
     constructor(private val context:Context): androidx.fragment.app.Fragment() {
-    private var DISK:File? = null
+    private var disk:File? = null
     private var partitionListView:ListView? = null
-    private var DISK_SIZE:Long = 0
+    private var diskSize:Long = 0
     private var adapter:PartitionListAdapter? = null
     private var rootView:RelativeLayout? = null
-    private var SECTOR_SIZE:String? = null
-    private var STORAGE_MODEL:String? = null
-    private var PARTITION_TABLE:String? = null
+    private var selectSize:String? = null
+    private var storageModel:String? = null
+    private var partitionTable:String? = null
     private var partitionSwipeRefresh: SwipeRefreshLayout? = null
     private val partedParser:PartedParserRunnable
     private var headerView:View? = null
@@ -52,6 +52,7 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
         return rootView
     }
 
+    @SuppressLint("InflateParams")
     private fun onViewFirstCreated() {
         partitionSwipeRefresh = rootView!!.findViewById(R.id.partition_swipe_refresh) as SwipeRefreshLayout
         partitionSwipeRefresh!!.setOnRefreshListener {
@@ -99,11 +100,11 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
             partitionSwipeRefresh!!.isRefreshing = false
             setHasOptionsMenu(true)
             mainBlockDevices!!.removeAt(0)
-            mainBlockDevices!!.add(0, blockDev0 + " : " + Utils.getConventionalSize(DISK_SIZE))
+            mainBlockDevices!!.add(0, blockDev0 + " : " + Utils.getConventionalSize(diskSize))
             spinnerAdapter!!.notifyDataSetChanged()
-            (headerView!!.findViewById(R.id.part_table) as TextView).text = PARTITION_TABLE
-            (headerView!!.findViewById(R.id.disk_model) as TextView).text = STORAGE_MODEL
-            (headerView!!.findViewById(R.id.sector_size) as TextView).text = SECTOR_SIZE
+            (headerView!!.findViewById(R.id.part_table) as TextView).text = partitionTable
+            (headerView!!.findViewById(R.id.disk_model) as TextView).text = storageModel
+            (headerView!!.findViewById(R.id.sector_size) as TextView).text = selectSize
         })
     }
 
@@ -142,25 +143,25 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
     private fun parseParted(str:String):ArrayList<BlockDeviceListData> {
         val devicesList = ArrayList<BlockDeviceListData>()
         for (tmp in str.split(("\n").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
-            if (STORAGE_MODEL == null && tmp.contains("Model"))
-            STORAGE_MODEL = tmp.replace("Model: ", "").replace("Model", "")
+            if (storageModel == null && tmp.contains("Model"))
+            storageModel = tmp.replace("Model: ", "").replace("Model", "")
             else if (tmp.contains("Disk ")) {
                 try {
-                    DISK = File(tmp.split((":").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].split((" ").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1])
-                    DISK_SIZE = java.lang.Long.parseLong(tmp.split((":").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].replace("B", "").replace(" ", ""))
+                    disk = File(tmp.split((":").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].split((" ").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1])
+                    diskSize = java.lang.Long.parseLong(tmp.split((":").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].replace("B", "").replace(" ", ""))
                 } catch (ex:NullPointerException) {
                     Log.e(MainActivity.TAG, ex.toString())
                 }
             }
             else if (tmp.contains("Sector size")) {
                 try {
-                    SECTOR_SIZE = tmp.split((":").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].replace(" ", "")
+                    selectSize = tmp.split((":").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].replace(" ", "")
                 } catch (ex:NullPointerException) {
                     Log.e(MainActivity.TAG, ex.toString())
                 }
             } else if (tmp.contains("Partition Table")) {
                 try {
-                    PARTITION_TABLE = tmp.split((":").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].replace(" ", "")
+                    partitionTable = tmp.split((":").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].replace(" ", "")
                 } catch (ex:NullPointerException) {
                     Log.e(MainActivity.TAG, ex.toString())
                 }
@@ -173,7 +174,7 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
                         for (another in test.split((" ").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
                         if (another != "") {
                             when (i) {
-                                0 -> data.setBlock(File((DISK).toString() + "p" + Integer.parseInt(another)))
+                                0 -> data.setBlock(File((disk).toString() + "p" + Integer.parseInt(another)))
                                 1 -> data.setStart(java.lang.Long.parseLong(another.split(("B").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]))
                                 2 -> data.setEnd(java.lang.Long.parseLong(another.split(("B").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]))
                                 3 -> data.setSize(java.lang.Long.parseLong(another.split(("B").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]))
@@ -215,11 +216,11 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
                     }
                     onLoadingCompleted(scheme)
                 } catch (ex:IOException) {
-                    Log.e("Exception", "Failed to read " + dataFile.getAbsolutePath(), ex)
+                    Log.e("Exception", "Failed to read " + dataFile.absolutePath, ex)
                 }
             } else {
                 if (dataFile.exists()) dataFile.delete()
-                MainActivity.rootSession!!.addCommand((getContext().filesDir).toString() + "/common/partition_scheme.sh " + MainActivity.TOOL + " 'b'", 2323) { commandcode, exitcode, output ->
+                MainActivity.rootSession!!.addCommand((getContext().filesDir).toString() + "/common/partition_scheme.sh " + MainActivity.TOOL + " 'b'", 2323) { _, _, output ->
                     writeToFile(Utils.getString(output), "partition_scheme.info", context)
                     onLoadingCompleted(Utils.getString(output))
                 }

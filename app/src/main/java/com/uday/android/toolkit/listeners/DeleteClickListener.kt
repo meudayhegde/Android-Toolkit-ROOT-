@@ -31,8 +31,7 @@ class DeleteClickListener(private val adapter: ApkListAdapter) : DialogUtils.OnC
         )
         anim.duration = 500
 
-        commandResultListener =
-            Shell.OnCommandResultListener { commandCode, exitCode, output ->
+        commandResultListener = Shell.OnCommandResultListener { _, _, _ ->
                 (context as AppCompatActivity).runOnUiThread {
                     if (!apkListData!!.apkFile.exists()) {
                         row!!.startAnimation(anim)
@@ -42,13 +41,13 @@ class DeleteClickListener(private val adapter: ApkListAdapter) : DialogUtils.OnC
                         }, 400)
                         CustomToast.showSuccessToast(
                             context,
-                            apkListData!!.PATH + " is deleted",
+                            apkListData!!.path + " is deleted",
                             Toast.LENGTH_SHORT
                         )
                     } else
                         CustomToast.showFailureToast(
                             context,
-                            "failed to delete" + apkListData!!.PATH,
+                            "failed to delete" + apkListData!!.path,
                             Toast.LENGTH_SHORT
                         )
                 }
@@ -60,13 +59,13 @@ class DeleteClickListener(private val adapter: ApkListAdapter) : DialogUtils.OnC
         val dialog = DialogUtils.showConfirmDialog(
             context,
             "Are you sure..?",
-            "do you want to permanently delete\n" + apkListData!!.PATH + "..?",
+            "do you want to permanently delete\n" + apkListData!!.path + "..?",
             null,
             "confirm",
             object : DialogUtils.OnClickListener {
                 override fun onClick(p1: AlertDialog?) {
                     rootSession!!.addCommand(
-                        MainActivity.TOOL + " rm -f " + '"'.toString() + apkListData!!.PATH + '"'.toString(),
+                        MainActivity.TOOL + " rm -f " + '"'.toString() + apkListData!!.path + '"'.toString(),
                         position,
                         commandResultListener
                     )
@@ -84,7 +83,6 @@ class DeleteClickListener(private val adapter: ApkListAdapter) : DialogUtils.OnC
     }
 
     companion object {
-
         private val rootSession = MainActivity.rootSession
     }
 }

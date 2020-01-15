@@ -13,7 +13,7 @@ import com.uday.android.util.Utils
 import java.io.File
 import java.util.*
 
-class ActionExecuter(private val fragment:AndroidImagesFragment):Runnable {
+class ActionExecutor(private val fragment:AndroidImagesFragment):Runnable {
     private val context:Context = fragment.context
 
     override fun run() {
@@ -27,7 +27,7 @@ class ActionExecuter(private val fragment:AndroidImagesFragment):Runnable {
                 }
 
             AndroidImagesFragment.SELECTED_REPACK -> MainActivity.rootSession!!.addCommand((context.filesDir).toString() + "/common/boot_repack.sh " + MainActivity.TOOL + " /data/local/ToolKit/" + fragment.choosen, 4, fragment.commandLineListener)
-            AndroidImagesFragment.SELECTED_INSTALL -> MainActivity.rootSession!!.addCommand(MainActivity.TOOL + " dd if=" + '"'.toString() + fragment.fileChoosen!!.absolutePath + '"'.toString() + " of=" + fragment.BLOCK, AndroidImagesFragment.SELECTED_INSTALL) { commandCode, exitCode, output ->
+            AndroidImagesFragment.SELECTED_INSTALL -> MainActivity.rootSession!!.addCommand(MainActivity.TOOL + " dd if=" + '"'.toString() + fragment.fileChoosen!!.absolutePath + '"'.toString() + " of=" + fragment.block, AndroidImagesFragment.SELECTED_INSTALL) { _, exitCode, output ->
                 (context as AppCompatActivity).runOnUiThread {
                     if (fragment.pDialog != null) fragment.pDialog!!.cancel()
                     if (exitCode == 0) {
@@ -42,9 +42,10 @@ class ActionExecuter(private val fragment:AndroidImagesFragment):Runnable {
                 }
             }
             AndroidImagesFragment.SELECTED_BACKUP -> {
+                @Suppress("DEPRECATION")
                 fragment.backupDir = File(fragment.backupDir!!.absolutePath + "/" + Calendar.getInstance().time.toLocaleString().replace(" ", "_").replace(",", "").replace(":", ""))
                 fragment.backupDir!!.mkdirs()
-                MainActivity.rootSession!!.addCommand((MainActivity.TOOL + " mkdir -p '" + fragment.backupDir + "'\n" + MainActivity.TOOL + " dd if=" + fragment.BLOCK + " of=" + fragment.backupDir!!.absolutePath + "/" + fragment.BLOCK_NAME), AndroidImagesFragment.SELECTED_BACKUP
+                MainActivity.rootSession!!.addCommand((MainActivity.TOOL + " mkdir -p '" + fragment.backupDir + "'\n" + MainActivity.TOOL + " dd if=" + fragment.block + " of=" + fragment.backupDir!!.absolutePath + "/" + fragment.blockName), AndroidImagesFragment.SELECTED_BACKUP
                 ) { _, exitCode, output ->
                     fragment.runOnUiThread(Runnable {
                         if (fragment.pDialog != null) fragment.pDialog!!.cancel()
@@ -59,7 +60,7 @@ class ActionExecuter(private val fragment:AndroidImagesFragment):Runnable {
                 }
             }
 
-            AndroidImagesFragment.SELECTED_RESTORE_ITEM -> MainActivity.rootSession!!.addCommand(MainActivity.TOOL + " dd if=" + fragment.backupDir + "/" + fragment.choosen + "/" + fragment.BLOCK_NAME + " of=" + fragment.BLOCK, AndroidImagesFragment.SELECTED_BACKUP
+            AndroidImagesFragment.SELECTED_RESTORE_ITEM -> MainActivity.rootSession!!.addCommand(MainActivity.TOOL + " dd if=" + fragment.backupDir + "/" + fragment.choosen + "/" + fragment.blockName + " of=" + fragment.block, AndroidImagesFragment.SELECTED_BACKUP
             ) { _, exitCode, output ->
                 fragment.runOnUiThread(Runnable {
                     if (fragment.pDialog != null) fragment.pDialog!!.cancel()

@@ -19,27 +19,26 @@ import com.uday.android.toolkit.ui.CustomToast
 import com.uday.android.util.BuildProperty
 import com.uday.android.util.Utils
 import eu.chainfire.libsuperuser.Shell
-import java.io.File
 import java.util.*
 
 @SuppressLint("NewApi", "ValidFragment")
 class BuildPropFragment @SuppressLint("ValidFragment")
     constructor(private val context:Context): androidx.fragment.app.Fragment() {
-    var dialogContent:LinearLayout
+    private var dialogContent:LinearLayout
     var editPropView:EditText
     var editValView:EditText
-    var PropTextView:TextView
-    var ValTextView:TextView
+    var propTextView:TextView
+    var valTextView:TextView
     var dialog: AlertDialog? = null
-    var buildProperties:ArrayList<BuildProperty>
-    var positive:Button?=null
-    var negative:Button?=null
-    var neutral:Button?=null
+    var buildProperties:ArrayList<BuildProperty> = ArrayList()
+    private var positive:Button?=null
+    private var negative:Button?=null
+    private var neutral:Button?=null
     var selected:Int = 0
-    var BuildProp:File? = null
+//    var buildProp:File? = null
 
-    private val ConfirmTextView:TextView
-    private val PropContent:LinearLayout
+    private val confirmTextView:TextView
+    private val propContent:LinearLayout
     private var rootView:RelativeLayout? = null
     private var fab:FloatingActionButton? = null
     private var buildListView:ListView? = null
@@ -49,20 +48,19 @@ class BuildPropFragment @SuppressLint("ValidFragment")
     private var mPreviousVisibleItem:Int = 0
     private var scrollState:Int = 0
     private val nameComparator:Comparator<BuildProperty>
-    var mOption:Int = 0
+    private var mOption:Int = 0
 
 
     init{
-        buildProperties = ArrayList()
         buildPropertiesOrig = ArrayList()
         rootsession = MainActivity.rootSession
         dialogContent = (context as AppCompatActivity).layoutInflater.inflate(R.layout.build_prop_edit_dialog, null) as LinearLayout
-        PropContent = dialogContent.findViewById(R.id.prop_content) as LinearLayout
-        ConfirmTextView = dialogContent.findViewById(R.id.confirm_txt) as TextView
+        propContent = dialogContent.findViewById(R.id.prop_content) as LinearLayout
+        confirmTextView = dialogContent.findViewById(R.id.confirm_txt) as TextView
         editPropView = dialogContent.findViewById(R.id.build_edit_prop) as EditText
         editValView = dialogContent.findViewById(R.id.build_edit_value) as EditText
-        PropTextView = dialogContent.findViewById(R.id.prop_text) as TextView
-        ValTextView = dialogContent.findViewById(R.id.val_text) as TextView
+        propTextView = dialogContent.findViewById(R.id.prop_text) as TextView
+        valTextView = dialogContent.findViewById(R.id.val_text) as TextView
 
         onSaveClicked = OnClickListener {
             dialog!!.cancel()
@@ -169,7 +167,7 @@ class BuildPropFragment @SuppressLint("ValidFragment")
         return rootView
     }
 
-    fun refreshProp() {
+    private fun refreshProp() {
         n = 0
         rootsession!!.addCommand(context.filesDir.absolutePath + "/common/refresh_prop.sh " + MainActivity.TOOL, 1512, object:Shell.OnCommandLineListener {
             override fun onCommandResult(commandCode:Int, exitCode:Int) {
@@ -225,31 +223,31 @@ class BuildPropFragment @SuppressLint("ValidFragment")
     fun setDialog(type:Int) {
         when (type) {
             EDIT_TYPE -> {
-                PropContent.visibility = View.VISIBLE
-                ConfirmTextView.visibility = View.GONE
-                PropTextView.visibility = View.GONE
-                ValTextView.visibility = View.GONE
+                propContent.visibility = View.VISIBLE
+                confirmTextView.visibility = View.GONE
+                propTextView.visibility = View.GONE
+                valTextView.visibility = View.GONE
                 editPropView.visibility = View.VISIBLE
                 editValView.visibility = View.VISIBLE
 
-                positive?.text = "Save"
+                positive?.text = getString(R.string.save)
                 neutral?.visibility = View.GONE
                 positive?.setOnClickListener {
-                    ConfirmTextView.text = "Are you sure you want to save changes..?"
+                    confirmTextView.text = getString(R.string.confirm_save_changes)
                     setDialog(CONFIRM_TYPE)
                 }
             }
 
             PRIMARY_TYPE -> {
-                PropContent.visibility = View.VISIBLE
-                ConfirmTextView.visibility = View.GONE
-                PropTextView.visibility = View.VISIBLE
-                ValTextView.visibility = View.VISIBLE
+                propContent.visibility = View.VISIBLE
+                confirmTextView.visibility = View.GONE
+                propTextView.visibility = View.VISIBLE
+                valTextView.visibility = View.VISIBLE
                 editPropView.visibility = View.GONE
                 editValView.visibility = View.GONE
 
-                positive?.text = "Edit"
-                neutral?.text = "Delete"
+                positive?.text = getString(R.string.edit)
+                neutral?.text = getString(R.string.delete)
                 neutral?.visibility = View.VISIBLE
                 positive?.setOnClickListener {
                     mOption = SAVE
@@ -257,14 +255,14 @@ class BuildPropFragment @SuppressLint("ValidFragment")
                 }
                 neutral?.setOnClickListener {
                     mOption = DELETE
-                    ConfirmTextView.text = "Are you sure you want to delete this property..?"
+                    confirmTextView.text = getString(R.string.confirm_delete_property)
                     setDialog(CONFIRM_TYPE)
                 }
             }
             CONFIRM_TYPE -> {
-                PropContent.visibility = View.GONE
-                ConfirmTextView.visibility = View.VISIBLE
-                positive?.text = "Confirm"
+                propContent.visibility = View.GONE
+                confirmTextView.visibility = View.VISIBLE
+                positive?.text = getString(R.string.confirm)
                 positive?.setOnClickListener(onSaveClicked)
                 neutral?.visibility = View.GONE
             }

@@ -14,7 +14,6 @@ import android.widget.Toast
 import com.uday.android.toolkit.MainActivity
 import org.tukaani.xz.XZInputStream
 import java.io.*
-import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -51,15 +50,15 @@ object Utils {
         }
 
     fun getSize(file: File): String {
-        return getConventionalSize(file.length().toLong())
+        return getConventionalSize(file.length())
     }
 
-    fun getConventionalSize(size: Long): String {
-        var size = size
+    fun getConventionalSize(size_: Long): String {
+        var size = size_
         var count = 0
         var unit = "B"
         while (size >= 1000) {
-            size = size / 1024
+            size /= 1024
             count++
         }
         when (count) {
@@ -104,10 +103,8 @@ object Utils {
 
     //by Ganesh varma
     fun findInPath(cmd: String): Boolean {
-        val pathToTest = Objects.requireNonNull(System.getenv("PATH")).split(":".toRegex())
-            .dropLastWhile { it.isEmpty() }
-            .toTypedArray()
-        for (path in pathToTest) {
+        val pathToTest = System.getenv("PATH")?.split(":".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()
+        for (path in pathToTest?: arrayOf()) {
             val cmdFile = File(path, cmd)
             if (cmdFile.exists()) {
                 Log.d("shell", "Found " + cmd + " at " + cmdFile.absolutePath)
@@ -123,6 +120,7 @@ object Utils {
         if (packageName == null || "" == packageName)
             return false
         return try {
+            @Suppress("DEPRECATION")
             pm.getApplicationInfo(
                 packageName, PackageManager.GET_UNINSTALLED_PACKAGES
             )
@@ -140,11 +138,13 @@ object Utils {
         if (packageName == null || "" == packageName)
             return false
         return try {
+            @Suppress("DEPRECATION")
             pm.getApplicationInfo(
                 packageName, PackageManager.GET_UNINSTALLED_PACKAGES
             )
             Log.d(MainActivity.TAG, "checkAppInstalledByName: $packageName : found")
             val pInfo = pm.getPackageInfo(packageName, 0)
+            @Suppress("DEPRECATION")
             pInfo.versionCode == VERSION
         } catch (e: Exception) {
             Log.d(MainActivity.TAG, "checkAppInstalledByName:$packageName not found")
@@ -187,7 +187,6 @@ object Utils {
             out = FileOutputStream(outFile)
             copyFile(`in`!!, out)
             `in`.close()
-            `in` = null
             out.flush()
             out.close()
             if (filename.endsWith(".zip")) {
@@ -265,7 +264,7 @@ object Utils {
     @SuppressLint("SetWorldReadable")
     fun unpackZip(zipFile: File): Boolean {
         File(zipFile.parent + "/" + zipFile.name.split(".zip".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0])
-        val zipPath: File = File(zipFile.parent + "/" + "common")
+        val zipPath = File(zipFile.parent + "/" + "common")
         try {
             createDir(zipPath)
         } catch (ex: IOException) {

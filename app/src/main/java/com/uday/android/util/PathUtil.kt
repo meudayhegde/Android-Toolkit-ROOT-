@@ -12,14 +12,15 @@ import java.io.File
 import java.net.URISyntaxException
 
 object PathUtil {
-    fun getPath(context: Context,uri: Uri):String?{
+    fun getPath(context: Context,uri: Uri?):String?{
+        if(uri == null) return null
         return if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.O){
             val id = uri.path?.split(':')
             if((id?: listOf(""))[0].contains("primary",ignoreCase = true))
                 Environment.getExternalStorageDirectory().absolutePath+ File.separator + (id?: listOf("",""))[1]
             else
                 Environment.getExternalStorageDirectory().absolutePath.split(File.separator)[1]+
-                        File.separator+(id?: listOf(""))[0].replace(File.separator,"").replace("tree","")+
+                        File.separator+(id?: listOf(""))[0].replace(File.separator,"").replace("tree","").replace("document","")+
                         File.separator+(id?: listOf("",""))[1]
         }else
             getPathBellowOreo(context,uri)

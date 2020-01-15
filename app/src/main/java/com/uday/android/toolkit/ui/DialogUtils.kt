@@ -19,10 +19,8 @@ class DialogUtils(private val context: Context) {
         .setTitle(" ").setMessage(" ")
         .setNegativeButton("cancel", null)
         .setNeutralButton("another", null)
-    var positiveButton: Button? = null
-        private set
-    var negativeButton: Button? = null
-        private set
+    private var positiveButton: Button? = null
+    private var negativeButton: Button? = null
     private var mNeutral: Button? = null
     private var mView: View? = null
 
@@ -34,7 +32,7 @@ class DialogUtils(private val context: Context) {
             return mNeutral
         }
 
-    fun create(): DialogUtils {
+    private fun create(): DialogUtils {
         dialog = dialogBuilder.create()
         dialog!!.window!!.attributes.windowAnimations = R.style.DialogTheme
         return this

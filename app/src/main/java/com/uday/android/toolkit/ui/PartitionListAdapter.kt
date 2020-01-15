@@ -15,10 +15,7 @@ import com.uday.android.toolkit.R
 import com.uday.android.util.BlockDeviceListData
 import java.util.*
 
-class PartitionListAdapter(
-    private val contex: Context,
-    private val layout_res: Int,
-    private val partitionList: ArrayList<BlockDeviceListData>) : ArrayAdapter<BlockDeviceListData>(contex, layout_res, partitionList) {
+class PartitionListAdapter(contex: Context, private val layout_res: Int, private val partitionList: ArrayList<BlockDeviceListData>) : ArrayAdapter<BlockDeviceListData>(contex, layout_res, partitionList) {
 
     @SuppressLint("ViewHolder")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

@@ -51,8 +51,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private var selectedItem: Int = 0
     private var backgroundThread: BackgroundThread? = null
-    var menuReboot: MenuItem? = null
-    var menuSettings: MenuItem?=null
+    private var menuReboot: MenuItem? = null
+    private var menuSettings: MenuItem?=null
     var backgroundThreadisRunning = false
     var isExcepted = false
     var mGrowIn: AnimationSet?=null
@@ -67,7 +67,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         isActivityAlive = true
         supportActionBar?.setBackgroundDrawable(ColorDrawable(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {getColor(R.color.colorPrimary)}
-            else {resources.getColor(R.color.colorPrimary)}
+            else {
+                @Suppress("DEPRECATION")
+                resources.getColor(R.color.colorPrimary)
+            }
         ))
         val metrics = resources.displayMetrics
         SCREEN_HEIGHT = metrics.heightPixels
@@ -159,7 +162,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return super.onPrepareOptionsMenu(menu)
     }
 
-    fun hideContextMenu() {
+    private fun hideContextMenu() {
         if (menuReboot != null) {
             menuReboot!!.setShowAsAction(0)
             menuSettings?.setShowAsAction(0)
@@ -170,7 +173,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         requestCode: Int,
         permissions: Array<String>, grantResults: IntArray
     ) {
-        envSetup!!.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        envSetup!!.onRequestPermissionsResult(requestCode, grantResults)
     }
 
 

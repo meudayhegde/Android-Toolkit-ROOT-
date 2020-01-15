@@ -1,7 +1,6 @@
 package com.uday.android.toolkit.fragments
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -28,7 +27,7 @@ import com.uday.android.toolkit.R
 import com.uday.android.toolkit.listeners.AndImgListListener
 import com.uday.android.toolkit.listeners.ConfirmListener
 import com.uday.android.toolkit.listeners.TermListener
-import com.uday.android.toolkit.runnable.ActionExecuter
+import com.uday.android.toolkit.runnable.ActionExecutor
 import com.uday.android.toolkit.ui.CustomToast
 import com.uday.android.toolkit.ui.DialogUtils
 import com.uday.android.util.PathUtil
@@ -40,30 +39,31 @@ import java.util.*
 @SuppressLint("NewApi")
 class AndroidImagesFragment: Fragment {
 
-     var mBlock:Int = 0
+//     var mBlock:Int = 0
      var mOption:Int = 0
      var backupDir:File? = null
      var fileChoosen:File?=null
      var tmpstr:String? = null
      var pName:String?=null
      var choosen:String?=null
-     var BOOT:String? = null
-     var RECOVERY:String? = null
-     var LOGO:String? = null
-     var BLOCK:String? = null
-     var BLOCK_NAME:String? = null
+     var boot:String? = null
+     var recovery:String? = null
+     var logo:String? = null
+     var block:String? = null
+     var blockName:String? = null
      var commandLineListener:TermListener?=null
-     var term_finished:Button? = null
+//     var termFinished:Button? = null
      var termTextView:TextView?=null
      var termDialog: AlertDialog?=null
-     var pDialog:ProgressDialog? = null
-     var executer:ActionExecuter?=null
-     var BlockAdapter:ArrayAdapter<*>? = null
-     var imagesDialog: AlertDialog?=null
-     var projectDialog: AlertDialog?=null
-     var confirmDialog: AlertDialog? = null
+     @Suppress("DEPRECATION")
+     var pDialog:android.app.ProgressDialog? = null
+     var executor:ActionExecutor?=null
+//     var blockAdapter:ArrayAdapter<*>? = null
+     private var imagesDialog: AlertDialog?=null
+     private var projectDialog: AlertDialog?=null
+//     var confirmDialog: AlertDialog? = null
      var mListener:ConfirmListener?=null
-     var DIR:File?=null
+     var dir:File?=null
      var termProgress:ProgressBar?=null
 
     private var rootView:RelativeLayout? = null
@@ -80,7 +80,7 @@ class AndroidImagesFragment: Fragment {
     private var prefs:SharedPreferences?=null
     private var fileSelectedListener:OnFileSelectedListener? = null
 
-    var blockNames = arrayOf("Boot image", "Recovery image", "Boot Logo")
+//    var blockNames = arrayOf("Boot image", "Recovery image", "Boot Logo")
 
     constructor()
 
@@ -91,9 +91,10 @@ class AndroidImagesFragment: Fragment {
         return context!!
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onResume() {
         if (rootView != null) refreshList()
-        DIR = if (getContext().getSharedPreferences("general", 0).getInt("storage", 0) == 1) {
+        dir = if (getContext().getSharedPreferences("general", 0).getInt("storage", 0) == 1) {
             if (Utils.externalSdCard != null) {
                 File(Utils.externalSdCard!!.absolutePath + "/ToolKit")
             } else {
@@ -103,7 +104,8 @@ class AndroidImagesFragment: Fragment {
         } else {
             File(Environment.getExternalStorageDirectory().absolutePath + "/ToolKit")
         }
-        (rootView!!.findViewById(R.id.backup_dir_android) as TextView).text = (DIR).toString() + "/backups"
+        (rootView!!.findViewById(R.id.backup_dir_android) as TextView).text =
+            "${(dir).toString()}/backups"
         if (!menu!!.isOpened) {
             menu!!.hideMenuButton(false)
             Handler().postDelayed({ menu!!.showMenuButton(true) }, 400)
@@ -116,12 +118,12 @@ class AndroidImagesFragment: Fragment {
         rootSession = MainActivity.rootSession
         this.context = context
 		prefs = context.getSharedPreferences("block_devs", 0)
-        BOOT = prefs?.getString("boot", null)
-        RECOVERY = prefs?.getString("recovery", null)
-        LOGO = prefs?.getString("logo", null)
+        boot = prefs?.getString("boot", null)
+        recovery = prefs?.getString("recovery", null)
+        logo = prefs?.getString("logo", null)
 
         commandLineListener = TermListener(this)
-        executer = ActionExecuter(this)
+        executor = ActionExecutor(this)
         mListener = ConfirmListener(this)
         fileSelectedListener = object:OnFileSelectedListener {
             override fun onFileSelected(file:File) {
@@ -150,7 +152,7 @@ class AndroidImagesFragment: Fragment {
                                     termDialog = obj[0] as AlertDialog
                                     termTextView = obj[1] as TextView
                                     termProgress = obj[2] as ProgressBar
-                                    Thread(executer).start()
+                                    Thread(executor).start()
                                 } catch (ex:Exception) {
                                     Log.e(MainActivity.TAG, ex.toString() + ex.message)
                                     CustomToast.showFailureToast(getContext(), ex.toString(), Toast.LENGTH_SHORT)
@@ -175,9 +177,8 @@ class AndroidImagesFragment: Fragment {
                 if (resultCode == AppCompatActivity.RESULT_OK) {
                     // Get the Uri of the selected file
                     val uri = data?.data
-                    Log.d("CONFIG_SELECTOR", "File Uri: " + uri.toString())
                     try {
-                        fileSelectedListener?.onFileSelected(File(PathUtil.getPath(context!!,uri!!)))
+                        fileSelectedListener?.onFileSelected(File(PathUtil.getPath(context!!,uri)))
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -188,7 +189,7 @@ class AndroidImagesFragment: Fragment {
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater:LayoutInflater, container:ViewGroup?, savedInstanceState:Bundle?):View? {
-        DIR = if (getContext().getSharedPreferences("general", 0).getInt("storage", 0) == 1) {
+        dir = if (getContext().getSharedPreferences("general", 0).getInt("storage", 0) == 1) {
             if (Utils.externalSdCard != null) {
                 File(Utils.externalSdCard!!.absolutePath + "/ToolKit")
             } else {
@@ -203,7 +204,7 @@ class AndroidImagesFragment: Fragment {
             firstOpen()
         }
         rootView!!.startAnimation(MainActivity.mFadeIn)
-        (rootView!!.findViewById(R.id.backup_dir_android) as TextView).text = (DIR).toString() + "/" + getString(R.string.backp_dir_name)
+        (rootView!!.findViewById(R.id.backup_dir_android) as TextView).text = (dir).toString() + "/" + getString(R.string.backp_dir_name)
         return rootView
     }
 
@@ -211,7 +212,7 @@ class AndroidImagesFragment: Fragment {
 
     private fun firstOpen() {
         rootView!!.findViewById<LinearLayout>(R.id.path_unpack_dir).setOnClickListener { Utils.openFolder(getContext(), Environment.getDataDirectory().absolutePath + "/local/ToolKit/") }
-        rootView!!.findViewById<LinearLayout>(R.id.magic_path_backup_dir).setOnClickListener { Utils.openFolder(getContext(), DIR?.absolutePath + "/backups/") }
+        rootView!!.findViewById<LinearLayout>(R.id.magic_path_backup_dir).setOnClickListener { Utils.openFolder(getContext(), dir?.absolutePath + "/backups/") }
         list = arrayOf("")
         menu = rootView!!.findViewById(R.id.menu_img)
         menu!!.setClosedOnTouchOutside(true)
@@ -300,6 +301,7 @@ class AndroidImagesFragment: Fragment {
                 projectDialog?.cancel()
                 choosen = (p2 as TextView).text.toString()
                 mOption = SELECTED_REPACK
+                @Suppress("DEPRECATION")
                 DialogUtils.showConfirmDialog(getContext(), "Repack project", null, Html.fromHtml("Selected project : <b>$choosen</b>"), "confirm", mListener)
             }
     }
@@ -314,9 +316,9 @@ class AndroidImagesFragment: Fragment {
          const val SELECTED_INSTALL = 2
          const val SELECTED_BACKUP = 4
          const val SELECTED_RESTORE = 3
-         val SELECTED_BOOT = 5
-         val SELECTED_RECOVERY = 6
-         val SELECTED_LOGO = 7
+//         val SELECTED_BOOT = 5
+//         val SELECTED_RECOVERY = 6
+//         val SELECTED_LOGO = 7
          const val SELECTED_RESTORE_ITEM = 8
          const val IMAGE_SELECT_CODE =  7265
 

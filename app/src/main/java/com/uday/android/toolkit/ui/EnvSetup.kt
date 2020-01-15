@@ -3,7 +3,6 @@ package com.uday.android.toolkit.ui
 
 import android.Manifest
 import android.app.Dialog
-import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -29,20 +28,20 @@ import java.io.File
 open class EnvSetup @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 constructor(private val context:Context) {
     private val fullScreenDialog:Dialog = Dialog(context, android.R.style.Theme_Material_Light_NoActionBar)
-    private val pDialog:ProgressDialog
+    @Suppress("DEPRECATION")
+    private val pDialog:android.app.ProgressDialog
     private var prefs:SharedPreferences? = null
-    private var edit:SharedPreferences.Editor? = null
     private val isFirstRun:Boolean
     private var abi:String? = null
     private var hasBusyBox:Boolean = false
     private var currentVersionCode:Int = 0
 
-    fun requestPermissions(permissions:Array<String>, requestCode:Int) {
+    private fun requestPermissions(permissions:Array<String>, requestCode:Int) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             (context as AppCompatActivity).requestPermissions(permissions, requestCode)
     }
 
-    fun finishActivity() {
+    private fun finishActivity() {
         (context as AppCompatActivity).finish()
     }
 
@@ -55,18 +54,19 @@ constructor(private val context:Context) {
         fullScreenDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         fullScreenDialog.show()
 
-        pDialog = ProgressDialog(context)
+        @Suppress("DEPRECATION")
+        pDialog = android.app.ProgressDialog(context)
         pDialog.setTitle("Please wait...")
         pDialog.setCancelable(false)
         pDialog.setMessage("Obtaining root access...")
         pDialog.window!!.attributes.windowAnimations = R.style.DialogTheme
 
         prefs = context.getSharedPreferences("general", 0)
-        edit = prefs!!.edit()
         isFirstRun = prefs!!.getBoolean("isFirstRun", true)
         abi = prefs!!.getString("abi", "")
         val previousVersionCode = prefs!!.getInt("versionCode", 1)
         currentVersionCode = try {
+            @Suppress("DEPRECATION")
             context.packageManager.getPackageInfo(context.packageName, 0).versionCode
         } catch (ex:PackageManager.NameNotFoundException) {
             previousVersionCode + 1
@@ -76,7 +76,7 @@ constructor(private val context:Context) {
             isFirstRun -> showAgreement()
             currentVersionCode > previousVersionCode -> {
                 pDialog.show()
-                FirstRunSettup()
+                firstRunSetup()
             }
             else -> {
                 pDialog.show()
@@ -106,6 +106,7 @@ constructor(private val context:Context) {
         val agreeTxt = TextView(context)
         val agreementLayout = ScrollView(context)
         agreementLayout.addView(agreeTxt)
+        @Suppress("DEPRECATION")
         agreeTxt.text = Html.fromHtml(Utils.getStringFromInputStream(context.resources.openRawResource(R.raw.agreement)))
         agreeTxt.setPadding(30, 0, 15, 0)
         val agreementDialog = AlertDialog.Builder(context)
@@ -113,7 +114,7 @@ constructor(private val context:Context) {
                 if (!pDialog.isShowing) pDialog.show()
                 object:Thread() {
                     override fun run() {
-                        FirstRunSettup()
+                        firstRunSetup()
                     }
                 }.start()
             }
@@ -125,12 +126,11 @@ constructor(private val context:Context) {
         	agreementDialog.setCancelable(false)
     }
 
-    private fun FirstRunSettup() {
+    private fun firstRunSetup() {
         runOnMainThread(Runnable { pDialog.setMessage("Getting device properties...") })
-        val SUPPORTED_ABIS:Array<String>
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) SUPPORTED_ABIS = Build.SUPPORTED_ABIS
-        else SUPPORTED_ABIS = arrayOf(Build.CPU_ABI, Build.CPU_ABI2)
-        for (test in SUPPORTED_ABIS) {
+        @Suppress("DEPRECATION")
+        val supportedABIs:Array<String> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) Build.SUPPORTED_ABIS else arrayOf(Build.CPU_ABI, Build.CPU_ABI2)
+        for (test in supportedABIs) {
             when (test) {
                 "armeabi" -> abi = "arm"
                 "armeabi-v7a" -> abi = "arm"
@@ -146,13 +146,12 @@ constructor(private val context:Context) {
             finishActivity()
         }
 
-        edit!!.putString("abi", abi)
+        prefs?.edit()?.putString("abi", abi)?.apply()
 
         clearData()
         Utils.copyAsset(context.assets, "utils.tar.xz", context.filesDir.absolutePath)
         Utils.unpackXZ(File(context.filesDir.absolutePath + "/utils.tar.xz"), false)
-        edit!!.putInt("versionCode", currentVersionCode)
-        edit!!.apply()
+        prefs?.edit()?.putInt("versionCode", currentVersionCode)?.apply()
         if (!isFirstRun)
             CustomToast.showSuccessToast(context, "Application updated", Toast.LENGTH_SHORT)
         obtainRootShell()
@@ -184,17 +183,15 @@ constructor(private val context:Context) {
                 else {
                     Log.i(MainActivity.TAG, Utils.getString(output))
                     prefs = context.getSharedPreferences("block_devs", 0)
-                    edit = prefs!!.edit()
                     try {
                         for (Str in output) {
-                            edit!!.putString(Str.split((" ").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0], Str.split((" ").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1])
-                            edit!!.apply()
+                            prefs?.edit()?.putString(Str.split((" ").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0], Str.split((" ").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1])?.apply()
                         }
                     } catch (ex:Exception) {
                         runOnMainThread(Runnable { Toast.makeText(context, "Failed to detect block devices\nPlease consider manually setting block devices.", Toast.LENGTH_SHORT).show() })
                     }
 
-                    NormalStartup()
+                    normalStartup()
                 }
             }
         try {
@@ -249,7 +246,7 @@ constructor(private val context:Context) {
         checkForBusyBox()
     }
 
-    fun checkForBusyBox() {
+    private fun checkForBusyBox() {
         hasBusyBox = false
         when {
             Utils.findInPath("busybox") -> {
@@ -284,7 +281,7 @@ constructor(private val context:Context) {
             } else {
                 if (!(context as MainActivity).opened) {
                     context.opened = true
-                    if (!isFirstRun) NormalStartup()
+                    if (!isFirstRun) normalStartup()
                     else saveBlockdevs()
                 }
             }
@@ -292,7 +289,7 @@ constructor(private val context:Context) {
     }
 
 
-    fun NormalStartup() {
+    private fun normalStartup() {
         runOnMainThread(Runnable {
             if (Build.VERSION.SDK_INT > 22 && (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
                 pDialog.setMessage("Obtaining storage permissions")
@@ -309,7 +306,7 @@ constructor(private val context:Context) {
         fullScreenDialog.dismiss()
     }
 
-    fun onRequestPermissionsResult(requestCode:Int, permissions:Array<String>, grantResults:IntArray) {
+    fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray) {
         pDialog.dismiss()
         when (requestCode) {
             69243 -> if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {

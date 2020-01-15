@@ -1,4 +1,5 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
     <string name="app_name" translatable="false">Android Toolkit</string>
     <string name="TAG" translatable="false">TOOLKIT</string>
     <string name="drawer_item_1">Kernel</string>
@@ -118,4 +119,26 @@
     <string name="about">About</string>
     <string name="application_icon">application Icon</string>
     <string name="root_utilities_in_one_place">Root utilities in one place</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
+    <string name="confirm_delete_property">Are you sure you want to delete this property..?</string>
+    <string name="confirm_save_changes">Are you sure you want to save changes..?</string>
+    <string name="save">Save</string>
+    <string name="installed">Installed</string>
+    <string name="current_installed_version">Current Installed Version</string>
+    <string name="new_version">New Version</string>
+    <string name="install_kernel_warn"><![CDATA[Do you want to install as kernel at your own <b>knowledge and risk</b>.??]]></string>
+    <string name="kern_install_from_ing_warn"><![CDATA[If it is having valid <b>android magic</b>,<br> kernel will be extracted from the img file you selected, and then will be installed on your device. Do you want to continue ?]]></string>
+    <string name="wrong_kernel">wrong kernel</string>
+    <string name="is_extremely_harmful_and_it_will_definitely">is extremely harmful and it will definitely</string>
+    <string name="hard_brick">hard brick</string>
+    <string name="your_device">your device</string>
+    <string name="you_have_selected">You have selected</string>
+    <string name="install_always">Install Anyways</string>
+    <string name="dont_install">Don\'t install</string>
+    <string name="kernel_installation">Kernel Installation</string>
+    <string name="install_file_manager">Please install a File Manager.</string>
+    <string name="select_kernel_or_boot_img_file">Select kernel or boot.img file</string>
+    <string name="select_desired_backup_to_restore">Select desired backup to restore</string>
 </resources>

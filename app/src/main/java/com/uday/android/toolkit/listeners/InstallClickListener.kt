@@ -1,6 +1,5 @@
 package com.uday.android.toolkit.listeners
 
-import android.app.ProgressDialog
 import android.content.Context
 import android.graphics.Color
 import android.util.Log
@@ -24,7 +23,8 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
     private val launcher: DialogUtils.OnClickListener
     private val commandResultListener: Shell.OnCommandResultListener
     private var sweet: AlertDialog? = null
-    private var pDialog: ProgressDialog? = null
+    @Suppress("DEPRECATION")
+    private var pDialog: android.app.ProgressDialog? = null
 
     init {
 
@@ -33,14 +33,14 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
                 p1!!.cancel()
                 try {
                     val launchIntent =
-                        context.packageManager.getLaunchIntentForPackage(apkListData!!.PACKAGE_NAME)
+                        context.packageManager.getLaunchIntentForPackage(apkListData!!.packageName)
                     if (launchIntent != null) {
                         context.startActivity(launchIntent)//null pointer check in case package name was not found
                     }
                 } catch (ex: Exception) {
                     CustomToast.showFailureToast(
                         context,
-                        "Failed to launch " + apkListData!!.NAME,
+                        "Failed to launch " + apkListData!!.name,
                         Toast.LENGTH_SHORT
                     )
                     Log.e(MainActivity.TAG, ex.toString())
@@ -61,7 +61,7 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
                         dialog = DialogUtils.showConfirmDialog(
                             context,
                             "Installation Success",
-                            apkListData!!.NAME + "_" + apkListData!!.VERSION_NAME + " Successfully installed...",
+                            apkListData!!.name + "_" + apkListData!!.versionName + " Successfully installed...",
                             null,
                             "Launch",
                             launcher
@@ -69,7 +69,7 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
                         dialog.setIcon(apkListData!!.ICON)
                         CustomToast.showSuccessToast(
                             context,
-                            apkListData!!.NAME + "_" + apkListData!!.VERSION_NAME + " Successfully installed...",
+                            apkListData!!.name + "_" + apkListData!!.versionName + " Successfully installed...",
                             Toast.LENGTH_SHORT
                         )
                     } else {
@@ -79,7 +79,7 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
                         dialog = DialogUtils.showConfirmDialog(
                             context,
                             "Installation failed",
-                            "Failed to install " + apkListData!!.NAME + "_" + apkListData!!.VERSION_NAME,
+                            "Failed to install " + apkListData!!.name + "_" + apkListData!!.versionName,
                             null,
                             null,
                             null
@@ -87,7 +87,7 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
                         dialog.setIcon(apkListData!!.ICON)
                         CustomToast.showFailureToast(
                             context,
-                            "Failed to install " + apkListData!!.NAME + "_" + apkListData!!.VERSION_NAME + "\n" + Utils.getString(
+                            "Failed to install " + apkListData!!.name + "_" + apkListData!!.versionName + "\n" + Utils.getString(
                                 output
                             ),
                             Toast.LENGTH_SHORT
@@ -101,15 +101,16 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
     override fun onClick(p1: AlertDialog?) {
         this.sweet = p1
         p1?.cancel()
-        pDialog = ProgressDialog(context)
+        @Suppress("DEPRECATION")
+        pDialog = android.app.ProgressDialog(context)
         pDialog!!.setIcon(apkListData!!.ICON)
         pDialog!!.setTitle("Installing...")
-        pDialog!!.setMessage("Installing " + apkListData!!.NAME + " please wait...")
+        pDialog!!.setMessage("Installing " + apkListData!!.name + " please wait...")
         pDialog!!.setCancelable(false)
         pDialog!!.window!!.attributes.windowAnimations = R.style.DialogTheme
         pDialog!!.show()
         rootSession!!.addCommand(
-            "pm install -rd " + '"'.toString() + apkListData!!.PATH + '"'.toString(),
+            "pm install -rd " + '"'.toString() + apkListData!!.path + '"'.toString(),
             position,
             commandResultListener
         )

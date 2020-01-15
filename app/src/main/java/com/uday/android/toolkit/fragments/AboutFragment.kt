@@ -29,11 +29,10 @@ class AboutFragment : Fragment {
     private var rootView: View? = null
     private var context: Context? = null
     private var fabLicense: LinearLayout? = null
-    private var LibSuLicense: LinearLayout? = null
-    private var filePickerLicense: LinearLayout? = null
+    private var libSuLicense: LinearLayout? = null
     private var qrDialog: Dialog? = null
 
-    constructor() {}
+    constructor()
 
     @SuppressLint("ValidFragment")
     constructor(context: Context) {
@@ -102,17 +101,8 @@ class AboutFragment : Fragment {
                 startActivity(browserIntent)
             }
 
-            LibSuLicense = rootView!!.findViewById(R.id.lib_su_license) as LinearLayout
-            LibSuLicense!!.setOnClickListener {
-                val browserIntent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("http://www.apache.org/licenses/LICENSE-2.0")
-                )
-                startActivity(browserIntent)
-            }
-
-            filePickerLicense = rootView!!.findViewById(R.id.filpicker_license) as LinearLayout
-            filePickerLicense!!.setOnClickListener {
+            libSuLicense = rootView!!.findViewById(R.id.lib_su_license) as LinearLayout
+            libSuLicense!!.setOnClickListener {
                 val browserIntent = Intent(
                     Intent.ACTION_VIEW,
                     Uri.parse("http://www.apache.org/licenses/LICENSE-2.0")

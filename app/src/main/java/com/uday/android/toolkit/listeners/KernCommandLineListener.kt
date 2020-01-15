@@ -1,14 +1,13 @@
 package com.uday.android.toolkit.listeners
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.DialogInterface
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import android.view.*
-
-import com.uday.android.toolkit.fragments.*
-import eu.chainfire.libsuperuser.*
-import com.uday.android.toolkit.ui.*
-import android.widget.*
+import com.uday.android.toolkit.fragments.KernelFragment
+import com.uday.android.toolkit.ui.CustomToast
+import eu.chainfire.libsuperuser.Shell
 
 class KernCommandLineListener(private val fragment: KernelFragment) : Shell.OnCommandLineListener {
 
@@ -23,7 +22,7 @@ class KernCommandLineListener(private val fragment: KernelFragment) : Shell.OnCo
                     KernelFragment.SELECTED_BACKUP -> CustomToast.showSuccessToast(
                         fragment.context,
                         "kernel backup completed"
-                                + "backups dir: " + fragment.DIR + "/backups/Kernel",
+                                + "backups dir: " + fragment.dir + "/backups/Kernel",
                         Toast.LENGTH_SHORT
                     )
                     KernelFragment.SELECTED_RESTORE -> CustomToast.showSuccessToast(
