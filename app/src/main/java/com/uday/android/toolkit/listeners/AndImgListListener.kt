@@ -1,22 +1,17 @@
 package com.uday.android.toolkit.listeners
 
-import androidx.appcompat.app.AlertDialog
 import android.content.DialogInterface
 import android.text.Html
 import android.view.View
 import android.view.ViewGroup
-
-import com.github.angads25.filepicker.view.FilePickerDialog
-
-import java.io.File
-
 import android.widget.ArrayAdapter
 import android.widget.RadioGroup
 import android.widget.TextView
-
-import com.uday.android.toolkit.fragments.AndroidImagesFragment
+import androidx.appcompat.app.AlertDialog
 import com.uday.android.toolkit.R
+import com.uday.android.toolkit.fragments.AndroidImagesFragment
 import com.uday.android.toolkit.ui.DialogUtils
+import java.io.File
 
 class AndImgListListener(private val fragment: AndroidImagesFragment, private val group: RadioGroup) : DialogInterface.OnClickListener {
     override fun onClick(p1: DialogInterface, which: Int) {
@@ -59,15 +54,15 @@ class AndImgListListener(private val fragment: AndroidImagesFragment, private va
                     .setTitle("Restore " + fragment.BLOCK_NAME!!)
                     .setAdapter(object : ArrayAdapter<String>(fragment.context,
                         android.R.layout.simple_list_item_1, list!!) {
-                        override fun getView(pos: Int, view: View?, parent: ViewGroup): View {
-                            var view = view
+                        override fun getView(pos: Int, view_: View?, parent: ViewGroup): View {
+                            var view = view_
                             view = super.getView(pos, view, parent)
                             (view as TextView).setSingleLine(false)
                             return view
                         }
-                    } , DialogInterface.OnClickListener { p1, p2 ->
-                        p1.cancel()
-                        fragment.choosen = list!![p2]
+                    }) { p3, p2 ->
+                        p3.cancel()
+                        fragment.choosen = list[p2]
                         DialogUtils.showConfirmDialog(
                             fragment.context,
                             "Restore",
@@ -76,18 +71,19 @@ class AndImgListListener(private val fragment: AndroidImagesFragment, private va
                             "confirm",
                             fragment.mListener
                         )
-                    })
+                    }
                     .show()
                 fragment.mOption = AndroidImagesFragment.SELECTED_RESTORE_ITEM
             }
 
             AndroidImagesFragment.SELECTED_INSTALL -> {
-                fragment.properties?.extensions = arrayOf(".bin", ".img")
+            /*    fragment.properties?.extensions = arrayOf(".bin", ".img")
                 fragment.dialog =
                     FilePickerDialog(fragment.context, fragment.properties!!, R.style.AppTheme)
                 fragment.dialog?.setTitle("Select an img file to unpack")
                 fragment.dialog?.setDialogSelectionListener(fragment.fileListener!!)
                 fragment.dialog?.show()
+                */
             }
             AndroidImagesFragment.SELECTED_RESTORE_ITEM -> DialogUtils.showConfirmDialog(
                 fragment.context,

@@ -1,35 +1,31 @@
 package com.uday.android.toolkit.listeners
 
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.os.Handler
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
-
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.uday.android.toolkit.MainActivity
+import com.uday.android.toolkit.fragments.BatchInstallerFragment
 import com.uday.android.toolkit.ui.ApkListAdapter
 import com.uday.android.toolkit.ui.CustomToast
 import com.uday.android.toolkit.ui.DialogUtils
-
-import eu.chainfire.libsuperuser.Shell
-
-import com.uday.android.toolkit.fragments.*
 import com.uday.android.util.ApkListData
+import eu.chainfire.libsuperuser.Shell
 
 class DeleteClickListener(private val adapter: ApkListAdapter) : DialogUtils.OnClickListener {
 
     private var apkListData: ApkListData? = null
     private var position: Int = 0
-    private val context: Context
+    private val context: Context = adapter.context
     private val anim: Animation
     private val commandResultListener: Shell.OnCommandResultListener
     private var row: View? = null
 
     init {
-        this.context = adapter.context
         anim = AnimationUtils.loadAnimation(
             context, android.R.anim.slide_out_right
         )
@@ -59,8 +55,8 @@ class DeleteClickListener(private val adapter: ApkListAdapter) : DialogUtils.OnC
             }
     }
 
-    override fun onClick(sweet: AlertDialog?) {
-        sweet?.cancel()
+    override fun onClick(p1: AlertDialog?) {
+        p1?.cancel()
         val dialog = DialogUtils.showConfirmDialog(
             context,
             "Are you sure..?",

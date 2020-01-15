@@ -1,36 +1,32 @@
 package com.uday.android.toolkit.listeners
 
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
 import android.graphics.Color
 import android.util.Log
 import android.widget.Toast
-
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.uday.android.toolkit.MainActivity
 import com.uday.android.toolkit.R
 import com.uday.android.toolkit.ui.ApkListAdapter
 import com.uday.android.toolkit.ui.CustomToast
 import com.uday.android.toolkit.ui.DialogUtils
-
-import eu.chainfire.libsuperuser.Shell
-
 import com.uday.android.util.ApkListData
 import com.uday.android.util.Utils
+import eu.chainfire.libsuperuser.Shell
 
 class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.OnClickListener {
 
     private var apkListData: ApkListData? = null
     private var position: Int = 0
-    private val context: Context
+    private val context: Context = adapter.context
     private val launcher: DialogUtils.OnClickListener
     private val commandResultListener: Shell.OnCommandResultListener
     private var sweet: AlertDialog? = null
     private var pDialog: ProgressDialog? = null
 
     init {
-        this.context = adapter.context
 
         launcher = object : DialogUtils.OnClickListener {
             override fun onClick(p1: AlertDialog?) {
@@ -54,7 +50,7 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
         }
 
         commandResultListener =
-            Shell.OnCommandResultListener { coomandcode, exitcode, output ->
+            Shell.OnCommandResultListener { _, exitcode, output ->
                 (context as AppCompatActivity).runOnUiThread {
                     pDialog!!.cancel()
                     val dialog: AlertDialog
@@ -102,9 +98,9 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
             }
     }
 
-    override fun onClick(sweet: AlertDialog?) {
-        this.sweet = sweet
-        sweet?.cancel()
+    override fun onClick(p1: AlertDialog?) {
+        this.sweet = p1
+        p1?.cancel()
         pDialog = ProgressDialog(context)
         pDialog!!.setIcon(apkListData!!.ICON)
         pDialog!!.setTitle("Installing...")

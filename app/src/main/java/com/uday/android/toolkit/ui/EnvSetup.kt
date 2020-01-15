@@ -2,8 +2,6 @@
 package com.uday.android.toolkit.ui
 
 import android.Manifest
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AlertDialog
 import android.app.Dialog
 import android.app.ProgressDialog
 import android.content.Context
@@ -13,13 +11,15 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import androidx.annotation.RequiresApi
 import android.text.Html
 import android.util.Log
 import android.view.Window
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.uday.android.toolkit.MainActivity
 import com.uday.android.toolkit.R
 import com.uday.android.util.Utils
@@ -109,7 +109,7 @@ constructor(private val context:Context) {
         agreeTxt.text = Html.fromHtml(Utils.getStringFromInputStream(context.resources.openRawResource(R.raw.agreement)))
         agreeTxt.setPadding(30, 0, 15, 0)
         val agreementDialog = AlertDialog.Builder(context)
-            .setPositiveButton("agree") { p1, p2 ->
+            .setPositiveButton("agree") { _, _ ->
                 if (!pDialog.isShowing) pDialog.show()
                 object:Thread() {
                     override fun run() {
@@ -117,7 +117,7 @@ constructor(private val context:Context) {
                     }
                 }.start()
             }
-            .setNegativeButton("exit") { p1, p2 -> finishActivity() }
+            .setNegativeButton("exit") { _, _ -> finishActivity() }
             .setTitle("Terms & Conditions")
             .setView(agreementLayout)
             .show()
@@ -158,16 +158,15 @@ constructor(private val context:Context) {
         obtainRootShell()
     }
 
-    private fun error(title:String, message:String, btn:String?, listener:DialogInterface.OnClickListener?) {
-        var btn = btn
+    private fun error(title:String, message:String, btn_:String?, listener:DialogInterface.OnClickListener?) {
+        var btn = btn_
         pDialog.cancel()
-        val exit = DialogInterface.OnClickListener { p1, p2 ->
+        val exit = DialogInterface.OnClickListener { _, _ ->
             MainActivity.rootSession = null
             finishActivity()
         }
-        val errorBuilder: AlertDialog.Builder
         if (btn == null) btn = "exit"
-        errorBuilder = AlertDialog.Builder(context)
+        val errorBuilder: AlertDialog.Builder = AlertDialog.Builder(context)
             .setTitle(title)
             .setMessage(message)
         if (listener == null) errorBuilder.setPositiveButton(btn, exit)
@@ -180,7 +179,7 @@ constructor(private val context:Context) {
     }
 
     private fun saveBlockdevs() {
-        val listener = Shell.OnCommandResultListener { commandCode, exitCode, output ->
+        val listener = Shell.OnCommandResultListener { _, exitCode, output ->
                 if (exitCode < 0) Log.e(MainActivity.TAG, "Root access failed" + Utils.getString(output))
                 else {
                     Log.i(MainActivity.TAG, Utils.getString(output))
@@ -220,7 +219,7 @@ constructor(private val context:Context) {
     private fun obtainRootShell() {
         if (MainActivity.rootSession == null) {
             runOnMainThread(Runnable { pDialog.setMessage("Obtaining root access...") })
-            MainActivity.rootSession = Shell.Builder().useSU().setWantSTDERR(true).setWatchdogTimeout(0).setMinimalLogging(false).open { commandCode, exitCode, output ->
+            MainActivity.rootSession = Shell.Builder().useSU().setWantSTDERR(true).setWatchdogTimeout(0).setMinimalLogging(false).open { _, exitCode, output ->
                 if (exitCode != 0) {
                     Log.e(MainActivity.TAG, "error obtaining root shell $exitCode")
                     MainActivity.rootSession = null
@@ -252,44 +251,41 @@ constructor(private val context:Context) {
 
     fun checkForBusyBox() {
         hasBusyBox = false
-        if (Utils.findInPath("busybox")) {
-            hasBusyBox = true
-            MainActivity.TOOL = "busybox"
+        when {
+            Utils.findInPath("busybox") -> {
+                hasBusyBox = true
+                MainActivity.TOOL = "busybox"
+            }
+            Utils.findInPath("toybox") -> {
+                hasBusyBox = true
+                MainActivity.TOOL = "toybox"
+                CustomToast.showNotifyToast(context, "busybox not found, we use toybox,\nplease consider installing busybox in case of any incoveniences.", Toast.LENGTH_SHORT)
+            }
+            Utils.findInPath("toolbox") -> {
+                hasBusyBox = true
+                MainActivity.TOOL = "toolbox"
+                CustomToast.showNotifyToast(context, "busybox not found, we use toolbox,\nplease consider installing busybox in case of any incoveniences.", Toast.LENGTH_SHORT)
+            }
         }
-        else if (Utils.findInPath("toybox")) {
-            hasBusyBox = true
-            MainActivity.TOOL = "toybox"
-            CustomToast.showNotifyToast(context, "busybox not found, we use toybox,\nplease consider installing busybox in case of any incoveniences.", Toast.LENGTH_SHORT)
-        }
-        else if (Utils.findInPath("toolbox")) {
-            hasBusyBox = true
-            MainActivity.TOOL = "toolbox"
-            CustomToast.showNotifyToast(context, "busybox not found, we use toolbox,\nplease consider installing busybox in case of any incoveniences.", Toast.LENGTH_SHORT)
-        }
-        runOnMainThread(object:Runnable {
-            override fun run() {
-                    if (!hasBusyBox) {
-                    error("Oops...", "busybox not found", "Install", object:DialogInterface.OnClickListener {
-                        override fun onClick(p1:DialogInterface, p2:Int) {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW)
-                                intent.data = Uri.parse("market://details?id=ru.meefik.busybox")
-                                context.startActivity(intent)
-                                finishActivity()
-                            }
-                            catch (ex:Exception) {
-                                Log.e(MainActivity.TAG, ex.toString())
-                                CustomToast.showFailureToast(context, "No market is found\nplease manually install busybox to continue", Toast.LENGTH_SHORT)
-                            }
+        runOnMainThread(Runnable {
+            if (!hasBusyBox) {
+                error("Oops...", "busybox not found", "Install",
+                    DialogInterface.OnClickListener { _, _ ->
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.data = Uri.parse("market://details?id=ru.meefik.busybox")
+                            context.startActivity(intent)
+                            finishActivity()
+                        } catch (ex:Exception) {
+                            Log.e(MainActivity.TAG, ex.toString())
+                            CustomToast.showFailureToast(context, "No market is found\nplease manually install busybox to continue", Toast.LENGTH_SHORT)
                         }
                     })
-                }
-                else {
-                    if (!(context as MainActivity).opened) {
-                        (context as MainActivity).opened = true
-                        if (!isFirstRun) NormalStartup()
-                        else saveBlockdevs()
-                    }
+            } else {
+                if (!(context as MainActivity).opened) {
+                    context.opened = true
+                    if (!isFirstRun) NormalStartup()
+                    else saveBlockdevs()
                 }
             }
         })
@@ -297,15 +293,13 @@ constructor(private val context:Context) {
 
 
     fun NormalStartup() {
-        runOnMainThread(object:Runnable {
-            override fun run() {
-                if (Build.VERSION.SDK_INT > 22 && (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
-                    pDialog.setMessage("Obtaining storage permissions")
-                    requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS), 69243)
-                } else {
-                    context.getSharedPreferences("general", 0).edit().putBoolean("isFirstRun", false).apply()
-                    onStartup()
-                }
+        runOnMainThread(Runnable {
+            if (Build.VERSION.SDK_INT > 22 && (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+                pDialog.setMessage("Obtaining storage permissions")
+                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS), 69243)
+            } else {
+                context.getSharedPreferences("general", 0).edit().putBoolean("isFirstRun", false).apply()
+                onStartup()
             }
         })
     }
@@ -318,7 +312,7 @@ constructor(private val context:Context) {
     fun onRequestPermissionsResult(requestCode:Int, permissions:Array<String>, grantResults:IntArray) {
         pDialog.dismiss()
         when (requestCode) {
-            69243 -> if ((grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            69243 -> if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 context.getSharedPreferences("general", 0).edit().putBoolean("isFirstRun", false).apply()
                 onStartup()
             } else {

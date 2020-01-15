@@ -24,7 +24,6 @@ import android.graphics.Paint.Cap.ROUND
 import android.graphics.Paint.Style.STROKE
 import android.graphics.PixelFormat.TRANSLUCENT
 import android.graphics.drawable.Drawable
-import java.lang.Math.sqrt
 
 /** A drawable that rotates between a drawer icon and a back arrow based on parameter.  */
 class DrawerArrowDrawable @JvmOverloads constructor(
@@ -57,14 +56,12 @@ class DrawerArrowDrawable @JvmOverloads constructor(
      */
     private class JoinedPath(pathFirst: Path, pathSecond: Path) {
 
-        private val measureFirst: PathMeasure
-        private val measureSecond: PathMeasure
+        private val measureFirst: PathMeasure = PathMeasure(pathFirst, false)
+        private val measureSecond: PathMeasure = PathMeasure(pathSecond, false)
         private val lengthFirst: Float
         private val lengthSecond: Float
 
         init {
-            measureFirst = PathMeasure(pathFirst, false)
-            measureSecond = PathMeasure(pathSecond, false)
             lengthFirst = measureFirst.length
             lengthSecond = measureSecond.length
         }
@@ -76,8 +73,8 @@ class DrawerArrowDrawable @JvmOverloads constructor(
          * For `parameter` equal to .5f, the point will be the point where the two
          * internal paths connect.
          */
-        fun getPointOnLine(parameter: Float, coords: FloatArray) {
-            var parameter = parameter
+        fun getPointOnLine(parameter_: Float, coords: FloatArray) {
+            var parameter = parameter_
             if (parameter <= .5f) {
                 parameter *= 2f
                 measureFirst.getPosTan(lengthFirst * parameter, coords, null)
@@ -114,7 +111,7 @@ class DrawerArrowDrawable @JvmOverloads constructor(
             vX = coordsB[0] - coordsA[0]
             vY = coordsB[1] - coordsA[1]
 
-            magnitude = sqrt((vX * vX + vY * vY).toDouble()).toFloat()
+            magnitude = kotlin.math.sqrt((vX * vX + vY * vY).toDouble()).toFloat()
             paramA = (magnitude - halfStrokeWidthPixel) / magnitude
             paramB = halfStrokeWidthPixel / magnitude
 
@@ -139,16 +136,14 @@ class DrawerArrowDrawable @JvmOverloads constructor(
         val dimen = (DIMEN_DP * density).toInt()
         bounds = Rect(0, 0, dimen, dimen)
 
-        var first: Path
-        var second: Path
         var joinedA: JoinedPath
         var joinedB: JoinedPath
 
         // Top
-        first = Path()
+        var first = Path()
         first.moveTo(5.042f, 20f)
         first.rCubicTo(8.125f, -16.317f, 39.753f, -27.851f, 55.49f, -2.765f)
-        second = Path()
+        var second = Path()
         second.moveTo(60.531f, 17.235f)
         second.rCubicTo(11.301f, 18.015f, -3.699f, 46.083f, -23.725f, 43.456f)
         scalePath(first, density)
@@ -275,16 +270,16 @@ class DrawerArrowDrawable @JvmOverloads constructor(
     companion object {
 
         /** Paths were generated at a 3px/dp density; this is the scale factor for different densities.  */
-        private val PATH_GEN_DENSITY = 3f
+        private const val PATH_GEN_DENSITY = 3f
 
         /** Paths were generated with at this size for [DrawerArrowDrawable.PATH_GEN_DENSITY].  */
-        private val DIMEN_DP = 23.5f
+        private const val DIMEN_DP = 23.5f
 
         /**
          * Paths were generated targeting this stroke width to form the arrowhead properly, modification
          * may cause the arrow to not for nicely.
          */
-        private val STROKE_WIDTH_DP = 2f
+        private const val STROKE_WIDTH_DP = 2f
 
         /**
          * Scales the paths to the given screen density. If the density matches the

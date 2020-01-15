@@ -1,23 +1,22 @@
 package com.uday.android.toolkit.ui
 
-import androidx.appcompat.app.AlertDialog
 import android.view.View
 import android.view.WindowManager
 import android.widget.ArrayAdapter
-import com.uday.android.toolkit.fragments.BatchInstallerFragment
+import androidx.appcompat.app.AlertDialog
 import com.uday.android.toolkit.MainActivity
 import com.uday.android.toolkit.R
+import com.uday.android.toolkit.fragments.BatchInstallerFragment
 import com.uday.android.util.ApkListData
-import java.util.ArrayList
+import java.util.*
 
 class SelectedDialog(fragment: BatchInstallerFragment, adapter: ArrayAdapter<*>) :
     View.OnClickListener {
-    private val selectedData: ArrayList<ApkListData>
+    private val selectedData: ArrayList<ApkListData> = ArrayList()
     private val selectedAdapter: ApkListAdapter
     private val dialog: AlertDialog
 
     init {
-        selectedData = ArrayList()
         selectedAdapter = object : ApkListAdapter(fragment, R.layout.apk_list_item, selectedData) {
             override fun onCheckedChanged() {
                 adapter.notifyDataSetChanged()

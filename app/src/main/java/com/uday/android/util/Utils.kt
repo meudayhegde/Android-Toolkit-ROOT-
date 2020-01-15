@@ -3,7 +3,6 @@ package com.uday.android.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.net.Uri
@@ -12,21 +11,10 @@ import android.os.Environment
 import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
-
 import com.uday.android.toolkit.MainActivity
-
 import org.tukaani.xz.XZInputStream
-
-import java.io.BufferedInputStream
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.OutputStream
-import java.util.Objects
+import java.io.*
+import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -108,7 +96,7 @@ object Utils {
         } else {
             Toast.makeText(
                 context,
-                "install a root explorer that supports recieving intents for opening folders\neg:Es File Explorer",
+                "install a root explorer that supports receiving intents for opening folders\neg:Es File Explorer",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -134,16 +122,16 @@ object Utils {
     fun checkAppInstalledByName(pm: PackageManager, packageName: String?): Boolean {
         if (packageName == null || "" == packageName)
             return false
-        try {
+        return try {
             pm.getApplicationInfo(
                 packageName, PackageManager.GET_UNINSTALLED_PACKAGES
             )
             Log.d(MainActivity.TAG, "checkAppInstalledByName: $packageName : found")
-            return true
+            true
         } catch (e: Exception) {
             Log.d(MainActivity.TAG, "checkAppInstalledByName:$packageName not found")
 
-            return false
+            false
         }
 
     }
@@ -151,17 +139,17 @@ object Utils {
     fun checkAppInstalledByName(pm: PackageManager, packageName: String?, VERSION: Int): Boolean {
         if (packageName == null || "" == packageName)
             return false
-        try {
+        return try {
             pm.getApplicationInfo(
                 packageName, PackageManager.GET_UNINSTALLED_PACKAGES
             )
             Log.d(MainActivity.TAG, "checkAppInstalledByName: $packageName : found")
             val pInfo = pm.getPackageInfo(packageName, 0)
-            return pInfo.versionCode == VERSION
+            pInfo.versionCode == VERSION
         } catch (e: Exception) {
             Log.d(MainActivity.TAG, "checkAppInstalledByName:$packageName not found")
 
-            return false
+            false
         }
 
     }
@@ -277,8 +265,7 @@ object Utils {
     @SuppressLint("SetWorldReadable")
     fun unpackZip(zipFile: File): Boolean {
         File(zipFile.parent + "/" + zipFile.name.split(".zip".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0])
-        val zipPath: File
-        zipPath = File(zipFile.parent + "/" + "common")
+        val zipPath: File = File(zipFile.parent + "/" + "common")
         try {
             createDir(zipPath)
         } catch (ex: IOException) {

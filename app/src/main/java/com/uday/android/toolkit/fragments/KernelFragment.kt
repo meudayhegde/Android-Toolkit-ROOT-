@@ -1,10 +1,7 @@
 package com.uday.android.toolkit.fragments
 
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AlertDialog
 import android.app.Dialog
-import androidx.fragment.app.Fragment
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
@@ -16,10 +13,8 @@ import android.text.Html
 import android.view.*
 import android.view.View.OnClickListener
 import android.widget.*
-import com.github.angads25.filepicker.controller.DialogSelectionListener
-import com.github.angads25.filepicker.model.DialogConfigs
-import com.github.angads25.filepicker.model.DialogProperties
-import com.github.angads25.filepicker.view.FilePickerDialog
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
 import com.uday.android.toolkit.MainActivity
@@ -48,16 +43,13 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
     var Inst: FloatingActionButton?=null
     var DIR: File?=null
     private var list: ListView? = null
-    private var dialog: FilePickerDialog? = null
-    private val properties: DialogProperties
     private var rootView: RelativeLayout? = null
     private var selector: Dialog? = null
     private var menu: FloatingActionMenu? = null
-    private val rootSession: Shell.Interactive?
+    private val rootSession: Shell.Interactive? = MainActivity.rootSession
     private val backupsListListener: Shell.OnCommandLineListener
     private val confirmClickListener: DialogInterface.OnClickListener
     private val listItemOnClick: AdapterView.OnItemClickListener
-    private val onFileSelected: DialogSelectionListener
     private val backTerm: KernelAction
     var kernVersion: String?=null
 
@@ -65,19 +57,19 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
         try {
             Inst?.isEnabled = context.getSharedPreferences("general", 0).getBoolean("allow_kern_installation", false)
         } catch (ex: NullPointerException) { }
-        if (context.getSharedPreferences("general", 0).getInt("storage", 0) == 1) {
+        DIR = if (context.getSharedPreferences("general", 0).getInt("storage", 0) == 1) {
             if (Utils.externalSdCard != null) {
-                DIR = File(Utils.externalSdCard!!.absolutePath + "/ToolKit")
+                File(Utils.externalSdCard!!.absolutePath + "/ToolKit")
             } else {
                 Toast.makeText(
                     context,
                     "External sdcard not found,\nuses internal storage for backups",
                     Toast.LENGTH_SHORT
                 ).show()
-                DIR = File(Environment.getExternalStorageDirectory().absolutePath + "/ToolKit")
+                File(Environment.getExternalStorageDirectory().absolutePath + "/ToolKit")
             }
         } else {
-            DIR = File(Environment.getExternalStorageDirectory().absolutePath + "/ToolKit")
+            File(Environment.getExternalStorageDirectory().absolutePath + "/ToolKit")
         }
         (rootView!!.findViewById(R.id.kern_backup_dir) as TextView).text = "$DIR/backups/Kernel"
         updateBackupsList()
@@ -91,14 +83,14 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
     }
 
     init {
-        rootSession = MainActivity.rootSession
-        properties = DialogProperties()
+        /*    properties = DialogProperties()
         properties.selection_mode = DialogConfigs.SINGLE_MODE
         properties.selection_type = DialogConfigs.FILE_SELECT
         properties.root = Environment.getExternalStorageDirectory()
         properties.error_dir = File(DialogConfigs.DEFAULT_DIR)
         properties.offset = File(DialogConfigs.DEFAULT_DIR)
         properties.hasStorageButton = true
+     */
         initialise(context)
 
         commandLineListener = KernCommandLineListener(this)
@@ -164,7 +156,7 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
         }
 
 
-        onFileSelected = object : DialogSelectionListener {
+        /*onFileSelected = object : DialogSelectionListener {
             override fun onSelectedFilePaths(files: Array<String>) {
                 file = File(files[0])
                 var warn =
@@ -193,7 +185,7 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
                     .setTitle("Kernel Installation:-")
                     .show()
             }
-        }
+        }*/
 
         backupsListListener = object : Shell.OnCommandLineListener {
             override fun onCommandResult(commandcode: Int, exitcode: Int) {
@@ -213,19 +205,19 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (context.getSharedPreferences("general", 0).getInt("storage", 0) == 1) {
+        DIR = if (context.getSharedPreferences("general", 0).getInt("storage", 0) == 1) {
             if (Utils.externalSdCard != null) {
-                DIR = File(Utils.externalSdCard!!.absolutePath + "/ToolKit")
+                File(Utils.externalSdCard!!.absolutePath + "/ToolKit")
             } else {
                 Toast.makeText(
                     context,
                     "External sdcard not found,\nuses internal storage for backups",
                     Toast.LENGTH_SHORT
                 ).show()
-                DIR = File(Environment.getExternalStorageDirectory().absolutePath + "/ToolKit")
+                File(Environment.getExternalStorageDirectory().absolutePath + "/ToolKit")
             }
         } else {
-            DIR = File(Environment.getExternalStorageDirectory().absolutePath + "/ToolKit")
+            File(Environment.getExternalStorageDirectory().absolutePath + "/ToolKit")
         }
 
         if (rootView == null) {
@@ -268,27 +260,27 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
 
         Inst = rootView!!.findViewById(R.id.kern_install)
         Inst?.setOnClickListener {
-            if (dialog == null) {
+        /*    if (dialog == null) {
                 dialog = FilePickerDialog(context, properties, R.style.AppTheme)
                 dialog!!.setTitle("Select kernel")
                 dialog!!.setDialogSelectionListener(onFileSelected)
             }
-            dialog!!.show()
+            dialog!!.show()*/
         }
 
         val bkup = rootView!!.findViewById<FloatingActionButton>(R.id.kern_backup)
-        bkup.setOnClickListener(OnClickListener { kernBackup() })
+        bkup.setOnClickListener { kernBackup() }
 
         val rstr = rootView!!.findViewById<FloatingActionButton>(R.id.kern_restore)
-        rstr.setOnClickListener(OnClickListener {
-            list!!.setAdapter(object : ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, fileList) {
-                override fun getView(pos: Int, view: View?, parent: ViewGroup): View {
-                    var view = view
-                    view = super.getView(pos, view, parent)
-                    (view as TextView).setSingleLine(false)
-                    return view
+        rstr.setOnClickListener {
+            list!!.adapter = object : ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, fileList?: arrayOf<String>()) {
+                    override fun getView(pos: Int, view_: View?, parent: ViewGroup): View {
+                        var view = view_
+                        view = super.getView(pos, view, parent)
+                        (view as TextView).setSingleLine(false)
+                        return view
+                    }
                 }
-            })
             selector!!.show()
             list!!.divider = ColorDrawable(Color.parseColor("#00AAFF"))
             list!!.dividerHeight = 3
@@ -298,7 +290,7 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
             )
 
             list!!.onItemClickListener = listItemOnClick
-        })
+        }
 
     }
 
@@ -362,7 +354,7 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
         selector!!.setContentView(R.layout.dialog_list_items)
         (selector!!.findViewById(R.id.dg_list_title) as TextView).text = "Select desired backup to restore"
         val icon = selector!!.findViewById<ImageView>(R.id.dg_icon)
-        icon.setVisibility(View.VISIBLE)
+        icon.visibility = View.VISIBLE
         icon.setImageResource(R.drawable.restore_coloured)
         list = selector!!.findViewById(R.id.dg_list_view)
     }
@@ -372,9 +364,9 @@ class KernelFragment(private val context:Context) : androidx.fragment.app.Fragme
     }
 
     companion object {
-        val SELECTED_BACKUP = 0
-        val SELECTED_RESTORE = 1
-        val SELECTED_INSTALL = 2
+        const val SELECTED_BACKUP = 0
+        const val SELECTED_RESTORE = 1
+        const val SELECTED_INSTALL = 2
     }
 
 

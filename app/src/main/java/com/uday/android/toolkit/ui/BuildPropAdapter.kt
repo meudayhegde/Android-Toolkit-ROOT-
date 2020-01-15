@@ -1,17 +1,21 @@
 package com.uday.android.toolkit.ui
 
 import android.annotation.SuppressLint
-import android.content.*
-import android.view.*
-import android.widget.*
-import com.uday.android.toolkit.*
-import com.uday.android.toolkit.fragments.*
-import com.uday.android.util.*
+import android.content.Context
+import android.text.Html
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.TextView
+import com.uday.android.toolkit.R
+import com.uday.android.toolkit.fragments.BuildPropFragment
+import com.uday.android.util.BuildProperty
 import java.util.*
-import android.text.*
 
 @SuppressLint("NewApi")
 class BuildPropAdapter(private val fragment: BuildPropFragment) : ArrayAdapter<BuildProperty>(fragment.context, R.layout.build_prop_list_item, fragment.buildProperties) {
+    @SuppressLint("ViewHolder", "DefaultLocale")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val row = inflater.inflate(R.layout.build_prop_list_item, parent, false)
@@ -25,7 +29,7 @@ class BuildPropAdapter(private val fragment: BuildPropFragment) : ArrayAdapter<B
             val start = value.toLowerCase().indexOf(txtSearch.toLowerCase())
             val length = txtSearch.length
             for (i in 0 until length) {
-                regx = regx + value[start + i]
+                regx += value[start + i]
             }
             value = value.replace(regx, "<font color=\"#00AEFF\">$regx</font>")
         }
@@ -35,7 +39,7 @@ class BuildPropAdapter(private val fragment: BuildPropFragment) : ArrayAdapter<B
             val start = property.toLowerCase().indexOf(txtSearch.toLowerCase())
             val length = txtSearch.length
             for (i in 0 until length) {
-                regx = regx + property[start + i]
+                regx += property[start + i]
             }
             property = property.replace(regx, "<font color=\"#00AEFF\">$regx</font>")
         }
@@ -67,11 +71,11 @@ class BuildPropAdapter(private val fragment: BuildPropFragment) : ArrayAdapter<B
         }
     }
 
-    fun filter(charText: String) {
-        var charText = charText
+    fun filter(charText_: String) {
+        var charText = charText_
         charText = charText.toLowerCase(Locale.getDefault())
         fragment.buildProperties.clear()
-        if (charText.length == 0) {
+        if (charText.isEmpty()) {
             fragment.buildProperties.addAll(BuildPropFragment.buildPropertiesOrig!!)
             for (property in fragment.buildProperties) {
                 property.textSearch = null

@@ -1,19 +1,24 @@
 package com.uday.android.toolkit.ui
 
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AlertDialog
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.text.Spanned
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.uday.android.toolkit.MainActivity
 import com.uday.android.toolkit.R
 
 class DialogUtils(private val context: Context) {
     var dialog: AlertDialog? = null
         private set
-    private val dialogBuilder: AlertDialog.Builder
+    private val dialogBuilder: AlertDialog.Builder = AlertDialog.Builder(context)
+        .setPositiveButton("ok", null)
+        .setTitle(" ").setMessage(" ")
+        .setNegativeButton("cancel", null)
+        .setNeutralButton("another", null)
     var positiveButton: Button? = null
         private set
     var negativeButton: Button? = null
@@ -28,14 +33,6 @@ class DialogUtils(private val context: Context) {
             }
             return mNeutral
         }
-
-    init {
-        dialogBuilder = AlertDialog.Builder(context)
-            .setPositiveButton("ok", null)
-            .setTitle(" ").setMessage(" ")
-            .setNegativeButton("cancel", null)
-            .setNeutralButton("another", null)
-    }
 
     fun create(): DialogUtils {
         dialog = dialogBuilder.create()
@@ -113,15 +110,8 @@ class DialogUtils(private val context: Context) {
 
     companion object {
 
-        fun showEditTextDialog(
-            context: Context,
-            title: String?,
-            message: String?,
-            editorContent: String?,
-            description: String?,
-            confirmText: String?,
-            confirmListener: DialogUtils.OnClickListener
-        ): EditText {
+        @SuppressLint("InflateParams")
+        fun showEditTextDialog(context: Context, title: String?, message: String?, editorContent: String?, description: String?, confirmText: String?, confirmListener: OnClickListener): EditText {
             val contentView = (context as AppCompatActivity).layoutInflater.inflate(
                 R.layout.edit_text,
                 null
@@ -146,8 +136,9 @@ class DialogUtils(private val context: Context) {
             return edtTxt
         }
 
+        @SuppressLint("InflateParams")
         fun showTermDialog(context: Context, title: String?, subtitle: String?, positive: String?,
-            negative: String?): Array<Any> {
+                           negative: String?): Array<Any> {
             val titleView = (context as AppCompatActivity).layoutInflater.inflate(
                 R.layout.term_dialog_header,
                 null
@@ -157,11 +148,9 @@ class DialogUtils(private val context: Context) {
 
             val contentView =
                 context.layoutInflater.inflate(R.layout.term_dialog_content, null) as LinearLayout
-            contentView.findViewById<ScrollView>(R.id.term_scroller).setLayoutParams(
-                LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    (MainActivity.SCREEN_HEIGHT * 0.5).toInt()
-                )
+            contentView.findViewById<ScrollView>(R.id.term_scroller).layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                (MainActivity.SCREEN_HEIGHT * 0.5).toInt()
             )
             val dialog = AlertDialog.Builder(context)
                 .setCustomTitle(titleView)

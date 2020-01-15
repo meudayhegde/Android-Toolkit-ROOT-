@@ -1,33 +1,26 @@
 package com.uday.android.toolkit.fragments
 
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.drawable.*
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.text.Html
+import android.text.TextUtils
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.AbsListView
-
-import com.github.angads25.filepicker.controller.DialogSelectionListener
-import com.github.angads25.filepicker.model.DialogConfigs
-import com.github.angads25.filepicker.model.DialogProperties
-import com.github.angads25.filepicker.view.FilePickerDialog
+import android.view.*
+import android.view.View.OnClickListener
+import android.widget.*
+import android.widget.AbsListView.OnScrollListener
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
 import com.uday.android.toolkit.MainActivity
@@ -35,31 +28,11 @@ import com.uday.android.toolkit.R
 import com.uday.android.toolkit.ui.ApkListAdapter
 import com.uday.android.toolkit.ui.CustomToast
 import com.uday.android.toolkit.ui.SelectedDialog
-
-import eu.chainfire.libsuperuser.Shell
-
-import java.io.File
-import java.util.ArrayList
-import java.util.Collections
-import java.util.Comparator
-
-import android.view.View.OnClickListener
 import com.uday.android.util.ApkListData
 import com.uday.android.util.Utils
-
-import android.text.*
-import android.widget.AbsListView.OnScrollListener
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.CheckBox
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
-import androidx.appcompat.widget.SearchView
-import android.widget.Spinner
-import android.widget.TextView
-import android.widget.Toast
+import eu.chainfire.libsuperuser.Shell
+import java.io.File
+import java.util.*
 
 @SuppressLint("NewApi", "ValidFragment")
 class BatchInstallerFragment(private val context:Context): androidx.fragment.app.Fragment() {
@@ -72,9 +45,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
     private var dateComparator:Comparator<ApkListData>? = null
     private var fileNameComparator:Comparator<ApkListData>? = null
     private var pathComparator:Comparator<ApkListData>? = null
-    private val properties:DialogProperties
     private val icAppDefault:Drawable
-    private var filePicker:FilePickerDialog? = null
     private var instFab:FloatingActionButton? = null
     private var addCustomApk:FloatingActionButton? = null
     private var delFab:FloatingActionButton? = null
@@ -110,7 +81,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
     init{
 
         rootSession = MainActivity.rootSession
-
+/*
         properties = DialogProperties()
         properties.selection_mode = DialogConfigs.MULTI_MODE
         properties.selection_type = DialogConfigs.DIR_SELECT
@@ -118,9 +89,9 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
         properties.error_dir = File(DialogConfigs.DEFAULT_DIR)
         properties.offset = File(DialogConfigs.DEFAULT_DIR)
         properties.hasStorageButton = true
-
-        pm = context.getPackageManager()
-        icAppDefault = context.getResources().getDrawable(R.drawable.ic_app_default)
+*/
+        pm = context.packageManager
+        icAppDefault = context.resources.getDrawable(R.drawable.ic_app_default)
 
         apkFiles = ArrayList()
         refresh()
@@ -194,7 +165,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
             allToggle.buttonTintList = ColorStateList(states, colors)
         allToggle.setPadding(10, 0, 10, 0)
 
-        allToggle.setOnCheckedChangeListener { p1, p2 ->
+        allToggle.setOnCheckedChangeListener { _, p2 ->
             for (apkFile in apkFiles) {
                 if (apkFile.isSelectable)
                     apkFile.isSelected = p2
@@ -290,11 +261,11 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
     }
 
     private fun setComparators() {
-        nameComparator = Comparator<ApkListData> { p1, p2 -> p1.NAME.compareTo(p2.NAME, ignoreCase = true) }
-        sizeComparator = Comparator<ApkListData> { p1, p2 -> (p1.SIZE_LONG - p2.SIZE_LONG).toInt() }
-        dateComparator = Comparator<ApkListData> { p1, p2 -> (p1.apkFile.lastModified() - p2.apkFile.lastModified()).toInt() }
-        fileNameComparator = Comparator<ApkListData> { p1, p2 -> p1.apkFile.name.compareTo(p2.apkFile.name, ignoreCase = true) }
-        pathComparator = Comparator<ApkListData> { p1, p2 -> p1.PATH.compareTo(p2.PATH, ignoreCase = true) }
+        nameComparator = Comparator{ p1, p2 -> p1.NAME.compareTo(p2.NAME, ignoreCase = true) }
+        sizeComparator = Comparator { p1, p2 -> (p1.SIZE_LONG - p2.SIZE_LONG).toInt() }
+        dateComparator = Comparator{ p1, p2 -> (p1.apkFile.lastModified() - p2.apkFile.lastModified()).toInt() }
+        fileNameComparator = Comparator { p1, p2 -> p1.apkFile.name.compareTo(p2.apkFile.name, ignoreCase = true) }
+        pathComparator = Comparator { p1, p2 -> p1.PATH.compareTo(p2.PATH, ignoreCase = true) }
     }
 
     private fun onViewFirstCreated() {
@@ -351,7 +322,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
         addCustomApk!!.setOnClickListener(CustomApk())
 
         chkdInfoSelected!!.setOnClickListener(SelectedDialog(this, adapter!!))
-        if (!apkFiles.isEmpty()) {
+        if (apkFiles.isNotEmpty()) {
             chkdInfoTotal!!.text = Html.fromHtml("Total :  <b><font color=" + '"'.toString() + "blue" + '"'.toString() + ">" + apkFiles.size + "</font></b>")
             sortLayout!!.visibility = View.VISIBLE
             chkdInfoSelected!!.visibility = View.VISIBLE
@@ -364,8 +335,8 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
             val samp = mDir!!.listFiles()
             for (tmp in samp!!)
                 if (!tmp.isDirectory && tmp.name.endsWith(".apk"))
-                    addIntoList(ApkListData(context!!, tmp, pm, icAppDefault))
-            for (tmp in samp!!)
+                    addIntoList(ApkListData(context, tmp, pm, icAppDefault))
+            for (tmp in samp)
                 if (tmp.isDirectory)
                     searchForApks(tmp)
         } catch (ex:NullPointerException) {
@@ -428,9 +399,12 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
                 countOfInstalled++
                 instDialog.setIcon(apkFiles[position].ICON)
                     instBar.progress = countOfInstalled
-                    instMsg.text = getString(R.string.installing) + apkFiles.get(position).NAME + " " + apkFiles.get(position).VERSION_NAME
-                apkCount.setText((countOfInstalled).toString() + " / " + countToInstall)
-                apkPercantage.setText((countOfInstalled * 100 / countToInstall).toString() + " %")
+                    instMsg.text =
+                        """${getString(R.string.installing)}${apkFiles.get(position).NAME} ${apkFiles.get(
+                            position
+                        ).VERSION_NAME}"""
+                apkCount.text = """${(countOfInstalled)} / $countToInstall"""
+                apkPercantage.text = """${(countOfInstalled * 100 / countToInstall)} %"""
 
                 rootSession!!.addCommand("pm install -rd " + '"'.toString() + apkFiles[position].PATH + '"'.toString(), position) { comandcode, exitcode, output ->
                     val outStr = apkFiles[comandcode].NAME + "_" + apkFiles[comandcode].VERSION_NAME + " : " + Utils.getString(output)
@@ -494,39 +468,32 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
             .setTitle("Delete apk files")
             .setMessage(("This will delete all the selected apk files (" + delList.size + ") from the storage.\n"
             + "and this action can not be undone"))
-            .setNegativeButton("cancel", object:DialogInterface.OnClickListener {
-                override fun onClick(p1:DialogInterface, p2:Int) {
-                p1.cancel()
-                }
-            })
-            .setPositiveButton("delete", object:DialogInterface.OnClickListener {
-                override fun onClick(p1:DialogInterface, p2:Int) {
+            .setNegativeButton("cancel"
+            ) { p1, _ -> p1.cancel() }
+                .setPositiveButton("delete"
+                ) { _, _ ->
                     var dellist = ""
                     for (listData in delList)
-                    dellist = dellist + " " + '"'.toString() + listData.PATH + '"'.toString()
-                    rootSession!!.addCommand(MainActivity.TOOL + " rm " + dellist, 4323, object:Shell.OnCommandResultListener {
-                        override fun onCommandResult(commandcode:Int, resultcode:Int, output:List<String>) {
-                            runOnUiThread(object:Runnable {
-                                override fun run() {
-                                    for (list in delList) {
-                                        if (!list.apkFile.exists()) {
-                                            apkFiles.remove(list)
-                                            apkFilesOrig!!.remove(list)
-                                        }
-                                    }
-                                    adapter!!.notifyDataSetChanged()
+                        dellist = dellist + " " + '"'.toString() + listData.PATH + '"'.toString()
+                    rootSession!!.addCommand(MainActivity.TOOL + " rm " + dellist, 4323
+                    ) { _, _, _ ->
+                        runOnUiThread(Runnable {
+                            for (list in delList) {
+                                if (!list.apkFile.exists()) {
+                                    apkFiles.remove(list)
+                                    apkFilesOrig!!.remove(list)
                                 }
-                            })
-                        }
-                    })
+                            }
+                            adapter!!.notifyDataSetChanged()
+                        })
+                    }
                 }
-            })
-            .show()
+                .show()
 
         }
     }
 
-    private fun OnApkSearchCompleted() {
+    private fun onApkSearchCompleted() {
         swipeRefreshLayout!!.isRefreshing = true
         sortLayout!!.visibility = View.GONE
         chkdInfoTotal!!.text = Html.fromHtml("Total :  <b><font color=" + '"'.toString() + "blue" + '"'.toString() + ">" + apkFilesOrig!!.size + "</font></b>")
@@ -534,27 +501,21 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
             override fun run() {
                 while ((context as MainActivity).backgroundThreadisRunning) {
                     try {
-                        Thread.sleep(1000)
+                        sleep(1000)
                     }
                     catch (e:InterruptedException) {}
                     finally {
                         if (scrollState == OnScrollListener.SCROLL_STATE_IDLE)
-                        runOnUiThread(object:Runnable {
-                            override fun run() {
-                                adapter!!.notifyDataSetChanged()
-                            }
-                        })
+                        runOnUiThread(Runnable { adapter!!.notifyDataSetChanged() })
                     }
                 }
-                runOnUiThread(object:Runnable {
-                    override fun run() {
-                        apkFiles.clear()
-                        setApkStatus()
-                        sort(SORTING_SELECTED)
-                        swipeRefreshLayout!!.isRefreshing = false
-                        sortLayout!!.visibility = View.VISIBLE
-                        apkFiles.addAll(apkFilesOrig!!)
-                    }
+                runOnUiThread(Runnable {
+                    apkFiles.clear()
+                    setApkStatus()
+                    sort(SORTING_SELECTED)
+                    swipeRefreshLayout!!.isRefreshing = false
+                    sortLayout!!.visibility = View.VISIBLE
+                    apkFiles.addAll(apkFilesOrig!!)
                 })
             }
         }.start()
@@ -567,41 +528,36 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
         adapter!!.notifyDataSetChanged()
         instProg.cancel()
 
-        if (instFab == null && !apkFiles.isEmpty()) {
-            instFab = FloatingActionButton(context!!)
+        if (instFab == null && apkFiles.isNotEmpty()) {
+            instFab = FloatingActionButton(context)
             instFab!!.buttonSize = FloatingActionButton.SIZE_MINI
             instFab!!.setColorNormalResId(R.color.greenFabNormal)
             instFab!!.setColorPressedResId(R.color.greenFabPressed)
             instFab!!.setColorRippleResId(R.color.greenFabRipple)
             instFab!!.setImageResource(R.drawable.ic_install)
             instFab!!.labelText = "Install selected apks"
-            instFab!!.setOnClickListener(object:OnClickListener {
-                override fun onClick(p1:View) {
-                    countToInstall = 0
-                    menuFab!!.close(true)
-                    for (tmp in apkFilesOrig!!)
+            instFab!!.setOnClickListener {
+                countToInstall = 0
+                menuFab!!.close(true)
+                for (tmp in apkFilesOrig!!)
                     if (tmp.isSelected)
-                    countToInstall++
-                    if (countToInstall > 0) {
-                        countOfInstalled = 0
-                        menuFab!!.hideMenuButton(true)
-                        setHasOptionsMenu(false)
-                        install(0)
-                    }
-                    else CustomToast.showNotifyToast(context, "no apk file is selected for installation", Toast.LENGTH_SHORT)
-                }
-            })
+                        countToInstall++
+                if (countToInstall > 0) {
+                    countOfInstalled = 0
+                    menuFab!!.hideMenuButton(true)
+                    setHasOptionsMenu(false)
+                    install(0)
+                } else CustomToast.showNotifyToast(context, "no apk file is selected for installation", Toast.LENGTH_SHORT)
+            }
             menuFab!!.addMenuButton(instFab!!)
-            delFab = FloatingActionButton(context!!)
+            delFab = FloatingActionButton(context)
             delFab!!.buttonSize = FloatingActionButton.SIZE_MINI
             delFab!!.setImageResource(R.drawable.ic_del)
             delFab!!.labelText = "delete selected apk files"
-            delFab!!.setOnClickListener(object:OnClickListener {
-                override fun onClick(p1:View) {
-                    delApk()
-                    menuFab!!.close(true)
-                }
-            })
+            delFab!!.setOnClickListener {
+                delApk()
+                menuFab!!.close(true)
+            }
             menuFab!!.addMenuButton(delFab!!)
         }
     }
@@ -633,7 +589,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
                 searchForApks(Environment.getExternalStorageDirectory())
                 runOnUiThread(Runnable {
                     menuFab!!.removeMenuButton(addInternal!!)
-                    OnApkSearchCompleted()
+                    onApkSearchCompleted()
                 })
             }).start()
         }
@@ -651,7 +607,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
                         searchForApks(Utils.externalSdCard)
                         runOnUiThread(Runnable {
                             menuFab!!.removeMenuButton(addExternal!!)
-                            Handler().postAtTime({ OnApkSearchCompleted() }, 500)
+                            Handler().postAtTime({ onApkSearchCompleted() }, 500)
                         })
                     }
                 }.start()
@@ -662,7 +618,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
     private inner class CustomClickListener:OnClickListener {
         override fun onClick(p1:View) {
             menuFab!!.close(true)
-            properties.selection_type = DialogConfigs.DIR_SELECT
+         /*   properties.selection_type = DialogConfigs.DIR_SELECT
             filePicker = FilePickerDialog(context, properties, R.style.AppTheme)
             filePicker!!.setDialogSelectionListener(object:DialogSelectionListener {
                 override fun onSelectedFilePaths(files:Array<String>) {
@@ -679,13 +635,14 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
             })
             filePicker!!.show()
             filePicker!!.window!!.setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.FILL_PARENT)
+            */
         }
     }
 
     private inner class CustomApk: OnClickListener {
         override fun onClick(p1:View) {
             menuFab!!.close(true)
-            properties.extensions = arrayOf(".apk")
+        /*    properties.extensions = arrayOf(".apk")
             properties.selection_mode = DialogConfigs.MULTI_MODE
             properties.selection_type = DialogConfigs.FILE_SELECT
             val fpDiag = FilePickerDialog(context, properties, R.style.AppTheme)
@@ -703,6 +660,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
                 }
             })
             fpDiag.show()
+            */
         }
     }
 
@@ -710,10 +668,10 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
         var rootSession:Shell.Interactive? = null
         var apkFilesOrig:ArrayList<ApkListData>? = null
 
-        private val SORT_BY_NAME = 0
-        private val SORT_BY_FILE_NAME = 1
-        private val SORT_BY_SIZE = 2
-        private val SORT_BY_DATE = 3
+        private const val SORT_BY_NAME = 0
+        private const val SORT_BY_FILE_NAME = 1
+        private const val SORT_BY_SIZE = 2
+        private const val SORT_BY_DATE = 3
 
         private var SORTING_SELECTED:Int = 0
     }

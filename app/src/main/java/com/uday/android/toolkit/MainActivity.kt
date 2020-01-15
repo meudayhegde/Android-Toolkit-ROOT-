@@ -6,7 +6,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.text.Html
 import android.util.Log
 import android.util.TypedValue
 import android.view.Menu
@@ -187,7 +186,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun drawerSetup() {
         setContentView(R.layout.activity_main)
-        mDrawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        mDrawerLayout = findViewById(R.id.drawer_layout)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -257,7 +256,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.drawer_app_manager -> fragment = mAppManager
             R.id.drawer_apk_manager//BatchApp
             -> fragment = mBatch
-            R.id.drawer_build_prop//buildprop
+            R.id.drawer_build_prop //build prop
             -> fragment = mBuildProp
             R.id.drawer_about//about
             -> fragment = mAbout
@@ -292,17 +291,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private inner class BackgroundThread internal constructor() : Thread() {
         internal// TODO: Implement this method
         var isInBackground = true
-            private set
-        private val actionsToRun: ArrayList<Runnable>
-
+        private val actionsToRun: ArrayList<Runnable> = ArrayList()
         init {
-            actionsToRun = ArrayList()
             start()
         }
 
         override fun run() {
             while (isInBackground) {
-                while (!actionsToRun.isEmpty()) {
+                while (actionsToRun.isNotEmpty()) {
                     try {
                         backgroundThreadisRunning = true
                         actionsToRun[0].run()

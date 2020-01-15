@@ -1,9 +1,6 @@
 package com.uday.android.toolkit.ui
 
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
@@ -14,6 +11,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.uday.android.toolkit.MainActivity
 import com.uday.android.toolkit.R
 import com.uday.android.toolkit.fragments.BatchInstallerFragment
@@ -32,7 +31,7 @@ open class ApkListAdapter(private val fragment: BatchInstallerFragment, private 
         return apkList[position]
     }
 
-    @SuppressLint("DefaultLocale")
+    @SuppressLint("DefaultLocale", "ViewHolder", "InflateParams")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
         val row = LayoutInflater.from(context).inflate(layoutRes, parent, false)
@@ -64,7 +63,7 @@ open class ApkListAdapter(private val fragment: BatchInstallerFragment, private 
             val start = apkName.toLowerCase().indexOf(txtSearch.toLowerCase())
             var regx = ""
             for (i in 0 until length) {
-                regx = regx + apkName[start + i]
+                regx += apkName[start + i]
             }
             apkName = apkName.replace(regx, "<font color=\"#00AEFF\">$regx</font>")
         }
@@ -79,7 +78,7 @@ open class ApkListAdapter(private val fragment: BatchInstallerFragment, private 
         else
             chbx.isEnabled = false
 
-        chbx.setOnCheckedChangeListener { p1, p2 ->
+        chbx.setOnCheckedChangeListener { _, p2 ->
             apkList[position].isSelected = p2
             if (p2)
                 fragment.onChecked()
@@ -94,15 +93,12 @@ open class ApkListAdapter(private val fragment: BatchInstallerFragment, private 
         }
 
         row.setOnLongClickListener {
-            val twWidth = (context!!.resources.displayMetrics.widthPixels * 0.48).toInt()
-            @SuppressLint("ViewHolder") val layout = (context as AppCompatActivity).layoutInflater.inflate(
-                R.layout.apk_details_layout,
-                null
-            ) as TableLayout
+            val twWidth = (context.resources.displayMetrics.widthPixels * 0.48).toInt()
+            @SuppressLint("ViewHolder") val layout = (context as AppCompatActivity).layoutInflater.inflate(R.layout.apk_details_layout, null) as TableLayout
             val verName = layout.findViewById(R.id.apk_version_view) as TextView
             verName.width = twWidth
             verName.text = apkListData.VERSION_NAME
-            (layout.findViewById(R.id.apk_version_code_view) as TextView).text = apkListData.VERSION_CODE.toString() + ""
+            (layout.findViewById(R.id.apk_version_code_view) as TextView).text = apkListData.VERSION_CODE.toString()
             (layout.findViewById(R.id.apk_size_view) as TextView).text = apkListData.SIZE
             val pkgName = layout.findViewById(R.id.apk_package_view) as TextView
             pkgName.width = twWidth
@@ -115,7 +111,7 @@ open class ApkListAdapter(private val fragment: BatchInstallerFragment, private 
                 .setTitle(apkList[position].NAME)
                 .setView(layout)
                 .setPositiveButton("Install", null)
-                .setNegativeButton("Market") { p1, p2 ->
+                .setNegativeButton("Market") { _, _ ->
                     try {
                         val intent = Intent(Intent.ACTION_VIEW)
                         intent.data = Uri.parse("market://details?id=" + apkListData.PACKAGE_NAME)
@@ -156,10 +152,10 @@ open class ApkListAdapter(private val fragment: BatchInstallerFragment, private 
                     .setIcon(apkListData.ICON)
                     .setMessage("Do you want to launch " + apkListData.NAME + "..?")
                     .setNegativeButton("cancel", null)
-                    .setPositiveButton("Launch") { p1, p2 ->
+                    .setPositiveButton("Launch") { _, _ ->
                         try {
                             val launchIntent =
-                                context!!.packageManager.getLaunchIntentForPackage(apkListData.PACKAGE_NAME)
+                                context.packageManager.getLaunchIntentForPackage(apkListData.PACKAGE_NAME)
                             if (launchIntent != null) {
                                 context.startActivity(launchIntent)//null pointer check in case package name was not found
                             } else
@@ -184,7 +180,7 @@ open class ApkListAdapter(private val fragment: BatchInstallerFragment, private 
                 chkVer.setTextColor(Color.rgb(0, 255, 55))
             } else if (!apkListData.isOld) {
                 chkVer.text = "New Version"
-                chkVer.setTextColor(context!!.resources.getColor(R.color.colorPrimaryDark))
+                chkVer.setTextColor(context.resources.getColor(R.color.colorPrimaryDark))
             }
         } else {
             State.text = "Not Installed"
@@ -202,18 +198,18 @@ open class ApkListAdapter(private val fragment: BatchInstallerFragment, private 
         super.notifyDataSetChanged()
     }
 
-    fun filter(charText: String) {
-        var charText = charText
+    fun filter(charText_: String) {
+        var charText = charText_
         charText = charText.toLowerCase(Locale.getDefault())
         apkList.clear()
-        if (charText.length == 0) {
+        if (charText.isEmpty()) {
             apkList.addAll(BatchInstallerFragment.apkFilesOrig!!)
             for (data in apkList) {
                 data.txtSearch = null
             }
         } else {
             for (data in BatchInstallerFragment.apkFilesOrig!!) {
-                if ((data.NAME + data.VERSION_NAME + data.apkFile.getName()).toLowerCase(Locale.getDefault()).contains(
+                if ((data.NAME + data.VERSION_NAME + data.apkFile.name).toLowerCase(Locale.getDefault()).contains(
                         charText
                     )
                 ) {

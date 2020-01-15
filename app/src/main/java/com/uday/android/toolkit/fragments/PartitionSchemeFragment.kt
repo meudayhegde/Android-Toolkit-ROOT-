@@ -1,15 +1,13 @@
 package com.uday.android.toolkit.fragments
 
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.uday.android.toolkit.MainActivity
 import com.uday.android.toolkit.R
 import com.uday.android.toolkit.ui.PartitionListAdapter
@@ -29,7 +27,7 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
     private var SECTOR_SIZE:String? = null
     private var STORAGE_MODEL:String? = null
     private var PARTITION_TABLE:String? = null
-    private var partitionSwipeRefresh: androidx.swiperefreshlayout.widget.SwipeRefreshLayout? = null
+    private var partitionSwipeRefresh: SwipeRefreshLayout? = null
     private val partedParser:PartedParserRunnable
     private var headerView:View? = null
     private var mainBlockDevices:MutableList<String>? = null
@@ -55,7 +53,7 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
     }
 
     private fun onViewFirstCreated() {
-        partitionSwipeRefresh = rootView!!.findViewById(R.id.partition_swipe_refresh) as androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        partitionSwipeRefresh = rootView!!.findViewById(R.id.partition_swipe_refresh) as SwipeRefreshLayout
         partitionSwipeRefresh!!.setOnRefreshListener {
             partitionSwipeRefresh!!.isRefreshing = true
             refresh(1)
@@ -176,9 +174,9 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
                         if (another != "") {
                             when (i) {
                                 0 -> data.setBlock(File((DISK).toString() + "p" + Integer.parseInt(another)))
-                                1 -> data.setStart(java.lang.Long.parseLong(another.split(("B").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].toString()))
-                                2 -> data.setEnd(java.lang.Long.parseLong(another.split(("B").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].toString()))
-                                3 -> data.setSize(java.lang.Long.parseLong(another.split(("B").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0].toString()))
+                                1 -> data.setStart(java.lang.Long.parseLong(another.split(("B").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]))
+                                2 -> data.setEnd(java.lang.Long.parseLong(another.split(("B").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]))
+                                3 -> data.setSize(java.lang.Long.parseLong(another.split(("B").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]))
                                 else -> {
                                     try {
                                         if (data.getName() != null) data.setType(data.getName()!!)
@@ -205,7 +203,7 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
         }
 
         override fun run() {
-            val dataFile = File((getContext().getFilesDir()).toString() + "/partition_scheme.info")
+            val dataFile = File((getContext().filesDir).toString() + "/partition_scheme.info")
             var scheme = ""
             if (dataFile.exists() && type == 0) {
                 try {
@@ -221,7 +219,7 @@ class PartitionSchemeFragment @SuppressLint("ValidFragment")
                 }
             } else {
                 if (dataFile.exists()) dataFile.delete()
-                MainActivity.rootSession!!.addCommand((getContext().getFilesDir()).toString() + "/common/partition_scheme.sh " + MainActivity.TOOL + " 'b'", 2323) { commandcode, exitcode, output ->
+                MainActivity.rootSession!!.addCommand((getContext().filesDir).toString() + "/common/partition_scheme.sh " + MainActivity.TOOL + " 'b'", 2323) { commandcode, exitcode, output ->
                     writeToFile(Utils.getString(output), "partition_scheme.info", context)
                     onLoadingCompleted(Utils.getString(output))
                 }

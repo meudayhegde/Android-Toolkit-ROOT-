@@ -1,16 +1,20 @@
 package com.uday.android.toolkit.ui
-import android.content.*
+import android.annotation.SuppressLint
+import android.content.Context
+import android.view.MenuItem
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import android.view.*
-import android.widget.*
-import com.uday.android.toolkit.*
+import com.uday.android.toolkit.MainActivity
+import com.uday.android.toolkit.R
 
 class RebootDialog(private val context:Context):MenuItem.OnMenuItemClickListener {
     private var rebootLayout:RadioGroup? = null
     private var command:String? = null
     private var dialog: AlertDialog? = null
 
+    @SuppressLint("InflateParams")
     override fun onMenuItemClick(p1:MenuItem):Boolean {
         if (dialog == null) {
             rebootLayout = (context as AppCompatActivity).layoutInflater.inflate(R.layout.reboot_dialog, null) as RadioGroup
@@ -19,8 +23,8 @@ class RebootDialog(private val context:Context):MenuItem.OnMenuItemClickListener
                 .setTitle("Advanced Reboot Menu")
                 .setNegativeButton("cancel", null)
                 .setPositiveButton("ok") {
-                        p1, p2 ->
-                        p1.cancel()
+                        p2, _ ->
+                        p2.cancel()
                         var notify = "Are you sure you want to "
                         when (rebootLayout!!.checkedRadioButtonId) {
                             R.id.power_off -> {
@@ -60,7 +64,7 @@ class RebootDialog(private val context:Context):MenuItem.OnMenuItemClickListener
                 }.create()
             dialog!!.window!!.attributes.windowAnimations = R.style.DialogTheme
         }
-        rebootLayout!!.findViewById<RadioButton>(R.id.soft_reboot).setEnabled(context.getSharedPreferences("general", 0).getBoolean("allow_soft_reboot", false))
+        rebootLayout!!.findViewById<RadioButton>(R.id.soft_reboot).isEnabled = context.getSharedPreferences("general", 0).getBoolean("allow_soft_reboot", false)
         dialog!!.show()
         return true
     }

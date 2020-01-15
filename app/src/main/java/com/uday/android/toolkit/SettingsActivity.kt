@@ -1,9 +1,13 @@
 package com.uday.android.toolkit
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
@@ -11,15 +15,13 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.github.angads25.filepicker.controller.DialogSelectionListener
-import com.github.angads25.filepicker.model.DialogConfigs
-import com.github.angads25.filepicker.model.DialogProperties
-import com.github.angads25.filepicker.view.FilePickerDialog
 import com.uday.android.toolkit.ui.CustomToast
 import com.uday.android.toolkit.ui.DialogUtils
+import com.uday.android.util.PathUtil
 import com.uday.android.util.Utils
 import java.io.File
 import java.util.*
+
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -33,11 +35,10 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var editor2: SharedPreferences.Editor
     private var edtTxt: EditText? = null
     private var dialog: AlertDialog? = null
-    private var filePickerDialog: FilePickerDialog? = null
+    private var fileSelectedListener : OnFileSelectedListener? = null
 
     @SuppressLint("CommitPrefEdits")
     override fun onCreate(savedInstanceState: Bundle?) {
-
         setContentView(R.layout.settings)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -47,23 +48,15 @@ class SettingsActivity : AppCompatActivity() {
         prefs2 = getSharedPreferences("general", 0)
         editor2 = prefs2.edit()
 
-        val properties = DialogProperties()
-        properties.selection_mode = DialogConfigs.SINGLE_MODE
-        properties.selection_type = DialogConfigs.DIR_SELECT
-        properties.root = Environment.getExternalStorageDirectory()
-        properties.error_dir = File(DialogConfigs.DEFAULT_DIR)
-        properties.offset = File(DialogConfigs.DEFAULT_DIR)
-        properties.hasStorageButton = true
-        filePickerDialog = FilePickerDialog(this, properties, R.style.AppTheme)
-        filePickerDialog!!.setTitle("Choose apps backup directory")
-        filePickerDialog!!.setDialogSelectionListener(object : DialogSelectionListener {
-            override fun onSelectedFilePaths(files: Array<String>) {
-                editor2.putString("app_backup_dir", files[0])
+
+        fileSelectedListener = object:OnFileSelectedListener{
+            override fun onFileSelected(file:File){
+                editor2.putString("app_backup_dir", file.absolutePath)
                 editor2.apply()
                 setBackupDir()
             }
-        })
-        filePickerDialog?.window?.attributes?.windowAnimations = R.style.DialogAnimFade
+            override fun onMultipleFilesSelected(files:ArrayList<File>){}
+        }
 
         //reboot dialog
 
@@ -72,7 +65,7 @@ class SettingsActivity : AppCompatActivity() {
         rebootConfirm.isChecked = prefs2.getBoolean("show_reboot_confirm_dialog", true)
         softReboot.isChecked = prefs2.getBoolean("allow_soft_reboot", false)
 
-        rebootConfirm.setOnCheckedChangeListener { p1, p2 ->
+        rebootConfirm.setOnCheckedChangeListener { _, p2 ->
             editor2.putBoolean("show_reboot_confirm_dialog", p2)
             editor2.apply()
         }
@@ -129,7 +122,23 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         setBackupDir()
-        findViewById<LinearLayout>(R.id.set_app_bkp_layout).setOnClickListener { filePickerDialog!!.show() }
+        findViewById<LinearLayout>(R.id.set_app_bkp_layout).setOnClickListener {
+            val intent = Intent(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Intent.ACTION_OPEN_DOCUMENT_TREE
+            } else {
+                Intent.ACTION_OPEN_DOCUMENT
+            })
+
+            try {
+                startActivityForResult(
+                    Intent.createChooser(intent, "Choose apps backup directory"), DIR_SELECT_CODE)
+            } catch (ex: ActivityNotFoundException) {
+                Toast.makeText(
+                    this, "Please install a File Manager.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 
         prefs1 = getSharedPreferences("block_devs", 0)
 
@@ -168,6 +177,24 @@ class SettingsActivity : AppCompatActivity() {
 
 
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onActivityResult(requestCode:Int, resultCode:Int, data:Intent?) {
+        when (requestCode) {
+            DIR_SELECT_CODE ->
+                if (resultCode == RESULT_OK) {
+                    // Get the Uri of the selected file
+                    val uri = data?.data
+                    Log.d("CONFIG_SELECTOR", "File Uri: " + uri.toString())
+                    try {
+                        val selected = File(PathUtil.getPath(this,uri!!))
+                        fileSelectedListener?.onFileSelected(if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) selected else selected.parentFile)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun showDialog(title: String) {
@@ -245,7 +272,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        // TODO: Implement this method
 
         //backups
         var storages = arrayOf("Internal Storage")
@@ -296,10 +322,14 @@ class SettingsActivity : AppCompatActivity() {
 
     companion object {
 
-        private val SELECTED_BOOT = 0
-        private val SELECTED_RECOVERY = 1
-        private val SELECTED_LOGO = 2
+        private const val SELECTED_BOOT = 0
+        private const val SELECTED_RECOVERY = 1
+        private const val SELECTED_LOGO = 2
+        private const val DIR_SELECT_CODE = 7264
     }
+}
 
-
+interface OnFileSelectedListener{
+    fun onFileSelected(file:File)
+    fun onMultipleFilesSelected(files:ArrayList<File>)
 }

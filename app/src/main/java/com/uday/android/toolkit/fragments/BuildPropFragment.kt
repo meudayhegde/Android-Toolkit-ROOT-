@@ -1,25 +1,26 @@
 package com.uday.android.toolkit.fragments
 
-import android.annotation.*
-import android.content.*
-import android.os.*
-import androidx.fragment.app.Fragment
+import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Bundle
+import android.os.Handler
+import android.view.*
+import android.view.View.OnClickListener
+import android.widget.*
+import android.widget.AbsListView.OnScrollListener
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import android.view.*
-import android.widget.*
-import android.widget.AbsListView.*
-import com.github.clans.fab.*
-import com.uday.android.toolkit.*
-import com.uday.android.toolkit.ui.*
-import com.uday.android.util.*
-import eu.chainfire.libsuperuser.*
-import java.io.*
-import java.util.*
-
-import android.view.View.OnClickListener
+import com.github.clans.fab.FloatingActionButton
+import com.uday.android.toolkit.MainActivity
 import com.uday.android.toolkit.R
+import com.uday.android.toolkit.ui.BuildPropAdapter
+import com.uday.android.toolkit.ui.CustomToast
+import com.uday.android.util.BuildProperty
+import com.uday.android.util.Utils
+import eu.chainfire.libsuperuser.Shell
+import java.io.File
+import java.util.*
 
 @SuppressLint("NewApi", "ValidFragment")
 class BuildPropFragment @SuppressLint("ValidFragment")
@@ -63,42 +64,36 @@ class BuildPropFragment @SuppressLint("ValidFragment")
         PropTextView = dialogContent.findViewById(R.id.prop_text) as TextView
         ValTextView = dialogContent.findViewById(R.id.val_text) as TextView
 
-        onSaveClicked = object:OnClickListener {
-            override fun onClick(p1:View) {
-                dialog!!.cancel()
-                val command:String
-                when (mOption) {
-                    DELETE -> {
-                        command = (this@BuildPropFragment.context.getFilesDir()).toString() + "/common/build_prop_edit.sh " + MainActivity.TOOL + " del_prop " + buildProperties[selected].PROPERTY
-                        buildProperties.removeAt(selected)
-                    }
-                    SAVE -> {
-                        command = ((this@BuildPropFragment.context.getFilesDir()).toString() + "/common/build_prop_edit.sh " + MainActivity.TOOL + " set_prop '" + buildProperties[selected].PROPERTY + "' '"
-                        + editPropView.text.toString() + "' '" + editValView.text.toString() + "'")
-                        buildProperties[selected].PROPERTY = editPropView.text.toString()
-                        buildProperties[selected].VALUE = editValView.text.toString()
-                    }
-                    NEW -> command = ((this@BuildPropFragment.context.getFilesDir()).toString() + "/common/build_prop_edit.sh new_prop '" + editPropView.text.toString() + "'='" + editValView.text.toString() + "'")
-                    else -> command = "echo Invalid Option\nreturn 1"
+        onSaveClicked = OnClickListener {
+            dialog!!.cancel()
+            val command:String
+            when (mOption) {
+                DELETE -> {
+                    command = (this@BuildPropFragment.context.getFilesDir()).toString() + "/common/build_prop_edit.sh " + MainActivity.TOOL + " del_prop " + buildProperties[selected].PROPERTY
+                    buildProperties.removeAt(selected)
                 }
-                rootsession!!.addCommand(command, mOption
-                ) { commandcode, resultcode, output ->
-                    runOnUiThread(Runnable {
-                        if (resultcode == 0) {
-                            CustomToast.showSuccessToast(getContext(), "Operation successful\n" + Utils.getString(output), Toast.LENGTH_SHORT)
-                        } else
-                            CustomToast.showFailureToast(getContext(), "Operation failed ..!!\n" + Utils.getString(output), Toast.LENGTH_SHORT)
-                        refreshProp()
-                    })
+                SAVE -> {
+                    command = ((this@BuildPropFragment.context.getFilesDir()).toString() + "/common/build_prop_edit.sh " + MainActivity.TOOL + " set_prop '" + buildProperties[selected].PROPERTY + "' '"
+                            + editPropView.text.toString() + "' '" + editValView.text.toString() + "'")
+                    buildProperties[selected].PROPERTY = editPropView.text.toString()
+                    buildProperties[selected].VALUE = editValView.text.toString()
                 }
+                NEW -> command = ((this@BuildPropFragment.context.getFilesDir()).toString() + "/common/build_prop_edit.sh new_prop '" + editPropView.text.toString() + "'='" + editValView.text.toString() + "'")
+                else -> command = "echo Invalid Option\nreturn 1"
+            }
+            rootsession!!.addCommand(command, mOption
+            ) { _, resultcode, output ->
+                runOnUiThread(Runnable {
+                    if (resultcode == 0) {
+                        CustomToast.showSuccessToast(getContext(), "Operation successful\n" + Utils.getString(output), Toast.LENGTH_SHORT)
+                    } else
+                        CustomToast.showFailureToast(getContext(), "Operation failed ..!!\n" + Utils.getString(output), Toast.LENGTH_SHORT)
+                    refreshProp()
+                })
             }
         }
 
-        nameComparator = object:Comparator<BuildProperty> {
-            override fun compare(p1:BuildProperty, p2:BuildProperty):Int {
-                return (p1.PROPERTY + p1.VALUE).compareTo(p2.PROPERTY + p2.VALUE, ignoreCase = true)
-            }
-        }
+        nameComparator = Comparator { p1, p2 -> (p1.PROPERTY + p1.VALUE).compareTo(p2.PROPERTY + p2.VALUE, ignoreCase = true) }
     }
 
     override fun getContext():Context{
@@ -107,11 +102,7 @@ class BuildPropFragment @SuppressLint("ValidFragment")
 
     override fun onResume() {
         fab!!.hide(false)
-        Handler().postDelayed(object:Runnable {
-            override fun run() {
-                fab!!.show(true)
-            }
-        }, 400)
+        Handler().postDelayed({ fab!!.show(true) }, 400)
         super.onResume()
     }
 
@@ -137,17 +128,15 @@ class BuildPropFragment @SuppressLint("ValidFragment")
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.build_prop_fragment, container, false) as RelativeLayout
             fab = rootView!!.findViewById(R.id.add_prop) as FloatingActionButton
-            fab!!.setOnClickListener(object:OnClickListener {
-                override fun onClick(p1:View) {
-                    if (dialog == null) initDialog()
-                    else dialog!!.show()
-                    mOption = NEW
-                    setDialog(EDIT_TYPE)
-                    dialog!!.setTitle("Add new property")
-                    editPropView.setText("")
-                    editValView.setText("")
-                }
-            })
+            fab!!.setOnClickListener {
+                if (dialog == null) initDialog()
+                else dialog!!.show()
+                mOption = NEW
+                setDialog(EDIT_TYPE)
+                dialog!!.setTitle("Add new property")
+                editPropView.setText("")
+                editValView.setText("")
+            }
 
             buildListView = rootView!!.findViewById(R.id.build_list_view) as ListView
             adapter = BuildPropAdapter(this)
@@ -157,11 +146,9 @@ class BuildPropFragment @SuppressLint("ValidFragment")
                 override fun onScrollStateChanged(view:AbsListView, scrollState:Int) {
                     this@BuildPropFragment.scrollState = scrollState
                     if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
-                        Handler().postDelayed(object:Runnable {
-                            override fun run() {
-                                if (fab!!.isHidden && this@BuildPropFragment.scrollState == OnScrollListener.SCROLL_STATE_IDLE)
+                        Handler().postDelayed({
+                            if (fab!!.isHidden && this@BuildPropFragment.scrollState == OnScrollListener.SCROLL_STATE_IDLE)
                                 fab!!.show(true)
-                            }
                         }, 400)
                     }
                 }
@@ -186,16 +173,14 @@ class BuildPropFragment @SuppressLint("ValidFragment")
         n = 0
         rootsession!!.addCommand(context.filesDir.absolutePath + "/common/refresh_prop.sh " + MainActivity.TOOL, 1512, object:Shell.OnCommandLineListener {
             override fun onCommandResult(commandCode:Int, exitCode:Int) {
-                runOnUiThread(object:Runnable {
-                    override fun run() {
-                        Collections.sort(buildPropertiesOrig, nameComparator)
-                        buildProperties.clear()
-                        buildProperties.addAll(buildPropertiesOrig!!)
-                        adapter!!.notifyDataSetChanged()
-                            rootView!!.visibility = View.VISIBLE
-                        rootView!!.startAnimation((context as MainActivity).mGrowIn)
-                        setHasOptionsMenu(true)
-                    }
+                runOnUiThread(Runnable {
+                    Collections.sort(buildPropertiesOrig, nameComparator)
+                    buildProperties.clear()
+                    buildProperties.addAll(buildPropertiesOrig!!)
+                    adapter!!.notifyDataSetChanged()
+                    rootView!!.visibility = View.VISIBLE
+                    rootView!!.startAnimation((context as MainActivity).mGrowIn)
+                    setHasOptionsMenu(true)
                 })
             }
             override fun onLine(line:String) {
@@ -249,12 +234,10 @@ class BuildPropFragment @SuppressLint("ValidFragment")
 
                 positive?.text = "Save"
                 neutral?.visibility = View.GONE
-                positive?.setOnClickListener(object:OnClickListener {
-                    override fun onClick(p1:View) {
-                        ConfirmTextView.text = "Are you sure you want to save changes..?"
-                        setDialog(CONFIRM_TYPE)
-                    }
-                })
+                positive?.setOnClickListener {
+                    ConfirmTextView.text = "Are you sure you want to save changes..?"
+                    setDialog(CONFIRM_TYPE)
+                }
             }
 
             PRIMARY_TYPE -> {
@@ -268,19 +251,15 @@ class BuildPropFragment @SuppressLint("ValidFragment")
                 positive?.text = "Edit"
                 neutral?.text = "Delete"
                 neutral?.visibility = View.VISIBLE
-                positive?.setOnClickListener(object:OnClickListener {
-                    override fun onClick(p1:View) {
-                        mOption = SAVE
-                        setDialog(EDIT_TYPE)
-                    }
-                })
-                neutral?.setOnClickListener(object:OnClickListener {
-                    override fun onClick(p1:View) {
-                        mOption = DELETE
-                        ConfirmTextView.text = "Are you sure you want to delete this property..?"
-                        setDialog(CONFIRM_TYPE)
-                    }
-                })
+                positive?.setOnClickListener {
+                    mOption = SAVE
+                    setDialog(EDIT_TYPE)
+                }
+                neutral?.setOnClickListener {
+                    mOption = DELETE
+                    ConfirmTextView.text = "Are you sure you want to delete this property..?"
+                    setDialog(CONFIRM_TYPE)
+                }
             }
             CONFIRM_TYPE -> {
                 PropContent.visibility = View.GONE
@@ -298,13 +277,13 @@ class BuildPropFragment @SuppressLint("ValidFragment")
         var buildPropertiesOrig:ArrayList<BuildProperty>?=null
         private var rootsession:Shell.Interactive?=null
 
-        val EDIT_TYPE = 0
-        val PRIMARY_TYPE = 1
-        val CONFIRM_TYPE = 2
+        const val EDIT_TYPE = 0
+        const val PRIMARY_TYPE = 1
+        const val CONFIRM_TYPE = 2
 
-        val DELETE = 3
-        val SAVE = 4
-        val NEW = 5
+        const val DELETE = 3
+        const val SAVE = 4
+        const val NEW = 5
     }
 
 }

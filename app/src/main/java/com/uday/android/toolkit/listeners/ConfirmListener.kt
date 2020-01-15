@@ -1,17 +1,18 @@
 package com.uday.android.toolkit.listeners
 
-import com.uday.android.toolkit.fragments.AndroidImagesFragment
-import com.uday.android.toolkit.ui.DialogUtils
-
-import androidx.appcompat.app.AlertDialog
+import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import com.uday.android.toolkit.fragments.AndroidImagesFragment
+import com.uday.android.toolkit.ui.DialogUtils
 
 class ConfirmListener(private val fragment: AndroidImagesFragment) : DialogUtils.OnClickListener {
 
-    override fun onClick(utils: AlertDialog?) {
-        utils?.cancel()
+    @SuppressLint("DefaultLocale")
+    override fun onClick(p1: AlertDialog?) {
+        p1?.cancel()
         when (fragment.mOption) {
             AndroidImagesFragment.SELECTED_REPACK -> {
                 val obj = DialogUtils.showTermDialog(

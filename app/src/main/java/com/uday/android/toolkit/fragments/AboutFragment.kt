@@ -1,22 +1,30 @@
 package com.uday.android.toolkit.fragments
 
-import android.annotation.*
-import android.app.*
-import android.content.*
-import android.net.*
-import android.os.*
-import android.text.*
-import android.text.method.*
-import android.view.*
-import android.widget.*
-import com.uday.android.toolkit.*
-import com.uday.android.util.*
-import android.graphics.drawable.*
-import android.graphics.*
+import android.annotation.SuppressLint
+import android.app.Dialog
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.text.Html
+import android.text.method.LinkMovementMethod
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.uday.android.toolkit.MainActivity
+import com.uday.android.toolkit.R
+import com.uday.android.util.Utils
 
 @SuppressLint("NewApi")
-class AboutFragment : androidx.fragment.app.Fragment {
+class AboutFragment : Fragment {
 
     private var rootView: View? = null
     private var context: Context? = null
