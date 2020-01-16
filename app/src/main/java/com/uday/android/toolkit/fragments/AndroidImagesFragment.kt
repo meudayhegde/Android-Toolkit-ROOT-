@@ -128,7 +128,7 @@ class AndroidImagesFragment: Fragment {
         fileSelectedListener = object:OnFileSelectedListener {
             override fun onFileSelected(file:File) {
                 fileChoosen = file
-                if(!file.absolutePath.endsWith(".img") or !file.absolutePath.endsWith(".bin")){
+                if(!(file.absolutePath.endsWith(".img") or file.absolutePath.endsWith(".bin"))){
                     Toast.makeText(context,"Please select an img ir bin file",Toast.LENGTH_LONG).show()
                     return
                 }

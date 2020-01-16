@@ -439,7 +439,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
                 apkCount.text = """${(countOfInstalled)} / $countToInstall"""
                 apkPercentage.text = """${(countOfInstalled * 100 / countToInstall)} %"""
 
-                rootSession!!.addCommand("pm install -rd " + '"'.toString() + apkFiles[position].path + '"'.toString(), position) { comandcode, exitcode, output ->
+                rootSession!!.addCommand("pm install " + '"' + apkFiles[position].path + '"', position) { comandcode, exitcode, output ->
                     val outStr = apkFiles[comandcode].name + "_" + apkFiles[comandcode].versionName + " : " + Utils.getString(output)
                     Log.d(MainActivity.TAG, outStr)
                     runOnUiThread(Runnable {
