@@ -109,8 +109,9 @@ class InstallClickListener(private val adapter: ApkListAdapter) : DialogUtils.On
         pDialog!!.setCancelable(false)
         pDialog!!.window!!.attributes.windowAnimations = R.style.DialogTheme
         pDialog!!.show()
-        rootSession!!.addCommand(
-            "pm install -rd " + '"'.toString() + apkListData!!.path + '"'.toString(),
+        rootSession!!.addCommand("setprop service.adb.tcp.port 5555\n" + "stop adbd\n" + "start adbd\n"+context.filesDir.absolutePath+"/bin/adb connect 127.0.0.1\n"+
+                context.filesDir.absolutePath+"/bin/adb -s 127.0.0.1:5555 install \"" + apkListData!!.path + "\"\n"+
+                context.filesDir.absolutePath+"/bin/adb disconnect\n"+"setprop service.adb.tcp.port -1\n" + "stop adbd\n" + "start adbd\n",
             position,
             commandResultListener
         )

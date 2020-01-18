@@ -205,6 +205,8 @@ constructor(private val context:Context) {
                     "done\n" +
                     MainActivity.TOOL + " mv " + abi + " bin\n" +
                     MainActivity.TOOL + " mv common/parted bin/parted\n" +
+                    MainActivity.TOOL + " mv common/adb.bin bin/adb.bin\n" +
+                    MainActivity.TOOL + " mv common/adb bin/adb\n" +
                     MainActivity.TOOL + " chmod 755 bin/* common/*")
             MainActivity.rootSession!!.addCommand(context.filesDir.absolutePath + "/common/find_blockdev.sh " + MainActivity.TOOL, 0, listener)
         }

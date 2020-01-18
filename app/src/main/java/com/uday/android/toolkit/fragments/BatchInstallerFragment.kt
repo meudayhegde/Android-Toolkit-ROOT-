@@ -427,10 +427,6 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
     private fun install(position:Int) {
         try {
             if (apkFilesOrig!![position].isSelected) {
-                if (!instDialog.isShowing) {
-                    instBar.max = countToInstall
-                    instDialog.show()
-                }
                 countOfInstalled++
                 instDialog.setIcon(apkFiles[position].ICON)
                     instBar.progress = countOfInstalled
@@ -439,17 +435,17 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
                 apkCount.text = """${(countOfInstalled)} / $countToInstall"""
                 apkPercentage.text = """${(countOfInstalled * 100 / countToInstall)} %"""
 
-                rootSession!!.addCommand("pm install " + '"' + apkFiles[position].path + '"', position) { comandcode, exitcode, output ->
-                    val outStr = apkFiles[comandcode].name + "_" + apkFiles[comandcode].versionName + " : " + Utils.getString(output)
+                rootSession!!.addCommand(context.filesDir.absolutePath+"/bin/adb -s 127.0.0.1:5555 install " + '"' + apkFiles[position].path + '"', position) { commandCode, exitcode, output ->
+                    val outStr = apkFiles[commandCode].name + "_" + apkFiles[commandCode].versionName + " : " + Utils.getString(output)
                     Log.d(MainActivity.TAG, outStr)
                     runOnUiThread(Runnable {
                         if (exitcode == 0) {
                             CustomToast.showSuccessToast(context, outStr, Toast.LENGTH_SHORT)
-                            apkFiles[comandcode].isInstalled = true
-                            apkFiles[comandcode].titleColor = Color.rgb(0, 202, 0)
-                            apkFiles[comandcode].isInstalledVer = true
+                            apkFiles[commandCode].isInstalled = true
+                            apkFiles[commandCode].titleColor = Color.rgb(0, 202, 0)
+                            apkFiles[commandCode].isInstalledVer = true
                             for (data in apkFiles) {
-                                if (data.packageName.equals(apkFiles[comandcode].packageName, ignoreCase = true) && data.versionCode < apkFiles[comandcode].versionCode) {
+                                if (data.packageName.equals(apkFiles[commandCode].packageName, ignoreCase = true) && data.versionCode < apkFiles[commandCode].versionCode) {
 
                                     data.isInstalledVer = false
                                     data.isOld = true
@@ -457,10 +453,12 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
                             }
                         } else {
                             CustomToast.showFailureToast(context, outStr, Toast.LENGTH_SHORT)
-                            apkFiles[comandcode].isInstalled = false
-                            apkFiles[comandcode].titleColor = Color.rgb(255, 25, 0)
+                            apkFiles[commandCode].isInstalled = false
+                            apkFiles[commandCode].titleColor = Color.rgb(255, 25, 0)
                         }
-                        install(comandcode + 1)
+                        if(countOfInstalled == countToInstall)
+                            rootSession!!.addCommand(context.filesDir.absolutePath+"/bin/adb disconnect\n"+"setprop service.adb.tcp.port -1\n" + "stop adbd\n" + "start adbd\n",0) { _, _, _ ->  install(0)}
+                        install(commandCode + 1)
                     })
                 }
             }
@@ -473,6 +471,16 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
             adapter!!.notifyDataSetChanged()
         }
 
+    }
+
+    private fun startInstall(){
+        instBar.max = countToInstall
+        instDialog.show()
+        rootSession!!.addCommand("setprop service.adb.tcp.port 5555\n" + "stop adbd\n" + "start adbd\n"+context.filesDir.absolutePath+"/bin/adb connect 127.0.0.1",0) { _, _, _ ->
+            runOnUiThread(Runnable{
+                install(0)
+            })
+        }
     }
 
 
@@ -499,29 +507,25 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
         else {
             AlertDialog.Builder(context)
             .setTitle("Delete apk files")
-            .setMessage(("This will delete all the selected apk files (" + delList.size + ") from the storage.\n"
-            + "and this action can not be undone"))
-            .setNegativeButton("cancel"
-            ) { p1, _ -> p1.cancel() }
-                .setPositiveButton("delete"
-                ) { _, _ ->
-                    var dellist = ""
-                    for (listData in delList)
-                        dellist = dellist + " " + '"'.toString() + listData.path + '"'.toString()
-                    rootSession!!.addCommand(MainActivity.TOOL + " rm " + dellist, 4323
-                    ) { _, _, _ ->
-                        runOnUiThread(Runnable {
-                            for (list in delList) {
-                                if (!list.apkFile.exists()) {
-                                    apkFiles.remove(list)
-                                    apkFilesOrig!!.remove(list)
-                                }
+            .setMessage(("This will delete all the selected apk files (" + delList.size + ") from the storage.\n" + "and this action can not be undone"))
+            .setNegativeButton("cancel") { p1, _ -> p1.cancel() }
+            .setPositiveButton("delete") { _, _ ->
+                var dellist = ""
+                for (listData in delList)
+                    dellist = dellist + " " + '"'.toString() + listData.path + '"'.toString()
+                rootSession!!.addCommand(MainActivity.TOOL + " rm " + dellist, 4323) { _, _, _ ->
+                    runOnUiThread(Runnable {
+                        for (list in delList) {
+                            if (!list.apkFile.exists()) {
+                                apkFiles.remove(list)
+                                apkFilesOrig!!.remove(list)
                             }
-                            adapter!!.notifyDataSetChanged()
-                        })
-                    }
+                        }
+                        adapter!!.notifyDataSetChanged()
+                    })
                 }
-                .show()
+            }
+            .show()
 
         }
     }
@@ -547,8 +551,6 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
                 })
         }.start()
 
-
-
         setHasOptionsMenu(true)
         menuFab!!.showMenuButton(false)
         apkFiles.addAll(apkFilesOrig!!)
@@ -573,7 +575,7 @@ class BatchInstallerFragment(private val context:Context): androidx.fragment.app
                     countOfInstalled = 0
                     menuFab!!.hideMenuButton(true)
                     setHasOptionsMenu(false)
-                    install(0)
+                    startInstall()
                 } else CustomToast.showNotifyToast(context, "no apk file is selected for installation", Toast.LENGTH_SHORT)
             }
             menuFab!!.addMenuButton(instFab!!)
